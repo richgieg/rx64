@@ -2,6 +2,8 @@
 
 mkdir -p bin
 
+nasm -o bin/kernel.bin src/kernel/kernel.asm
+
 gcc \
     -c \
     -fno-stack-protector \
@@ -12,11 +14,11 @@ gcc \
     -DHAVE_USE_MS_ABI \
     -I /usr/include/efi \
     -I /usr/include/efi/x86_64 \
-    -o bin/main.o \
-    src/main.c
+    -o bin/loader.o \
+    src/loader/loader.c
 
 ld \
-    bin/main.o \
+    bin/loader.o \
     /usr/lib/crt0-efi-x86_64.o \
     -nostdlib \
     -znocombreloc \
@@ -26,7 +28,7 @@ ld \
     -L /usr/lib \
     -l:libgnuefi.a \
     -l:libefi.a \
-    -o bin/main.so
+    -o bin/loader.so
 
 objcopy \
     -j .text \
@@ -38,5 +40,5 @@ objcopy \
     -j .rela \
     -j .reloc \
     --target=efi-app-x86_64 \
-    bin/main.so \
-    bin/main.efi
+    bin/loader.so \
+    bin/loader.efi
