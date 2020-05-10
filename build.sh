@@ -2,7 +2,11 @@
 
 mkdir -p bin
 
+# Build kernel
+
 nasm -o bin/kernel.bin src/kernel/kernel.asm
+
+# Build loader
 
 gcc \
     -c \
