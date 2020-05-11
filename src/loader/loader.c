@@ -2,7 +2,7 @@
 #include <efilib.h>
 #include "loader.h"
 
-static CHAR16 *KernelFileName = L"kernel.bin";
+static CHAR16 *KernelFileName = L"kernel.elf";
 
 EFI_STATUS
 efi_main (
@@ -123,8 +123,11 @@ efi_main (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
+    // Copy kernel image to its final destination.
+    RtCopyMem((void *)0x400000, KernelBuffer, KernelBufferSize);
+
     // Transfer control to kernel.
-    VOID (*KernelEntry)() = (VOID *)KernelBuffer;
+    VOID (*KernelEntry)() = (VOID *)0x4000b0; // .text section at 0xb0
     KernelEntry();
 
     // Kernel should never return, but if it does...

@@ -4,7 +4,21 @@ mkdir -p bin
 
 # Build kernel
 
-nasm -o bin/kernel.bin src/kernel/kernel.asm
+gcc \
+    -c \
+    -fno-stack-protector \
+    -fpic \
+    -fshort-wchar \
+    -mno-red-zone \
+    -o bin/kernel.o \
+    src/kernel/kernel.c
+
+ld \
+    bin/kernel.o \
+    --entry KernelEntry \
+    -nostdlib \
+    -static \
+    -o bin/kernel.elf
 
 # Build loader
 
