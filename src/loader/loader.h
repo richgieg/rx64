@@ -1,5 +1,10 @@
 #include <efi.h>
 
+VOID *
+LoadKernelImage (
+    IN EFI_HANDLE   LoaderImageHandle
+    );
+
 VOID
 PrintMemoryMap (
     IN EFI_MEMORY_DESCRIPTOR    *MemoryMap,
@@ -10,10 +15,10 @@ PrintMemoryMap (
 
 VOID
 PrintEnvironmentVariables (
-    IN BOOLEAN  PauseAfterEntry
+    IN BOOLEAN PauseAfterEntry
     );
 
 VOID
 WaitForKeyStroke (
-    IN CHAR16   *Prompt
+    IN CHAR16 *Prompt
     );

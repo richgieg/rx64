@@ -13,22 +13,14 @@ efi_main (
     EFI_STATUS              Status;
     EFI_TIME                Time;
 
-    EFI_LOADED_IMAGE        *LoadedImage;
-    EFI_DEVICE_PATH         *DevicePath;
-
-    EFI_FILE_IO_INTERFACE   *FileSystem;
-    EFI_FILE_HANDLE         RootDirectory;
-    EFI_FILE_HANDLE         KernelFileHandle;
-
-    UINTN                   KernelBufferSize;
-    VOID                    *KernelBuffer;
-
     EFI_MEMORY_DESCRIPTOR   *MemoryMap;
     EFI_MEMORY_DESCRIPTOR   *MemoryMapEntry;
     UINTN                   NoEntries;
     UINTN                   MapKey;
     UINTN                   DescriptorSize;
     UINT32                  DescriptorVersion;
+
+    VOID                    (*KernelEntry)();
 
     // Initialize the library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
@@ -42,9 +34,63 @@ efi_main (
             Time.Month, Time.Day, Time.Year, Time.Hour, Time.Minute, Time.Second);
     }
 
+    WaitForKeyStroke(L"\nPress any key to continue...\n");
+
+    // Display current memory map.
+    MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
+    if (MemoryMap == NULL) {
+        Print(L"Failed to retrieve memory map\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+    PrintMemoryMap(MemoryMap, NoEntries, DescriptorSize, FALSE);
+    FreePool(MemoryMap);
+
+    WaitForKeyStroke(L"\nPress any key to continue...\n");
+
+    // Display environment variables.
+    PrintEnvironmentVariables(FALSE);
+
+    WaitForKeyStroke(L"\nPress any key to load kernel image...\n");
+
+    KernelEntry = LoadKernelImage(ImageHandle);
+
+    WaitForKeyStroke(L"\nPress any key to enter kernel...\n");
+
+    // Get most current memory map and exit boot services.
+    MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
+    Status = BS->ExitBootServices(ImageHandle, MapKey);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to exit boot services\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+
+    KernelEntry();
+
+    // Kernel should never return, but if it does...
+    for (;;) {
+        asm("hlt");
+    }
+}
+
+VOID *
+LoadKernelImage (
+    IN EFI_HANDLE   LoaderImageHandle
+    )
+{
+    EFI_STATUS              Status;
+    EFI_LOADED_IMAGE        *LoadedImage;
+    EFI_DEVICE_PATH         *DevicePath;
+
+    EFI_FILE_IO_INTERFACE   *FileSystem;
+    EFI_FILE_HANDLE         RootDirectory;
+    EFI_FILE_HANDLE         KernelFileHandle;
+
+    UINTN                   KernelBufferSize;
+    VOID                    *KernelBuffer;
+
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
-        ImageHandle, &LoadedImageProtocol, (VOID **)&LoadedImage);
+        LoaderImageHandle, &LoadedImageProtocol, (VOID **)&LoadedImage);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to get info about loader image\n");
         Exit(EFI_SUCCESS, 0, NULL);
@@ -96,45 +142,14 @@ efi_main (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
-
-    // Display current memory map.
-    MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
-    if (MemoryMap == NULL) {
-        Print(L"Failed to retrieve memory map\n");
-        Exit(EFI_SUCCESS, 0, NULL);
-    }
-    PrintMemoryMap(MemoryMap, NoEntries, DescriptorSize, FALSE);
-    FreePool(MemoryMap);
-
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
-
-    // Display environment variables.
-    PrintEnvironmentVariables(FALSE);
-
-    WaitForKeyStroke(L"\nPress any key to start kernel...\n");
-
-    // Get most current memory map and exit boot services.
-    MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
-    Status = BS->ExitBootServices(ImageHandle, MapKey);
-    if (EFI_ERROR(Status)) {
-        Print(L"Failed to exit boot services\n");
-        Exit(EFI_SUCCESS, 0, NULL);
-    }
-
     // Copy kernel image to its final destination.
     // TODO: Actually parse ELF file and load properly!
-    RtCopyMem((void *)0x400000, KernelBuffer, 308); // .text .rodata .eh_frame
-    RtCopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
+    CopyMem((void *)0x400000, KernelBuffer, 308); // .text .rodata .eh_frame
+    CopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
 
-    // Transfer control to kernel.
-    VOID (*KernelEntry)() = (VOID *)0x4000e8; // .text section at 0x4000e8
-    KernelEntry();
+    FreePool(KernelBuffer);
 
-    // Kernel should never return, but if it does...
-    for (;;) {
-        asm("hlt");
-    }
+    return (VOID *)0x4000e8; // entry point at 0x4000e8
 }
 
 VOID
