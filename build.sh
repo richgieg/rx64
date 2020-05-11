@@ -7,7 +7,7 @@ mkdir -p bin
 gcc \
     -c \
     -fno-stack-protector \
-    -fpic \
+    -fpie \
     -fshort-wchar \
     -mno-red-zone \
     -o bin/kernel.o \
