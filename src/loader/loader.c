@@ -89,8 +89,7 @@ efi_main (
         Print(L"Failed to read kernel image");
         Exit(EFI_SUCCESS, 0, NULL);
     }
-    Print(L"Kernel Base: %x\n", KernelBuffer);
-    Print(L"Kernel Size: %x\n", KernelBufferSize);
+    Print(L"Kernel Image Size: %x\n", KernelBufferSize);
     Status = KernelFileHandle->Close(KernelFileHandle);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to close kernel image file handle\n");
@@ -124,10 +123,12 @@ efi_main (
     }
 
     // Copy kernel image to its final destination.
-    RtCopyMem((void *)0x400000, KernelBuffer, KernelBufferSize);
+    // TODO: Actually parse ELF file and load properly!
+    RtCopyMem((void *)0x400000, KernelBuffer, 308); // .text .rodata .eh_frame
+    RtCopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
 
     // Transfer control to kernel.
-    VOID (*KernelEntry)() = (VOID *)0x4000b0; // .text section at 0xb0
+    VOID (*KernelEntry)() = (VOID *)0x4000e8; // .text section at 0xb0
     KernelEntry();
 
     // Kernel should never return, but if it does...
