@@ -128,7 +128,7 @@ efi_main (
     RtCopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
 
     // Transfer control to kernel.
-    VOID (*KernelEntry)() = (VOID *)0x4000e8; // .text section at 0xb0
+    VOID (*KernelEntry)() = (VOID *)0x4000e8; // .text section at 0x4000e8
     KernelEntry();
 
     // Kernel should never return, but if it does...
