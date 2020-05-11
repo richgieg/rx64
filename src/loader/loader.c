@@ -88,6 +88,9 @@ LoadKernelImage (
     UINTN                   KernelBufferSize;
     VOID                    *KernelBuffer;
 
+    EFI_PHYSICAL_ADDRESS    KernelCodeAddress;
+    EFI_PHYSICAL_ADDRESS    KernelDataAddress;
+
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
         LoaderImageHandle, &LoadedImageProtocol, (VOID **)&LoadedImage);
@@ -144,6 +147,18 @@ LoadKernelImage (
 
     // Copy kernel image to its final destination.
     // TODO: Actually parse ELF file and load properly!
+    KernelCodeAddress = 0x400000;
+    Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, 1, &KernelCodeAddress);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to allocate memory for kernel code\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+    KernelDataAddress = 0x610000;
+    Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, 1, &KernelDataAddress);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to allocate memory for kernel data\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
     CopyMem((void *)0x400000, KernelBuffer, 308); // .text .rodata .eh_frame
     CopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
 
