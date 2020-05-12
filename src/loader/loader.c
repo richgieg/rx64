@@ -21,7 +21,7 @@ efi_main (
     UINTN                   DescriptorSize;
     UINT32                  DescriptorVersion;
 
-    VOID                    (*KernelEntry)();
+    VOID                    (*KernelEntry)(unsigned long FrameBufferBase, unsigned long FrameBufferSize);
 
     // Initialize the library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
@@ -37,7 +37,7 @@ efi_main (
 
     WaitForKeyStroke(L"\nPress any key to continue...\n");
 
-    // Play with graphics frame buffer.
+    // Get graphics handle.
     EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphicsOutput;
     Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, (VOID **)&GraphicsOutput);
     if (EFI_ERROR(Status)) {
@@ -46,16 +46,6 @@ efi_main (
     }
     Print(L"Frame Buffer Base: %x\n", GraphicsOutput->Mode->FrameBufferBase);
     Print(L"Frame Buffer Size: %x\n", GraphicsOutput->Mode->FrameBufferSize);
-
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
-
-    UINT32 *GfxPtr = (UINT32 *)GraphicsOutput->Mode->FrameBufferBase;
-    UINT32 *GfxMax = (UINT32 *)(GraphicsOutput->Mode->FrameBufferBase +
-        (GraphicsOutput->Mode->FrameBufferSize / 2));
-    while (GfxPtr != GfxMax) {
-        *GfxPtr = 0xffff0000;
-        GfxPtr++;
-    }       
 
     WaitForKeyStroke(L"\nPress any key to continue...\n");
 
@@ -87,7 +77,9 @@ efi_main (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    KernelEntry();
+    KernelEntry(
+        GraphicsOutput->Mode->FrameBufferBase,
+        GraphicsOutput->Mode->FrameBufferSize);
 
     // Kernel should never return, but if it does...
     for (;;) {
