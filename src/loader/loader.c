@@ -44,7 +44,7 @@ efi_main (
         Print(L"Failed to get graphics output handle\n");
         Exit(Status, 0, NULL);
     }
-    Print(L"Frame Buffer Base: %x\n", GraphicsOutput->Mode->FrameBufferBase);
+    Print(L"\nFrame Buffer Base: %x\n", GraphicsOutput->Mode->FrameBufferBase);
     Print(L"Frame Buffer Size: %x\n", GraphicsOutput->Mode->FrameBufferSize);
 
     WaitForKeyStroke(L"\nPress any key to continue...\n");
