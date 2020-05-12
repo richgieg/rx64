@@ -1,5 +1,6 @@
 #include <efi.h>
 #include <efilib.h>
+#include <elf.h>
 #include "loader.h"
 
 static CHAR16 *KernelFileName = L"kernel.elf";
@@ -54,7 +55,7 @@ efi_main (
 
     KernelEntry = LoadKernelImage(ImageHandle);
 
-    WaitForKeyStroke(L"\nPress any key to enter kernel...\n");
+    WaitForKeyStroke(L"Press any key to enter kernel...\n");
 
     // Get most current memory map and exit boot services.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
@@ -80,16 +81,16 @@ LoadKernelImage (
     EFI_STATUS              Status;
     EFI_LOADED_IMAGE        *LoadedImage;
     EFI_DEVICE_PATH         *DevicePath;
-
     EFI_FILE_IO_INTERFACE   *FileSystem;
     EFI_FILE_HANDLE         RootDirectory;
     EFI_FILE_HANDLE         KernelFileHandle;
-
     UINTN                   KernelBufferSize;
     VOID                    *KernelBuffer;
-
-    EFI_PHYSICAL_ADDRESS    KernelCodeAddress;
-    EFI_PHYSICAL_ADDRESS    KernelDataAddress;
+    Elf64_Ehdr              *ElfHeader;
+    Elf64_Phdr              *ElfProgramHeader;
+    EFI_PHYSICAL_ADDRESS    PhysicalAddress;
+    UINTN                   NoPages;
+    UINTN                   i;
 
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
@@ -138,33 +139,43 @@ LoadKernelImage (
         Print(L"Failed to read kernel image");
         Exit(EFI_SUCCESS, 0, NULL);
     }
-    Print(L"Kernel Image Size: %x\n", KernelBufferSize);
     Status = KernelFileHandle->Close(KernelFileHandle);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to close kernel image file handle\n");
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    // Copy kernel image to its final destination.
-    // TODO: Actually parse ELF file and load properly!
-    KernelCodeAddress = 0x400000;
-    Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, 1, &KernelCodeAddress);
-    if (EFI_ERROR(Status)) {
-        Print(L"Failed to allocate memory for kernel code\n");
-        Exit(EFI_SUCCESS, 0, NULL);
+    Print(L"\nKernel Image Size:  %x\n\n", KernelBufferSize);
+
+    // Parse kernel image and copy segments to the addresses specified
+    // in the ELF program headers.
+    ElfHeader = (Elf64_Ehdr *)KernelBuffer;
+    for (i = 0; i < ElfHeader->e_phnum; i++) {
+        ElfProgramHeader = ((Elf64_Phdr *)(KernelBuffer + ElfHeader->e_phoff)) + i;
+        if (ElfProgramHeader->p_type != PT_LOAD) {
+            continue;
+        }
+        NoPages = ElfProgramHeader->p_filesz / EFI_PAGE_SIZE + 1;
+        PhysicalAddress = ElfProgramHeader->p_paddr;
+        Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, NoPages, &PhysicalAddress);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate physical memory at %x\n", i, PhysicalAddress);
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        CopyMem(
+            (VOID *)PhysicalAddress,
+            (VOID *)(KernelBuffer + ElfProgramHeader->p_offset),
+            ElfProgramHeader->p_filesz
+        );
+        Print(L"Physical Address:   %x\n", ElfProgramHeader->p_paddr);
+        Print(L"Virtual Address:    %x\n", ElfProgramHeader->p_vaddr);
+        Print(L"Image Offset:       %x\n", ElfProgramHeader->p_offset);
+        Print(L"Size:               %x\n", ElfProgramHeader->p_filesz);
+        Print(L"Pages Allocated:    %x\n\n", NoPages);
     }
-    KernelDataAddress = 0x610000;
-    Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, 1, &KernelDataAddress);
-    if (EFI_ERROR(Status)) {
-        Print(L"Failed to allocate memory for kernel data\n");
-        Exit(EFI_SUCCESS, 0, NULL);
-    }
-    CopyMem((void *)0x400000, KernelBuffer, 308); // .text .rodata .eh_frame
-    CopyMem((void *)0x601000, KernelBuffer + 0x1000, 8); // .data
 
     FreePool(KernelBuffer);
-
-    return (VOID *)0x4000e8; // entry point at 0x4000e8
+    return (VOID *)ElfHeader->e_entry;
 }
 
 VOID
