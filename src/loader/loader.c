@@ -110,7 +110,7 @@ LoadKernelImage (
 
     // Open the volume where this loader's image resides.
     Status = BS->HandleProtocol(
-        LoadedImage->DeviceHandle, &FileSystemProtocol,(VOID **)&FileSystem);
+        LoadedImage->DeviceHandle, &FileSystemProtocol, (VOID **)&FileSystem);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to get handle to loader file system\n");
         Exit(EFI_SUCCESS, 0, NULL);
