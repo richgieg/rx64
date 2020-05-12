@@ -37,6 +37,28 @@ efi_main (
 
     WaitForKeyStroke(L"\nPress any key to continue...\n");
 
+    // Play with graphics frame buffer.
+    EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphicsOutput;
+    Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, (VOID **)&GraphicsOutput);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to get graphics output handle\n");
+        Exit(Status, 0, NULL);
+    }
+    Print(L"Frame Buffer Base: %x\n", GraphicsOutput->Mode->FrameBufferBase);
+    Print(L"Frame Buffer Size: %x\n", GraphicsOutput->Mode->FrameBufferSize);
+
+    WaitForKeyStroke(L"\nPress any key to continue...\n");
+
+    UINT32 *GfxPtr = (UINT32 *)GraphicsOutput->Mode->FrameBufferBase;
+    UINT32 *GfxMax = (UINT32 *)(GraphicsOutput->Mode->FrameBufferBase +
+        (GraphicsOutput->Mode->FrameBufferSize / 2));
+    while (GfxPtr != GfxMax) {
+        *GfxPtr = 0xffff0000;
+        GfxPtr++;
+    }       
+
+    WaitForKeyStroke(L"\nPress any key to continue...\n");
+
     // Display current memory map.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
     if (MemoryMap == NULL) {
