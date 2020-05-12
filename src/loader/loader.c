@@ -147,8 +147,7 @@ LoadKernelImage (
 
     Print(L"\nKernel Image Size:  %x\n\n", KernelBufferSize);
 
-    // Parse kernel image and copy segments to the addresses specified
-    // in the ELF program headers.
+    // Parse kernel image and copy PT_LOAD segments to the required locations.
     ElfHeader = (Elf64_Ehdr *)KernelBuffer;
     for (i = 0; i < ElfHeader->e_phnum; i++) {
         ElfProgramHeader = ((Elf64_Phdr *)(KernelBuffer + ElfHeader->e_phoff)) + i;
@@ -162,6 +161,9 @@ LoadKernelImage (
             Print(L"Failed to allocate physical memory at %x\n", i, PhysicalAddress);
             Exit(EFI_SUCCESS, 0, NULL);
         }
+        // Zero all allocated memory in case segment contains BSS.
+        // TODO: Parse ELF section headers and zero only if necessary.
+        ZeroMem((VOID *)PhysicalAddress, NoPages * EFI_PAGE_SIZE);
         CopyMem(
             (VOID *)PhysicalAddress,
             (VOID *)(KernelBuffer + ElfProgramHeader->p_offset),
