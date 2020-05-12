@@ -155,7 +155,7 @@ LoadKernelImage (
         if (ElfProgramHeader->p_type != PT_LOAD) {
             continue;
         }
-        NoPages = ElfProgramHeader->p_filesz / EFI_PAGE_SIZE + 1;
+        NoPages = ElfProgramHeader->p_memsz / EFI_PAGE_SIZE + 1;
         PhysicalAddress = ElfProgramHeader->p_paddr;
         Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, NoPages, &PhysicalAddress);
         if (EFI_ERROR(Status)) {
@@ -170,7 +170,8 @@ LoadKernelImage (
         Print(L"Physical Address:   %x\n", ElfProgramHeader->p_paddr);
         Print(L"Virtual Address:    %x\n", ElfProgramHeader->p_vaddr);
         Print(L"Image Offset:       %x\n", ElfProgramHeader->p_offset);
-        Print(L"Size:               %x\n", ElfProgramHeader->p_filesz);
+        Print(L"Size in Image:      %x\n", ElfProgramHeader->p_filesz);
+        Print(L"Size in Memory:     %x\n", ElfProgramHeader->p_memsz);
         Print(L"Pages Allocated:    %x\n\n", NoPages);
     }
 
