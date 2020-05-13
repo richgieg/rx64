@@ -30,35 +30,35 @@ efi_main (
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
 
-    // Print message with date and time.
-    Print(L"Rx64 loader started\n");
-    Status = RT->GetTime(&Time, NULL);
-    if (!EFI_ERROR(Status)) {
-        Print(L"%02d/%02d/%04d %02d:%02d:%02d\n",
-            Time.Month, Time.Day, Time.Year, Time.Hour, Time.Minute, Time.Second);
-    }
+    // // Print message with date and time.
+    // Print(L"Rx64 loader started\n");
+    // Status = RT->GetTime(&Time, NULL);
+    // if (!EFI_ERROR(Status)) {
+    //     Print(L"%02d/%02d/%04d %02d:%02d:%02d\n",
+    //         Time.Month, Time.Day, Time.Year, Time.Hour, Time.Minute, Time.Second);
+    // }
 
-    WaitForKeyStroke(L"\nPress any key to continue...\n\n");
+    // WaitForKeyStroke(L"\nPress any key to continue...\n\n");
 
-    // Display current memory map.
-    MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
-    if (MemoryMap == NULL) {
-        Print(L"Failed to retrieve memory map\n");
-        Exit(EFI_SUCCESS, 0, NULL);
-    }
-    PrintMemoryMap(MemoryMap, NoEntries, DescriptorSize, FALSE);
-    FreePool(MemoryMap);
+    // // Display current memory map.
+    // MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
+    // if (MemoryMap == NULL) {
+    //     Print(L"Failed to retrieve memory map\n");
+    //     Exit(EFI_SUCCESS, 0, NULL);
+    // }
+    // PrintMemoryMap(MemoryMap, NoEntries, DescriptorSize, FALSE);
+    // FreePool(MemoryMap);
 
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
+    // WaitForKeyStroke(L"\nPress any key to continue...\n");
 
-    // Display environment variables.
-    PrintEnvironmentVariables(FALSE);
+    // // Display environment variables.
+    // PrintEnvironmentVariables(FALSE);
 
-    WaitForKeyStroke(L"\nPress any key to load kernel image...\n");
+    // WaitForKeyStroke(L"\nPress any key to load kernel image...\n");
 
     KernelEntry = LoadKernelImage(ImageHandle);
 
-    WaitForKeyStroke(L"Press any key to enter kernel...\n");
+    // WaitForKeyStroke(L"Press any key to enter kernel...\n");
 
     // Set graphics mode to 1920 x 1080 and get frame buffer info.
     SetGraphicsMode(&FrameBufferBase, &FrameBufferSize);
