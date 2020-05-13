@@ -1,19 +1,16 @@
 #!/bin/bash
 
-mkdir -p bin
+mkdir -p bin/kernel
+mkdir -p bin/loader
 
 # Build kernel
 
-gcc \
-    -c \
-    -fno-stack-protector \
-    -fshort-wchar \
-    -mno-red-zone \
-    -o bin/kernel.o \
-    src/kernel/kernel.c
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone -o bin/kernel/kernel.o src/kernel/kernel.c
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone -o bin/kernel/graphics.o src/kernel/graphics.c
 
 ld \
-    bin/kernel.o \
+    bin/kernel/kernel.o \
+    bin/kernel/graphics.o \
     --entry KernelEntry \
     -nostdlib \
     -static \
@@ -31,11 +28,11 @@ gcc \
     -DHAVE_USE_MS_ABI \
     -I /usr/include/efi \
     -I /usr/include/efi/x86_64 \
-    -o bin/loader.o \
+    -o bin/loader/loader.o \
     src/loader/loader.c
 
 ld \
-    bin/loader.o \
+    bin/loader/loader.o \
     /usr/lib/crt0-efi-x86_64.o \
     -nostdlib \
     -znocombreloc \
@@ -45,7 +42,7 @@ ld \
     -L /usr/lib \
     -l:libgnuefi.a \
     -l:libefi.a \
-    -o bin/loader.so
+    -o bin/loader/loader.so
 
 objcopy \
     -j .text \
@@ -57,5 +54,5 @@ objcopy \
     -j .rela \
     -j .reloc \
     --target=efi-app-x86_64 \
-    bin/loader.so \
+    bin/loader/loader.so \
     bin/loader.efi

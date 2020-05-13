@@ -2,6 +2,7 @@
 #define LOADER_H_
 
 #include <efi.h>
+#include "../shared/loader_info.h"
 
 VOID *
 LoadKernelImage (
@@ -23,8 +24,7 @@ PrintMemoryMap (
 
 VOID
 SetGraphicsMode (
-    EFI_PHYSICAL_ADDRESS    *FrameBufferBase,
-    UINTN                   *FrameBufferSize
+    LOADER_INFO_GRAPHICS *LoaderInfoForGraphics
     );
 
 VOID

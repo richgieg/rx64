@@ -11,8 +11,7 @@ efi_main (
     IN EFI_SYSTEM_TABLE     *SystemTable
     )
 {
-    EFI_PHYSICAL_ADDRESS    FrameBufferBase;
-    UINTN                   FrameBufferSize;
+    LOADER_INFO             *LoaderInfo;
 
     EFI_STATUS              Status;
     EFI_TIME                Time;
@@ -24,11 +23,13 @@ efi_main (
     UINTN                   DescriptorSize;
     UINT32                  DescriptorVersion;
 
-    VOID                    (*KernelEntry)(unsigned long FrameBufferBase, unsigned long FrameBufferSize);
+    VOID                    (*KernelEntry)(LOADER_INFO *LoaderInfo);
 
     // Initialize the library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
+
+    LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
 
     // // Print message with date and time.
     // Print(L"Rx64 loader started\n");
@@ -60,8 +61,8 @@ efi_main (
 
     // WaitForKeyStroke(L"Press any key to enter kernel...\n");
 
-    // Set graphics mode to 1920 x 1080 and get frame buffer info.
-    SetGraphicsMode(&FrameBufferBase, &FrameBufferSize);
+    // Set graphics mode and initialize the graphics portion of loader info.
+    SetGraphicsMode(&LoaderInfo->Graphics);
 
     // Get most current memory map and exit boot services.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
@@ -71,7 +72,7 @@ efi_main (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    KernelEntry(FrameBufferBase, FrameBufferSize);
+    KernelEntry(LoaderInfo);
 
     // Kernel should never return, but if it does...
     for (;;) {
@@ -267,8 +268,7 @@ PrintMemoryMap (
 
 VOID
 SetGraphicsMode (
-    EFI_PHYSICAL_ADDRESS    *FrameBufferBase,
-    UINTN                   *FrameBufferSize
+    LOADER_INFO_GRAPHICS *LoaderInfoGraphics
     )
 {
     EFI_STATUS Status;
@@ -304,8 +304,8 @@ SetGraphicsMode (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    *FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
-    *FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
+    LoaderInfoGraphics->FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
+    LoaderInfoGraphics->FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
 }
 
 VOID
