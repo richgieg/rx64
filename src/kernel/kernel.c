@@ -8,18 +8,15 @@ KernelEntry(
     unsigned int    *GfxMax;
     unsigned int    Color;
 
+    GfxPtr = (unsigned int *)FrameBufferBase;
     GfxMax = (unsigned int *)(FrameBufferBase + FrameBufferSize);
-    Color = 0;
+    Color = 0x00ff0000;
+    while (GfxPtr != GfxMax) {
+        *GfxPtr = Color;
+        GfxPtr++;
+    }
 
     for (;;) {
-        GfxPtr = (unsigned int *)FrameBufferBase;
-        while (GfxPtr != GfxMax) {
-            *GfxPtr = Color;
-            GfxPtr++;
-        }
-        Color++;
-        if (Color == 0x1000000) {
-            Color = 0;
-        }
+        asm("hlt");
     }
 }

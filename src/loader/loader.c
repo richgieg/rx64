@@ -11,6 +11,9 @@ efi_main (
     IN EFI_SYSTEM_TABLE     *SystemTable
     )
 {
+    EFI_PHYSICAL_ADDRESS    FrameBufferBase;
+    UINTN                   FrameBufferSize;
+
     EFI_STATUS              Status;
     EFI_TIME                Time;
 
@@ -27,6 +30,9 @@ efi_main (
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
 
+    // Set graphics mode to 1920 x 1080 and get frame buffer info.
+    SetGraphicsMode(&FrameBufferBase, &FrameBufferSize);
+
     // Print message with date and time.
     Print(L"Rx64 loader started\n");
     Status = RT->GetTime(&Time, NULL);
@@ -35,19 +41,7 @@ efi_main (
             Time.Month, Time.Day, Time.Year, Time.Hour, Time.Minute, Time.Second);
     }
 
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
-
-    // Get graphics handle.
-    EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphicsOutput;
-    Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, (VOID **)&GraphicsOutput);
-    if (EFI_ERROR(Status)) {
-        Print(L"Failed to get graphics output handle\n");
-        Exit(Status, 0, NULL);
-    }
-    Print(L"\nFrame Buffer Base: %x\n", GraphicsOutput->Mode->FrameBufferBase);
-    Print(L"Frame Buffer Size: %x\n", GraphicsOutput->Mode->FrameBufferSize);
-
-    WaitForKeyStroke(L"\nPress any key to continue...\n");
+    WaitForKeyStroke(L"\nPress any key to continue...\n\n");
 
     // Display current memory map.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
@@ -77,9 +71,7 @@ efi_main (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    KernelEntry(
-        GraphicsOutput->Mode->FrameBufferBase,
-        GraphicsOutput->Mode->FrameBufferSize);
+    KernelEntry(FrameBufferBase, FrameBufferSize);
 
     // Kernel should never return, but if it does...
     for (;;) {
@@ -196,6 +188,38 @@ LoadKernelImage (
 }
 
 VOID
+PrintEnvironmentVariables (
+    IN BOOLEAN  PauseAfterEntry
+    )
+{
+    EFI_STATUS  Status;
+    UINTN       VariableNameSize;
+    CHAR16      VariableName[256];
+    EFI_GUID    VendorGuid;
+    UINT8       *VariableValue;
+
+    Print(L"\nEnvironment Variables (press key to cycle through):\n\n");
+    VariableName[0] = 0x0000;
+    VendorGuid = NullGuid;
+    Print(L"GUID                                Variable Name        Value Address   \n");
+    Print(L"=================================== ==================== ================\n");
+    do {
+        VariableNameSize = sizeof(VariableName);
+        Status = RT->GetNextVariableName(&VariableNameSize, VariableName, &VendorGuid);
+        if (Status == EFI_SUCCESS) {
+            VariableValue = LibGetVariable(VariableName, &VendorGuid);
+            if (VariableValue != NULL) {
+                Print(L"%.-35g %.-20s %lX\n", &VendorGuid, VariableName, VariableValue);
+                FreePool(VariableValue);
+                if (PauseAfterEntry) {
+                    WaitForKeyStroke(NULL);
+                }
+            }
+        }
+    } while (Status == EFI_SUCCESS);
+}
+
+VOID
 PrintMemoryMap (
     IN EFI_MEMORY_DESCRIPTOR    *MemoryMap,
     IN UINTN                    NoEntries,
@@ -242,35 +266,46 @@ PrintMemoryMap (
 }
 
 VOID
-PrintEnvironmentVariables (
-    IN BOOLEAN  PauseAfterEntry
+SetGraphicsMode (
+    EFI_PHYSICAL_ADDRESS    *FrameBufferBase,
+    UINTN                   *FrameBufferSize
     )
 {
-    EFI_STATUS  Status;
-    UINTN       VariableNameSize;
-    CHAR16      VariableName[256];
-    EFI_GUID    VendorGuid;
-    UINT8       *VariableValue;
+    EFI_STATUS Status;
+    EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphicsOutput;
+    UINT32 Mode;
+    UINTN SizeOfInfo;
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
 
-    Print(L"\nEnvironment Variables (press key to cycle through):\n\n");
-    VariableName[0] = 0x0000;
-    VendorGuid = NullGuid;
-    Print(L"GUID                                Variable Name        Value Address   \n");
-    Print(L"=================================== ==================== ================\n");
-    do {
-        VariableNameSize = sizeof(VariableName);
-        Status = RT->GetNextVariableName(&VariableNameSize, VariableName, &VendorGuid);
-        if (Status == EFI_SUCCESS) {
-            VariableValue = LibGetVariable(VariableName, &VendorGuid);
-            if (VariableValue != NULL) {
-                Print(L"%.-35g %.-20s %lX\n", &VendorGuid, VariableName, VariableValue);
-                FreePool(VariableValue);
-                if (PauseAfterEntry) {
-                    WaitForKeyStroke(NULL);
-                }
-            }
+    Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, (VOID **)&GraphicsOutput);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to get graphics output handle\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+    for (Mode = 0; Mode < GraphicsOutput->Mode->MaxMode; Mode++) {
+        Status = GraphicsOutput->QueryMode(GraphicsOutput, Mode, &SizeOfInfo, &Info);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to query graphics mode %d\n", Mode);
+            Exit(EFI_SUCCESS, 0, NULL);
         }
-    } while (Status == EFI_SUCCESS);
+        if (Info->HorizontalResolution == 1920 &&
+            Info->VerticalResolution == 1080 &&
+            Info->PixelFormat == PixelBlueGreenRedReserved8BitPerColor) {
+            break;
+        }
+        if (Mode == GraphicsOutput->Mode->MaxMode) {
+            Print(L"Required graphics mode not supported\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+    }
+    Status = GraphicsOutput->SetMode(GraphicsOutput, Mode);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to set graphics mode\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+
+    *FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
+    *FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
 }
 
 VOID

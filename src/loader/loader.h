@@ -6,6 +6,11 @@ LoadKernelImage (
     );
 
 VOID
+PrintEnvironmentVariables (
+    IN BOOLEAN PauseAfterEntry
+    );
+
+VOID
 PrintMemoryMap (
     IN EFI_MEMORY_DESCRIPTOR    *MemoryMap,
     IN UINTN                    NoEntries,
@@ -14,8 +19,9 @@ PrintMemoryMap (
     );
 
 VOID
-PrintEnvironmentVariables (
-    IN BOOLEAN PauseAfterEntry
+SetGraphicsMode (
+    EFI_PHYSICAL_ADDRESS    *FrameBufferBase,
+    UINTN                   *FrameBufferSize
     );
 
 VOID
