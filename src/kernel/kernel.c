@@ -1,7 +1,7 @@
-#include "../shared/loader_info.h"
+#include "loader_info.h"
 #include "graphics.h"
 
-void
+VOID
 KernelEntry (
     LOADER_INFO *LoaderInfo
     )

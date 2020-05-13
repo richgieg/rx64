@@ -2,7 +2,7 @@
 #define GRAPHICS_H_
 
 #include <efi.h>
-#include "../shared/loader_info.h"
+#include "../kernel/loader_info.h"
 
 VOID
 SetGraphicsMode (

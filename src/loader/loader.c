@@ -4,7 +4,7 @@
 #include "graphics.h"
 #include "recon.h"
 #include "util.h"
-#include "../shared/loader_info.h"
+#include "../kernel/loader_info.h"
 
 EFI_STATUS
 efi_main (

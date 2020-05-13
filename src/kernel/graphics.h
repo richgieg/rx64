@@ -1,22 +1,24 @@
 #ifndef GRAPHICS_H_
 #define GRAPHICS_H_
 
-void
+#include "types.h"
+
+VOID
 InitializeGraphics (
-    unsigned long FrameBufferBase,
-    unsigned long FrameBufferSize
+    UINT64 FrameBufferBase,
+    UINT64 FrameBufferSize
     );
 
-void
+VOID
 FillScreen (
-    unsigned int Color
+    UINT32 Color
     );
 
-void
+VOID
 FillChar (
-    unsigned int    Column,
-    unsigned int    Row,
-    unsigned int    Color
+    UINT16 Column,
+    UINT16 Row,
+    UINT32 Color
     );
 
 #endif
