@@ -21,6 +21,7 @@ efi_main (
     PrintEnvironmentVariables(FALSE);
     PrintMemoryMap(FALSE);
     KernelEntry = LoadKernelImage(ImageHandle, L"kernel.elf");
+    WaitForKeyStroke(L"\nPress any key to launch kernel...\n");
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
     SetGraphicsMode(&LoaderInfo->Graphics);
     ExitBootServices(ImageHandle);
