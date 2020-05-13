@@ -12,6 +12,17 @@ InitializeGraphics (
     );
 
 VOID
+DrawBitmap (
+    UINT32          X,
+    UINT32          Y,
+    UINT32          Width,
+    UINT32          Height,
+    UINT32          FgColor,
+    UINT32          BgColor,
+    const UINT8     *SrcBuffer
+    );
+
+VOID
 FillBlock (
     UINT32 X,
     UINT32 Y,
@@ -24,5 +35,8 @@ VOID
 FillScreen (
     UINT32 Color
     );
+
+VOID
+PlayDrawMemoryAsBitmapDemo ();
 
 #endif

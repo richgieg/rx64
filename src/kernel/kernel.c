@@ -13,8 +13,7 @@ KernelEntry (
         LoaderInfo->Graphics.VerticalResolution
     );
 
-    FillScreen(0x00ff0000);
-    FillBlock(0, 0, 1920, 540, 0x000000ff);
+    PlayDrawMemoryAsBitmapDemo();
 
     for (;;) {
         asm("hlt");
