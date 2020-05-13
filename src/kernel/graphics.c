@@ -2,15 +2,43 @@
 
 static UINT64 mFrameBufferBase;
 static UINT64 mFrameBufferSize;
+static UINT32 mHorizontalResolution;
+static UINT32 mVerticalResolution;
 
 VOID
 InitializeGraphics (
     UINT64 FrameBufferBase,
-    UINT64 FrameBufferSize
+    UINT64 FrameBufferSize,
+    UINT32 HorizontalResolution,
+    UINT32 VerticalResolution
     )
 {
     mFrameBufferBase = FrameBufferBase;
     mFrameBufferSize = FrameBufferSize;
+    mHorizontalResolution = HorizontalResolution;
+    mVerticalResolution = VerticalResolution;
+}
+
+VOID
+FillBlock (
+    UINT32 X,
+    UINT32 Y,
+    UINT32 Width,
+    UINT32 Height,
+    UINT32 Color
+    )
+{
+    UINTN i;
+    UINTN j;
+    UINT32 *Pixel;
+
+    for (i = 0; i < Height; i++) {
+        Pixel = ((UINT32 *)mFrameBufferBase) + ((i + Y) * mHorizontalResolution) + X;
+        for (j = 0; j < Width; j++) {
+            *Pixel = Color;
+            Pixel++;
+        }
+    }
 }
 
 VOID
@@ -26,33 +54,5 @@ FillScreen (
     while (Pixel < MaxPixel) {
         *Pixel = Color;
         Pixel++;
-    }
-}
-
-VOID
-FillChar (
-    UINT16 Column,
-    UINT16 Row,
-    UINT32 Color
-    )
-{
-    UINT32 *Pixel;
-    UINTN PixelsPerScanLine;
-    UINTN Width;
-    UINTN Height;
-    UINTN i;
-    UINTN j;
-
-    PixelsPerScanLine = 1920;
-    Width = 8;
-    Height = 19;
-
-    for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)mFrameBufferBase) + (i * PixelsPerScanLine) +
-            (Row * Height * PixelsPerScanLine) + (Column * Width);
-        for (j = 0; j < Width; j++) {
-            *Pixel = Color;
-            Pixel++;
-        }
     }
 }

@@ -6,18 +6,22 @@
 VOID
 InitializeGraphics (
     UINT64 FrameBufferBase,
-    UINT64 FrameBufferSize
+    UINT64 FrameBufferSize,
+    UINT32 HorizontalResolution,
+    UINT32 VerticalResolution
     );
 
 VOID
-FillScreen (
+FillBlock (
+    UINT32 X,
+    UINT32 Y,
+    UINT32 Width,
+    UINT32 Height,
     UINT32 Color
     );
 
 VOID
-FillChar (
-    UINT16 Column,
-    UINT16 Row,
+FillScreen (
     UINT32 Color
     );
 

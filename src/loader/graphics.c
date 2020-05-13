@@ -42,4 +42,6 @@ SetGraphicsMode (
 
     LoaderInfoGraphics->FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
     LoaderInfoGraphics->FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
+    LoaderInfoGraphics->HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
+    LoaderInfoGraphics->VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;
 }

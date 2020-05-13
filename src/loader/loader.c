@@ -18,10 +18,10 @@ efi_main (
     // Initialize EFI library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
-    PrintEnvironmentVariables(FALSE);
-    PrintMemoryMap(FALSE);
+    // PrintEnvironmentVariables(FALSE);
+    // PrintMemoryMap(FALSE);
     KernelEntry = LoadKernelImage(ImageHandle, L"kernel.elf");
-    WaitForKeyStroke(L"\nPress any key to launch kernel...\n");
+    // WaitForKeyStroke(L"\nPress any key to launch kernel...\n");
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
     SetGraphicsMode(&LoaderInfo->Graphics);
     ExitBootServices(ImageHandle);

@@ -8,12 +8,13 @@ KernelEntry (
 {
     InitializeGraphics(
         LoaderInfo->Graphics.FrameBufferBase,
-        LoaderInfo->Graphics.FrameBufferSize
+        LoaderInfo->Graphics.FrameBufferSize,
+        LoaderInfo->Graphics.HorizontalResolution,
+        LoaderInfo->Graphics.VerticalResolution
     );
 
     FillScreen(0x00ff0000);
-    FillChar(0, 0, 0x000000ff);
-    FillChar(239, 55, 0x000000ff);
+    FillBlock(0, 0, 1920, 540, 0x000000ff);
 
     for (;;) {
         asm("hlt");
