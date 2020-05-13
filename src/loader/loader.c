@@ -30,9 +30,6 @@ efi_main (
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
 
-    // Set graphics mode to 1920 x 1080 and get frame buffer info.
-    SetGraphicsMode(&FrameBufferBase, &FrameBufferSize);
-
     // Print message with date and time.
     Print(L"Rx64 loader started\n");
     Status = RT->GetTime(&Time, NULL);
@@ -62,6 +59,9 @@ efi_main (
     KernelEntry = LoadKernelImage(ImageHandle);
 
     WaitForKeyStroke(L"Press any key to enter kernel...\n");
+
+    // Set graphics mode to 1920 x 1080 and get frame buffer info.
+    SetGraphicsMode(&FrameBufferBase, &FrameBufferSize);
 
     // Get most current memory map and exit boot services.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
