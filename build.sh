@@ -3,10 +3,21 @@
 mkdir -p bin/kernel
 mkdir -p bin/loader
 
-# Build kernel
+################################################################################
+# Compile Kernel
+################################################################################
 
-gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone -o bin/kernel/kernel.o src/kernel/kernel.c
-gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone -o bin/kernel/graphics.o src/kernel/graphics.c
+# Kernel
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
+    -o bin/kernel/kernel.o src/kernel/kernel.c
+
+# Graphics
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
+    -o bin/kernel/graphics.o src/kernel/graphics.c
+
+################################################################################
+# Link Kernel
+################################################################################
 
 ld \
     bin/kernel/kernel.o \
@@ -16,23 +27,40 @@ ld \
     -static \
     -o bin/kernel.elf
 
-# Build loader
 
-gcc \
-    -c \
-    -fno-stack-protector \
-    -fpic \
-    -fshort-wchar \
-    -mno-red-zone \
-    -DEFI_FUNCTION_WRAPPER \
-    -DHAVE_USE_MS_ABI \
-    -I /usr/include/efi \
-    -I /usr/include/efi/x86_64 \
-    -o bin/loader/loader.o \
-    src/loader/loader.c
+################################################################################
+# Compile Loader
+################################################################################
+
+# Loader
+gcc -c -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER \
+    -DHAVE_USE_MS_ABI -I /usr/include/efi -I /usr/include/efi/x86_64 \
+    -o bin/loader/loader.o src/loader/loader.c
+
+# Graphics
+gcc -c -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER \
+    -DHAVE_USE_MS_ABI -I /usr/include/efi -I /usr/include/efi/x86_64 \
+    -o bin/loader/graphics.o src/loader/graphics.c
+
+# Recon
+gcc -c -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER \
+    -DHAVE_USE_MS_ABI -I /usr/include/efi -I /usr/include/efi/x86_64 \
+    -o bin/loader/recon.o src/loader/recon.c
+
+# Util
+gcc -c -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER \
+    -DHAVE_USE_MS_ABI -I /usr/include/efi -I /usr/include/efi/x86_64 \
+    -o bin/loader/util.o src/loader/util.c
+
+################################################################################
+# Link Loader
+################################################################################
 
 ld \
     bin/loader/loader.o \
+    bin/loader/graphics.o \
+    bin/loader/recon.o \
+    bin/loader/util.o \
     /usr/lib/crt0-efi-x86_64.o \
     -nostdlib \
     -znocombreloc \
