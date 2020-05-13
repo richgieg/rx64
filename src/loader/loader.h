@@ -1,3 +1,6 @@
+#ifndef LOADER_H_
+#define LOADER_H_
+
 #include <efi.h>
 
 VOID *
@@ -28,3 +31,5 @@ VOID
 WaitForKeyStroke (
     IN CHAR16 *Prompt
     );
+
+#endif
