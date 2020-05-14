@@ -99,7 +99,8 @@ PlayDrawMemoryAsBitmapDemo ()
     UINT8 *Memory = 0;
 
     while (1) {
-        DrawBitmap(0, 0, 1920, 1080, 0x0000ff00, 0, Memory);
-        Memory += 1920 * 1080 / 8;
+        DrawBitmap(0, 0, mHorizontalResolution, mVerticalResolution,
+            0x0000ff00, 0, Memory);
+        Memory += mHorizontalResolution * mVerticalResolution / 8;
     }
 }
