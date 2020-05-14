@@ -11,6 +11,10 @@ mkdir -p bin/loader
 gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
     -o bin/kernel/kernel.o src/kernel/kernel.c
 
+# Console
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
+    -o bin/kernel/console.o src/kernel/console.c
+
 # Graphics
 gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
     -o bin/kernel/graphics.o src/kernel/graphics.c
@@ -21,6 +25,7 @@ gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
 
 ld \
     bin/kernel/kernel.o \
+    bin/kernel/console.o \
     bin/kernel/graphics.o \
     --entry KernelEntry \
     -nostdlib \

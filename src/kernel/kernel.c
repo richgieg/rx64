@@ -1,4 +1,5 @@
 #include "loader_info.h"
+#include "console.h"
 #include "graphics.h"
 
 VOID
@@ -13,7 +14,7 @@ KernelEntry (
         LoaderInfo->Graphics.VerticalResolution
     );
 
-    PlayDrawMemoryAsBitmapDemo();
+    InitializeConsole();
 
     for (;;) {
         asm("hlt");
