@@ -55,6 +55,7 @@ PutChar (
     if (Column >= mColumns || Row >= mRows) {
         BugCheck();
     }
+
     UINT32 X;
     UINT32 Y;
 
