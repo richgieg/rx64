@@ -1,5 +1,6 @@
 #include "console.h"
 #include "graphics.h"
+#include "util.h"
 
 #define CELL_WIDTH_PIXELS      8
 #define CELL_HEIGHT_PIXELS     19
@@ -51,6 +52,9 @@ PutChar (
     CHAR16 Char
     )
 {
+    if (Column >= mColumns || Row >= mRows) {
+        BugCheck();
+    }
     UINT32 X;
     UINT32 Y;
 
