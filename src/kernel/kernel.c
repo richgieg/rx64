@@ -16,6 +16,8 @@ KernelEntry (
 
     InitializeConsole();
 
+    PutChar(1, 0, 'C');
+
     for (;;) {
         asm("hlt");
     }

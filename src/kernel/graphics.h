@@ -17,8 +17,8 @@ DrawBitmap (
     UINT32          Y,
     UINT32          Width,
     UINT32          Height,
-    UINT32          FgColor,
-    UINT32          BgColor,
+    UINT32          mForegroundColor,
+    UINT32          mBackgroundColor,
     const UINT8     *SrcBuffer
     );
 
@@ -35,6 +35,12 @@ VOID
 FillScreen (
     UINT32 Color
     );
+
+UINT32
+GetHorizontalResolution ();
+
+UINT32
+GetVerticalResolution ();
 
 VOID
 PlayDrawMemoryAsBitmapDemo ();

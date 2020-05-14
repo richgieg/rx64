@@ -6,4 +6,11 @@
 VOID
 InitializeConsole ();
 
+VOID
+PutChar (
+    UINT16 Column,
+    UINT16 Row,
+    CHAR16 Char
+    );
+
 #endif

@@ -25,8 +25,8 @@ DrawBitmap (
     UINT32          Y,
     UINT32          Width,
     UINT32          Height,
-    UINT32          FgColor,
-    UINT32          BgColor,
+    UINT32          mForegroundColor,
+    UINT32          mBackgroundColor,
     const UINT8     *SrcBuffer
     )
 {
@@ -42,7 +42,7 @@ DrawBitmap (
     for (i = 0; i < Height; i++) {
         Pixel = ((UINT32 *)mFrameBufferBase) + ((i + Y) * mHorizontalResolution) + X;
         for (j = 0; j < Width; j++) {
-            *Pixel = (Bits & 0x80) ? FgColor : BgColor;
+            *Pixel = (Bits & 0x80) ? mForegroundColor : mBackgroundColor;
             Bits = Bits << 1;
             Pixel++;
             BitCounter++;
@@ -91,6 +91,18 @@ FillScreen (
         *Pixel = Color;
         Pixel++;
     }
+}
+
+UINT32
+GetHorizontalResolution ()
+{
+    return mHorizontalResolution;
+}
+
+UINT32
+GetVerticalResolution ()
+{
+    return mHorizontalResolution;
 }
 
 VOID
