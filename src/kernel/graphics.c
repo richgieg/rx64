@@ -102,7 +102,7 @@ GetHorizontalResolution ()
 UINT32
 GetVerticalResolution ()
 {
-    return mHorizontalResolution;
+    return mVerticalResolution;
 }
 
 VOID

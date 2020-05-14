@@ -7,6 +7,11 @@ VOID
 InitializeConsole ();
 
 VOID
+Print(
+    const CHAR16 *String
+    );
+
+VOID
 PutChar (
     UINT16 Column,
     UINT16 Row,

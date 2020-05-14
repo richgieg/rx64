@@ -16,7 +16,9 @@ KernelEntry (
 
     InitializeConsole();
 
-    PutChar(1, 0, 'C');
+    for (int i = 0; i < 13439; i++) {
+        Print(L"A");
+    }
 
     for (;;) {
         asm("hlt");
