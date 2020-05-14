@@ -8,7 +8,7 @@ InitializeConsole ();
 
 VOID
 Print(
-    const CHAR16 *String
+    CONST CHAR16 *String
     );
 
 VOID

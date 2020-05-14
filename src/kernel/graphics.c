@@ -27,7 +27,7 @@ DrawBitmap (
     UINT32          Height,
     UINT32          mForegroundColor,
     UINT32          mBackgroundColor,
-    const UINT8     *SrcBuffer
+    CONST UINT8     *SrcBuffer
     )
 {
     UINTN   i;
