@@ -5,35 +5,35 @@
 
 VOID
 GfxInitializeGraphics (
-    UINT64 FrameBufferBase,
-    UINT64 FrameBufferSize,
-    UINT32 HorizontalResolution,
-    UINT32 VerticalResolution
+    IN UINT64 FrameBufferBase,
+    IN UINT64 FrameBufferSize,
+    IN UINT32 HorizontalResolution,
+    IN UINT32 VerticalResolution
     );
 
 VOID
 GfxDrawBitmap (
-    UINT32          X,
-    UINT32          Y,
-    UINT32          Width,
-    UINT32          Height,
-    UINT32          mForegroundColor,
-    UINT32          mBackgroundColor,
-    CONST UINT8     *SrcBuffer
+    IN UINT32       X,
+    IN UINT32       Y,
+    IN UINT32       Width,
+    IN UINT32       Height,
+    IN UINT32       mForegroundColor,
+    IN UINT32       mBackgroundColor,
+    IN CONST UINT8  *SrcBuffer
     );
 
 VOID
 GfxFillBlock (
-    UINT32 X,
-    UINT32 Y,
-    UINT32 Width,
-    UINT32 Height,
-    UINT32 Color
+    IN UINT32 X,
+    IN UINT32 Y,
+    IN UINT32 Width,
+    IN UINT32 Height,
+    IN UINT32 Color
     );
 
 VOID
 GfxFillScreen (
-    UINT32 Color
+    IN UINT32 Color
     );
 
 UINT32

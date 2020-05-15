@@ -3,6 +3,21 @@
 
 #include <inttypes.h>
 
+//
+// Prototype argument decoration for parameters to indicate
+// their direction.
+//
+// IN - argument is passed into the function
+// OUT - argument (pointer) is returned from the function
+// OPTIONAL - argument is optional
+//
+
+#ifndef IN
+    #define IN
+    #define OUT
+    #define OPTIONAL
+#endif
+
 #define VOID        void
 
 typedef uint64_t    UINTN;

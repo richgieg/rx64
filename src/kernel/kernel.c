@@ -5,7 +5,7 @@
 
 VOID
 KernelEntry (
-    LOADER_INFO *LoaderInfo
+    IN LOADER_INFO *LoaderInfo
     )
 {
     GfxInitializeGraphics(

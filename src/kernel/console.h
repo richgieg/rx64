@@ -8,14 +8,14 @@ CnInitializeConsole ();
 
 VOID
 CnPrint(
-    CONST CHAR16 *String
+    IN CONST CHAR16 *String
     );
 
 VOID
 CnPutChar (
-    UINT16 Column,
-    UINT16 Row,
-    CHAR16 Char
+    IN UINT16 Column,
+    IN UINT16 Row,
+    IN CHAR16 Char
     );
 
 #endif
