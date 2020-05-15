@@ -1,6 +1,7 @@
 #include "loader_info.h"
 #include "console.h"
 #include "graphics.h"
+#include "kernel.h"
 
 VOID
 KernelEntry (
@@ -19,6 +20,17 @@ KernelEntry (
     for (int i = 0; i < 13439; i++) {
         CnPrint(L"A");
     }
+
+    for (;;) {
+        asm("hlt");
+    }
+}
+
+VOID
+KeBugCheck ()
+{
+    // Red Screen of Destruction...
+    GfxFillScreen(0x00ff0000);
 
     for (;;) {
         asm("hlt");

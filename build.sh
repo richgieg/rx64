@@ -19,10 +19,6 @@ gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
 gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
     -o bin/kernel/graphics.o src/kernel/graphics.c
 
-# Util
-gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
-    -o bin/kernel/util.o src/kernel/util.c
-
 ################################################################################
 # Link Kernel
 ################################################################################

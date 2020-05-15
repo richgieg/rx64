@@ -1,6 +1,6 @@
 #include "console.h"
 #include "graphics.h"
-#include "util.h"
+#include "kernel.h"
 
 #define CELL_WIDTH_PIXELS      8
 #define CELL_HEIGHT_PIXELS     19
@@ -53,7 +53,7 @@ CnPutChar (
     )
 {
     if (Column >= mColumns || Row >= mRows) {
-        BugCheck();
+        KeBugCheck();
     }
 
     UINT32 X;
