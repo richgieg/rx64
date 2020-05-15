@@ -4,7 +4,7 @@
 #include "types.h"
 
 VOID
-InitializeGraphics (
+GfxInitializeGraphics (
     UINT64 FrameBufferBase,
     UINT64 FrameBufferSize,
     UINT32 HorizontalResolution,
@@ -12,7 +12,7 @@ InitializeGraphics (
     );
 
 VOID
-DrawBitmap (
+GfxDrawBitmap (
     UINT32          X,
     UINT32          Y,
     UINT32          Width,
@@ -23,7 +23,7 @@ DrawBitmap (
     );
 
 VOID
-FillBlock (
+GfxFillBlock (
     UINT32 X,
     UINT32 Y,
     UINT32 Width,
@@ -32,17 +32,17 @@ FillBlock (
     );
 
 VOID
-FillScreen (
+GfxFillScreen (
     UINT32 Color
     );
 
 UINT32
-GetHorizontalResolution ();
+GfxGetHorizontalResolution ();
 
 UINT32
-GetVerticalResolution ();
+GfxGetVerticalResolution ();
 
 VOID
-PlayDrawMemoryAsBitmapDemo ();
+GfxPlayDrawMemoryAsBitmapDemo ();
 
 #endif

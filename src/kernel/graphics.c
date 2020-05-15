@@ -6,7 +6,7 @@ static UINT32 mHorizontalResolution;
 static UINT32 mVerticalResolution;
 
 VOID
-InitializeGraphics (
+GfxInitializeGraphics (
     UINT64 FrameBufferBase,
     UINT64 FrameBufferSize,
     UINT32 HorizontalResolution,
@@ -20,7 +20,7 @@ InitializeGraphics (
 }
 
 VOID
-DrawBitmap (
+GfxDrawBitmap (
     UINT32          X,
     UINT32          Y,
     UINT32          Width,
@@ -56,7 +56,7 @@ DrawBitmap (
 }
 
 VOID
-FillBlock (
+GfxFillBlock (
     UINT32 X,
     UINT32 Y,
     UINT32 Width,
@@ -78,7 +78,7 @@ FillBlock (
 }
 
 VOID
-FillScreen (
+GfxFillScreen (
     UINT32 Color
     )
 {
@@ -94,24 +94,24 @@ FillScreen (
 }
 
 UINT32
-GetHorizontalResolution ()
+GfxGetHorizontalResolution ()
 {
     return mHorizontalResolution;
 }
 
 UINT32
-GetVerticalResolution ()
+GfxGetVerticalResolution ()
 {
     return mVerticalResolution;
 }
 
 VOID
-PlayDrawMemoryAsBitmapDemo ()
+GfxPlayDrawMemoryAsBitmapDemo ()
 {
     UINT8 *Memory = 0;
 
     while (1) {
-        DrawBitmap(0, 0, mHorizontalResolution, mVerticalResolution,
+        GfxDrawBitmap(0, 0, mHorizontalResolution, mVerticalResolution,
             0x0000ff00, 0, Memory);
         Memory += mHorizontalResolution * mVerticalResolution / 8;
     }

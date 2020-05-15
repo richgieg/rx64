@@ -5,7 +5,7 @@ VOID
 BugCheck ()
 {
     // Red Screen of Destruction...
-    FillScreen(0x00ff0000);
+    GfxFillScreen(0x00ff0000);
 
     for (;;) {
         asm("hlt");

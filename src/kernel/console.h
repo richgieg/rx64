@@ -4,15 +4,15 @@
 #include "types.h"
 
 VOID
-InitializeConsole ();
+CnInitializeConsole ();
 
 VOID
-Print(
+CnPrint(
     CONST CHAR16 *String
     );
 
 VOID
-PutChar (
+CnPutChar (
     UINT16 Column,
     UINT16 Row,
     CHAR16 Char

@@ -7,17 +7,17 @@ KernelEntry (
     LOADER_INFO *LoaderInfo
     )
 {
-    InitializeGraphics(
+    GfxInitializeGraphics(
         LoaderInfo->Graphics.FrameBufferBase,
         LoaderInfo->Graphics.FrameBufferSize,
         LoaderInfo->Graphics.HorizontalResolution,
         LoaderInfo->Graphics.VerticalResolution
     );
 
-    InitializeConsole();
+    CnInitializeConsole();
 
     for (int i = 0; i < 13439; i++) {
-        Print(L"A");
+        CnPrint(L"A");
     }
 
     for (;;) {

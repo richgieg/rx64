@@ -15,27 +15,27 @@ static UINT32 mForegroundColor;
 static UINT32 mBackgroundColor;
 
 VOID
-InitializeConsole ()
+CnInitializeConsole ()
 {
-    mColumns = GetHorizontalResolution() / CELL_WIDTH_PIXELS;
-    mRows = GetVerticalResolution() / CELL_HEIGHT_PIXELS;
-    mHorizontalPaddingPixels = GetHorizontalResolution() % mColumns / 2;
-    mVerticalPaddingPixels = GetVerticalResolution() % mRows / 2;
+    mColumns = GfxGetHorizontalResolution() / CELL_WIDTH_PIXELS;
+    mRows = GfxGetVerticalResolution() / CELL_HEIGHT_PIXELS;
+    mHorizontalPaddingPixels = GfxGetHorizontalResolution() % mColumns / 2;
+    mVerticalPaddingPixels = GfxGetVerticalResolution() % mRows / 2;
     mCurrentColumn = 0;
     mCurrentRow = 0;
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
     
-    FillScreen(mBackgroundColor);
+    GfxFillScreen(mBackgroundColor);
 }
 
 VOID
-Print(
+CnPrint(
     CONST CHAR16 *String
     )
 {
     while (*String) {
-        PutChar(mCurrentColumn, mCurrentRow, *String);
+        CnPutChar(mCurrentColumn, mCurrentRow, *String);
         mCurrentColumn++;
         if (mCurrentColumn >= mColumns) {
             mCurrentColumn = 0;
@@ -46,7 +46,7 @@ Print(
 }
 
 VOID
-PutChar (
+CnPutChar (
     UINT16 Column,
     UINT16 Row,
     CHAR16 Char
@@ -62,5 +62,5 @@ PutChar (
     X = Column * CELL_WIDTH_PIXELS + mHorizontalPaddingPixels;
     Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
 
-    FillBlock(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+    GfxFillBlock(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
 }
