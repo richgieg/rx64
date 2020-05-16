@@ -39,6 +39,6 @@ MmAllocatePool (
     }
     VOID *Address;
     Address = (VOID *)mNextPoolAddress;
-    mNextPageAddress += Size;
+    mNextPoolAddress += Size;
     return Address;
 }
