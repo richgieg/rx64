@@ -17,8 +17,15 @@ KernelEntry (
 
     CnInitializeConsole();
 
-    for (int i = 0; i < 13439; i++) {
+    // for (int i = 0; i < 13440; i++) {
+    //     CnPrint(L"A");
+    // }
+
+    UINT32 Color = 0;
+
+    for (;;) {
         CnPrint(L"A");
+        CnSetForegroundColor(Color++);
     }
 
     for (;;) {

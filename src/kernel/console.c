@@ -15,6 +15,9 @@ static UINT32 mForegroundColor;
 static UINT32 mBackgroundColor;
 
 VOID
+ScrollToNewRow ();
+
+VOID
 CnInitializeConsole ()
 {
     mColumns = GfxGetHorizontalResolution() / CELL_WIDTH_PIXELS;
@@ -34,15 +37,50 @@ CnPrint(
     IN CONST CHAR16 *String
     )
 {
-    while (*String) {
-        CnPutChar(mCurrentColumn, mCurrentRow, *String);
-        mCurrentColumn++;
-        if (mCurrentColumn >= mColumns) {
-            mCurrentColumn = 0;
-            mCurrentRow++;
+    CHAR16 Char;
+
+    while (Char = *String++) {
+        switch (Char) {
+            case L'\n': {
+                mCurrentColumn = 0;
+                mCurrentRow++;
+                break;
+            }
+            default: {
+                CnPutChar(mCurrentColumn, mCurrentRow, Char);
+                mCurrentColumn++;
+                if (mCurrentColumn >= mColumns) {
+                    mCurrentColumn = 0;
+                    mCurrentRow++;
+                }
+            }
         }
-        String++;
+        if (mCurrentRow == mRows) {
+            // ScrollToNewRow();
+            // mCurrentRow--;
+            mCurrentRow = 0;
+        }
     }
+}
+
+VOID
+ScrollToNewRow ()
+{
+    UINT32  DestinationY;
+    UINT32  SourceY;
+    UINTN   NoLines;
+    UINT32  LastRowX;
+    UINT32  LastRowY;
+    UINT32  LastRowWidth;
+
+    DestinationY =  mVerticalPaddingPixels;
+    SourceY = CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
+    NoLines = CELL_HEIGHT_PIXELS * (mRows - 1);
+    LastRowX = 0;
+    LastRowY = NoLines + mVerticalPaddingPixels;
+    LastRowWidth = GfxGetHorizontalResolution();
+    GfxBltLines(DestinationY, SourceY, NoLines);
+    GfxFillBlock(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
 }
 
 VOID
@@ -63,4 +101,12 @@ CnPutChar (
     Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
 
     GfxFillBlock(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+}
+
+VOID
+CnSetForegroundColor (
+    IN UINT32 Color
+    )
+{
+    mForegroundColor = Color;
 }

@@ -12,6 +12,13 @@ GfxInitializeGraphics (
     );
 
 VOID
+GfxBltLines (
+    IN UINT32   DestinationY,
+    IN UINT32   SourceY,
+    IN UINTN    NoLines
+    );
+
+VOID
 GfxDrawBitmap (
     IN UINT32       X,
     IN UINT32       Y,

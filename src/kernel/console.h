@@ -18,4 +18,9 @@ CnPutChar (
     IN CHAR16 Char
     );
 
+VOID
+CnSetForegroundColor (
+    IN UINT32 Color
+    );
+
 #endif

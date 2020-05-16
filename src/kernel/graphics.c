@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "runtime.h"
 
 static UINT64 mFrameBufferBase;
 static UINT64 mFrameBufferSize;
@@ -17,6 +18,23 @@ GfxInitializeGraphics (
     mFrameBufferSize = FrameBufferSize;
     mHorizontalResolution = HorizontalResolution;
     mVerticalResolution = VerticalResolution;
+}
+
+VOID
+GfxBltLines (
+    IN UINT32   DestinationY,
+    IN UINT32   SourceY,
+    IN UINTN    NoLines
+    )
+{
+    VOID *Source;
+    VOID *Destination;
+    UINTN Length;
+
+    Source = ((UINT32 *)mFrameBufferBase) + (SourceY * mHorizontalResolution);
+    Destination = ((UINT32 *)mFrameBufferBase) + (DestinationY * mHorizontalResolution);
+    Length = NoLines * mHorizontalResolution * sizeof(UINT32);
+    RtCopyMemory(Destination, Source, Length);
 }
 
 VOID
