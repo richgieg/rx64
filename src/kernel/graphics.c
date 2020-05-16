@@ -130,6 +130,24 @@ GfxFillScreen (
     GfxFillBuffer(&mFrameBuffer, Color);
 }
 
+VOID
+GfxCopyBuffer (
+    IN CONST GFX_FRAME_BUFFER *DestinationBuffer,
+    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    )
+{
+    RtCopyMemory((VOID *)DestinationBuffer->Base,
+        (VOID *)SourceBuffer->Base, DestinationBuffer->Size);
+}
+
+VOID
+GfxCopyBufferToScreen (
+    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    )
+{
+    GfxCopyBuffer(&mFrameBuffer, SourceBuffer);
+}
+
 UINT32
 GfxGetHorizontalResolution ()
 {

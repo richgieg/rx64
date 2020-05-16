@@ -66,6 +66,17 @@ GfxFillScreen (
     IN UINT32 Color
     );
 
+VOID
+GfxCopyBuffer (
+    IN CONST GFX_FRAME_BUFFER *DestinationBuffer,
+    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    );
+
+VOID
+GfxCopyBufferToScreen (
+    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    );
+
 UINT32
 GfxGetHorizontalResolution ();
 
