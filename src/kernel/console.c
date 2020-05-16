@@ -29,6 +29,8 @@ CnInitializeConsole ()
     mCurrentRow = 0;
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
+
+    // TODO: Get new frame buffer from graphics module!
     mFrameBuffer.Base = 0x700000;
     mFrameBuffer.HorizontalResolution = GfxGetHorizontalResolution();
     mFrameBuffer.VerticalResolution = GfxGetVerticalResolution();
