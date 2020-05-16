@@ -37,6 +37,16 @@ GfxDrawBitmap (
     );
 
 VOID
+GfxFillBlockInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   Color
+    );
+
+VOID
 GfxFillBlockOnScreen (
     IN UINT32 X,
     IN UINT32 Y,

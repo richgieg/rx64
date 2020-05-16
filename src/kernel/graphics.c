@@ -71,6 +71,29 @@ GfxDrawBitmap (
 }
 
 VOID
+GfxFillBlockInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   Color
+    )
+{
+    UINTN i;
+    UINTN j;
+    UINT32 *Pixel;
+
+    for (i = 0; i < Height; i++) {
+        Pixel = ((UINT32 *)FrameBuffer->Base) + ((i + Y) * FrameBuffer->HorizontalResolution) + X;
+        for (j = 0; j < Width; j++) {
+            *Pixel = Color;
+            Pixel++;
+        }
+    }
+}
+
+VOID
 GfxFillBlockOnScreen (
     IN UINT32 X,
     IN UINT32 Y,
@@ -79,17 +102,7 @@ GfxFillBlockOnScreen (
     IN UINT32 Color
     )
 {
-    UINTN i;
-    UINTN j;
-    UINT32 *Pixel;
-
-    for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)mFrameBuffer.Base) + ((i + Y) * mFrameBuffer.HorizontalResolution) + X;
-        for (j = 0; j < Width; j++) {
-            *Pixel = Color;
-            Pixel++;
-        }
-    }
+    GfxFillBlockInBuffer(&mFrameBuffer, X, Y, Width, Height, Color);
 }
 
 VOID

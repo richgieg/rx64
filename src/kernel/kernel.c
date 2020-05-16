@@ -29,6 +29,7 @@ KernelEntry (
     // }
 
     GfxFillScreen(255);
+    GfxFillBlockOnScreen(800, 600, 160, 160, 0xff00);
 
     for (;;) {
         asm("hlt");
