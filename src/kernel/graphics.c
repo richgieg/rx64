@@ -71,7 +71,7 @@ GfxDrawBitmap (
 }
 
 VOID
-GfxFillBlock (
+GfxFillBlockOnScreen (
     IN UINT32 X,
     IN UINT32 Y,
     IN UINT32 Width,

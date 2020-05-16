@@ -80,7 +80,7 @@ ScrollToNewRow ()
     LastRowY = NoLines + mVerticalPaddingPixels;
     LastRowWidth = GfxGetHorizontalResolution();
     GfxBltLines(DestinationY, SourceY, NoLines);
-    GfxFillBlock(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+    GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
 }
 
 VOID
@@ -100,7 +100,7 @@ CnPutChar (
     X = Column * CELL_WIDTH_PIXELS + mHorizontalPaddingPixels;
     Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
 
-    GfxFillBlock(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+    GfxFillBlockOnScreen(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
 }
 
 VOID
