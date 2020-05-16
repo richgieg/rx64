@@ -22,17 +22,17 @@ GfxInitializeGraphics (
 GFX_FRAME_BUFFER *
 GfxCreateBuffer ()
 {
-    GFX_FRAME_BUFFER *FrameBuffer;
-    FrameBuffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
-    FrameBuffer->HorizontalResolution = GfxGetHorizontalResolution();
-    FrameBuffer->VerticalResolution = GfxGetVerticalResolution();
-    FrameBuffer->Size = mScreenBuffer->HorizontalResolution * mScreenBuffer->VerticalResolution * 4;
-    FrameBuffer->Base = (UINTN)MmAllocatePages(mScreenBuffer->Size / MM_PAGE_SIZE);
+    GFX_FRAME_BUFFER *Buffer;
+    Buffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
+    Buffer->HorizontalResolution = GfxGetHorizontalResolution();
+    Buffer->VerticalResolution = GfxGetVerticalResolution();
+    Buffer->Size = mScreenBuffer->HorizontalResolution * mScreenBuffer->VerticalResolution * 4;
+    Buffer->Base = (UINTN)MmAllocatePages(mScreenBuffer->Size / MM_PAGE_SIZE);
 }
 
 VOID
 GfxBltLinesInBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   DestinationY,
     IN UINT32                   SourceY,
     IN UINTN                    NoLines
@@ -42,9 +42,9 @@ GfxBltLinesInBuffer (
     VOID *Destination;
     UINTN Length;
 
-    Source = ((UINT32 *)FrameBuffer->Base) + (SourceY * FrameBuffer->HorizontalResolution);
-    Destination = ((UINT32 *)FrameBuffer->Base) + (DestinationY * FrameBuffer->HorizontalResolution);
-    Length = NoLines * FrameBuffer->HorizontalResolution * sizeof(UINT32);
+    Source = ((UINT32 *)Buffer->Base) + (SourceY * Buffer->HorizontalResolution);
+    Destination = ((UINT32 *)Buffer->Base) + (DestinationY * Buffer->HorizontalResolution);
+    Length = NoLines * Buffer->HorizontalResolution * sizeof(UINT32);
     RtCopyMemory(Destination, Source, Length);
 }
 
@@ -66,7 +66,7 @@ GfxDrawBitmap (
     IN UINT32       Height,
     IN UINT32       mForegroundColor,
     IN UINT32       mBackgroundColor,
-    IN CONST UINT8  *SrcBuffer
+    IN CONST UINT8  *Bitmap
     )
 {
     UINTN   i;
@@ -75,7 +75,7 @@ GfxDrawBitmap (
     UINT8   Bits;
     UINTN   BitCounter;
 
-    Bits = *SrcBuffer;
+    Bits = *Bitmap;
     BitCounter = 0;
 
     for (i = 0; i < Height; i++) {
@@ -86,8 +86,8 @@ GfxDrawBitmap (
             Pixel++;
             BitCounter++;
             if (BitCounter == 8) {
-                SrcBuffer++;
-                Bits = *SrcBuffer;
+                Bitmap++;
+                Bits = *Bitmap;
                 BitCounter = 0;
             }
         }
@@ -96,7 +96,7 @@ GfxDrawBitmap (
 
 VOID
 GfxFillBlockInBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   X,
     IN UINT32                   Y,
     IN UINT32                   Width,
@@ -109,7 +109,7 @@ GfxFillBlockInBuffer (
     UINT32 *Pixel;
 
     for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)FrameBuffer->Base) + ((i + Y) * FrameBuffer->HorizontalResolution) + X;
+        Pixel = ((UINT32 *)Buffer->Base) + ((i + Y) * Buffer->HorizontalResolution) + X;
         for (j = 0; j < Width; j++) {
             *Pixel = Color;
             Pixel++;
@@ -131,15 +131,15 @@ GfxFillBlockOnScreen (
 
 VOID
 GfxFillBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   Color
     )
 {
     UINT32 *Pixel;
     UINT32 *MaxPixel;
     
-    Pixel = (UINT32 *)FrameBuffer->Base;
-    MaxPixel =  (UINT32 *)FrameBuffer->Base + FrameBuffer->Size;
+    Pixel = (UINT32 *)Buffer->Base;
+    MaxPixel =  (UINT32 *)Buffer->Base + Buffer->Size;
     while (Pixel < MaxPixel) {
         *Pixel = Color;
         Pixel++;
@@ -166,10 +166,10 @@ GfxCopyBuffer (
 
 VOID
 GfxCopyBufferToScreen (
-    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    IN CONST GFX_FRAME_BUFFER *Buffer
     )
 {
-    GfxCopyBuffer(mScreenBuffer, SourceBuffer);
+    GfxCopyBuffer(mScreenBuffer, Buffer);
 }
 
 UINT32

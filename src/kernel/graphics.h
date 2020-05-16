@@ -23,7 +23,7 @@ GfxCreateBuffer ();
 
 VOID
 GfxBltLinesInBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   DestinationY,
     IN UINT32                   SourceY,
     IN UINTN                    NoLines
@@ -49,7 +49,7 @@ GfxDrawBitmap (
 
 VOID
 GfxFillBlockInBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   X,
     IN UINT32                   Y,
     IN UINT32                   Width,
@@ -68,7 +68,7 @@ GfxFillBlockOnScreen (
 
 VOID
 GfxFillBuffer (
-    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   Color
     );
 
@@ -85,7 +85,7 @@ GfxCopyBuffer (
 
 VOID
 GfxCopyBufferToScreen (
-    IN CONST GFX_FRAME_BUFFER *SourceBuffer
+    IN CONST GFX_FRAME_BUFFER *Buffer
     );
 
 UINT32
