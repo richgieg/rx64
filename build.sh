@@ -19,6 +19,10 @@ gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
 gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
     -o bin/kernel/graphics.o src/kernel/graphics.c
 
+# Memory
+gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
+    -o bin/kernel/memory.o src/kernel/memory.c
+
 # Runtime
 gcc -c -fno-stack-protector -fshort-wchar -mno-red-zone \
     -o bin/kernel/runtime.o src/kernel/runtime.c
@@ -31,6 +35,7 @@ ld \
     bin/kernel/kernel.o \
     bin/kernel/console.o \
     bin/kernel/graphics.o \
+    bin/kernel/memory.o \
     bin/kernel/runtime.o \
     bin/kernel/util.o \
     --entry KernelEntry \

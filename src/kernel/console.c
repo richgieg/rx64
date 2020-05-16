@@ -1,6 +1,7 @@
 #include "console.h"
 #include "graphics.h"
 #include "kernel.h"
+#include "memory.h"
 
 #define CELL_WIDTH_PIXELS      8
 #define CELL_HEIGHT_PIXELS     19
@@ -31,10 +32,10 @@ CnInitializeConsole ()
     mBackgroundColor = 0;            // black
 
     // TODO: Get new frame buffer from graphics module!
-    mFrameBuffer.Base = 0x700000;
     mFrameBuffer.HorizontalResolution = GfxGetHorizontalResolution();
     mFrameBuffer.VerticalResolution = GfxGetVerticalResolution();
     mFrameBuffer.Size = mFrameBuffer.HorizontalResolution * mFrameBuffer.VerticalResolution * 4;
+    mFrameBuffer.Base = (UINTN)MmAllocatePages(mFrameBuffer.Size / MM_PAGE_SIZE);
     
     GfxFillScreen(mBackgroundColor);
     GfxFillBuffer(&mFrameBuffer, mBackgroundColor);
