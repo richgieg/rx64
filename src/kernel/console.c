@@ -86,9 +86,24 @@ ScrollToNewRow ()
     LastRowX = 0;
     LastRowY = NoLines + mVerticalPaddingPixels;
     LastRowWidth = GfxGetHorizontalResolution();
+
+    // Scrolls rows (second through last) up to the first row.
     GfxBltLinesInBuffer(&mFrameBuffer, DestinationY, SourceY, NoLines);
     GfxFillBlockInBuffer(&mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
     GfxCopyBufferToScreen(&mFrameBuffer);
+
+    // NOTE: Below is my original method. It's fast in a virtual machine,
+    // but very slow when running on my Dell G5 laptop. Writing to the
+    // screen's framebuffer is fine, but it seems that reading from it is
+    // very slow. This is why I decided that the console should maintain
+    // its own backup framebuffer. CnPutChar draws on the screen as well
+    // as the backup framebuffer, so they both have the same content.
+    // The scrolling is performed only in the backup framebuffer so we
+    // don't have to read from the screen's framebuffer. The contents of
+    // the backup framebuffer are then copied to the screen.
+
+    // GfxBltLinesOnScreen(DestinationY, SourceY, NoLines);
+    // GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
 }
 
 VOID

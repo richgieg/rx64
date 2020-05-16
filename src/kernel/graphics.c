@@ -36,6 +36,16 @@ GfxBltLinesInBuffer (
 }
 
 VOID
+GfxBltLinesOnScreen (
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINTN                    NoLines
+    )
+{
+    GfxBltLinesInBuffer(&mFrameBuffer, DestinationY, SourceY, NoLines);
+}
+
+VOID
 GfxDrawBitmap (
     IN UINT32       X,
     IN UINT32       Y,
