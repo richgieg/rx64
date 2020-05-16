@@ -37,14 +37,26 @@ GfxBltLinesOnScreen (
     );
 
 VOID
-GfxDrawBitmap (
-    IN UINT32       X,
-    IN UINT32       Y,
-    IN UINT32       Width,
-    IN UINT32       Height,
-    IN UINT32       mForegroundColor,
-    IN UINT32       mBackgroundColor,
-    IN CONST UINT8  *SrcBuffer
+GfxDrawBitmapInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   mForegroundColor,
+    IN UINT32                   mBackgroundColor,
+    IN CONST UINT8              *Bitmap
+    );
+
+VOID
+GfxDrawBitmapOnScreen (
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   mForegroundColor,
+    IN UINT32                   mBackgroundColor,
+    IN CONST UINT8              *Bitmap
     );
 
 VOID
@@ -95,6 +107,6 @@ UINT32
 GfxGetVerticalResolution ();
 
 VOID
-GfxPlayDrawMemoryAsBitmapDemo ();
+GfxDemo_DrawMemoryAsBitmap ();
 
 #endif

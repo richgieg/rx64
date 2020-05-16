@@ -59,14 +59,15 @@ GfxBltLinesOnScreen (
 }
 
 VOID
-GfxDrawBitmap (
-    IN UINT32       X,
-    IN UINT32       Y,
-    IN UINT32       Width,
-    IN UINT32       Height,
-    IN UINT32       mForegroundColor,
-    IN UINT32       mBackgroundColor,
-    IN CONST UINT8  *Bitmap
+GfxDrawBitmapInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   mForegroundColor,
+    IN UINT32                   mBackgroundColor,
+    IN CONST UINT8              *Bitmap
     )
 {
     UINTN   i;
@@ -92,6 +93,21 @@ GfxDrawBitmap (
             }
         }
     }
+}
+
+VOID
+GfxDrawBitmapOnScreen (
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
+    IN CONST UINT8              *Bitmap
+    )
+{
+    GfxDrawBitmapInBuffer(mScreenBuffer, X, Y, Width, Height,
+        ForegroundColor, BackgroundColor, Bitmap);
 }
 
 VOID
@@ -185,13 +201,13 @@ GfxGetVerticalResolution ()
 }
 
 VOID
-GfxPlayDrawMemoryAsBitmapDemo ()
+GfxDemo_DrawMemoryAsBitmap ()
 {
     UINT8 *Memory = 0;
 
     while (1) {
-        GfxDrawBitmap(0, 0, mScreenBuffer->HorizontalResolution, mScreenBuffer->VerticalResolution,
-            0x0000ff00, 0, Memory);
+        GfxDrawBitmapOnScreen(0, 0, mScreenBuffer->HorizontalResolution,
+            mScreenBuffer->VerticalResolution, 0x0000ff00, 0, Memory);
         Memory += mScreenBuffer->HorizontalResolution * mScreenBuffer->VerticalResolution / 8;
     }
 }
