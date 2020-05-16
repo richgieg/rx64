@@ -20,12 +20,18 @@ KernelEntry (
 
     CnInitializeConsole();
 
-    UINT32 Color = 0;
-    for (;;) {
-        CnSetForegroundColor(Color);
-        CnPrint(L"!");
-        Color++;
-    }
+    CnPrint(L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+    CnPrint(L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+    CnPrint(L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+    CnPrint(L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+    CnPrint(L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+
+    // UINT32 Color = 0;
+    // for (;;) {
+    //     CnSetForegroundColor(Color);
+    //     CnPrint(L"!");
+    //     Color++;
+    // }
 
     for (;;) {
         asm("hlt");
