@@ -93,19 +93,28 @@ GfxFillBlock (
 }
 
 VOID
-GfxFillScreen (
-    IN UINT32 Color
+GfxFillBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   Color
     )
 {
     UINT32 *Pixel;
     UINT32 *MaxPixel;
-
-    Pixel = (UINT32 *)mFrameBuffer.Base;
-    MaxPixel =  (UINT32 *) mFrameBuffer.Base + mFrameBuffer.Size;
+    
+    Pixel = (UINT32 *)FrameBuffer->Base;
+    MaxPixel =  (UINT32 *)FrameBuffer->Base + FrameBuffer->Size;
     while (Pixel < MaxPixel) {
         *Pixel = Color;
         Pixel++;
     }
+}
+
+VOID
+GfxFillScreen (
+    IN UINT32 Color
+    )
+{
+    GfxFillBuffer(&mFrameBuffer, Color);
 }
 
 UINT32

@@ -46,6 +46,12 @@ GfxFillBlock (
     );
 
 VOID
+GfxFillBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   Color
+    );
+
+VOID
 GfxFillScreen (
     IN UINT32 Color
     );
