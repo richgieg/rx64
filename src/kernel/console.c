@@ -138,6 +138,45 @@ CnSetForegroundColor (
     mForegroundColor = Color;
 }
 
+VOID
+CnDemo_ColorfulChars ()
+{
+    UINT32 Color = 0;
+    CHAR16 *String = L" ";
+
+    for (;;) {
+        CnSetForegroundColor(Color);
+        CnPrint(String);
+        Color++;
+        (*String)++;
+        if (*String == 0x7f) {
+            *String = 0x20;
+        }
+    }
+}
+
+VOID
+CnDemo_PrintMemory ()
+{
+    UINT32 Color = 0;
+    UINT8 *Memory = 0;
+    CHAR16 *String = L" ";
+
+    for (;;) {
+        if (*Memory > FIRST_PRINTABLE_CHAR && *Memory <= LAST_PRINTABLE_CHAR) {
+            String[0] = (CHAR16)(*Memory);
+            CnSetForegroundColor(Color);
+            Color++;
+        } else {
+            String[0] = L' ';
+        }
+        CnPrint(String);
+        Memory++;
+    }
+}
+
+
+
 static UINT8 Font[] = {
 
     ////////////////////////////////

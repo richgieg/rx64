@@ -23,4 +23,10 @@ CnSetForegroundColor (
     IN UINT32 Color
     );
 
+VOID
+CnDemo_ColorfulChars ();
+
+VOID
+CnDemo_PrintMemory ();
+
 #endif
