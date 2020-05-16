@@ -153,7 +153,7 @@ GfxFillBuffer (
 {
     UINT32 *Pixel;
     UINT32 *MaxPixel;
-    
+
     Pixel = (UINT32 *)Buffer->Base;
     MaxPixel =  (UINT32 *)Buffer->Base + Buffer->Size;
     while (Pixel < MaxPixel) {
