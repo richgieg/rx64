@@ -1,23 +1,20 @@
 #include "graphics.h"
 #include "runtime.h"
 
-static UINT64 mFrameBufferBase;
-static UINT64 mFrameBufferSize;
-static UINT32 mHorizontalResolution;
-static UINT32 mVerticalResolution;
+static GFX_FRAME_BUFFER mFrameBuffer;
 
 VOID
 GfxInitializeGraphics (
-    IN UINT64 FrameBufferBase,
-    IN UINT64 FrameBufferSize,
+    IN UINTN  FrameBufferBase,
+    IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution
     )
 {
-    mFrameBufferBase = FrameBufferBase;
-    mFrameBufferSize = FrameBufferSize;
-    mHorizontalResolution = HorizontalResolution;
-    mVerticalResolution = VerticalResolution;
+    mFrameBuffer.Base = FrameBufferBase;
+    mFrameBuffer.Size = FrameBufferSize;
+    mFrameBuffer.HorizontalResolution = HorizontalResolution;
+    mFrameBuffer.VerticalResolution = VerticalResolution;
 }
 
 VOID
@@ -31,9 +28,9 @@ GfxBltLines (
     VOID *Destination;
     UINTN Length;
 
-    Source = ((UINT32 *)mFrameBufferBase) + (SourceY * mHorizontalResolution);
-    Destination = ((UINT32 *)mFrameBufferBase) + (DestinationY * mHorizontalResolution);
-    Length = NoLines * mHorizontalResolution * sizeof(UINT32);
+    Source = ((UINT32 *)mFrameBuffer.Base) + (SourceY * mFrameBuffer.Base);
+    Destination = ((UINT32 *)mFrameBuffer.Base) + (DestinationY * mFrameBuffer.HorizontalResolution);
+    Length = NoLines * mFrameBuffer.HorizontalResolution * sizeof(UINT32);
     RtCopyMemory(Destination, Source, Length);
 }
 
@@ -58,7 +55,7 @@ GfxDrawBitmap (
     BitCounter = 0;
 
     for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)mFrameBufferBase) + ((i + Y) * mHorizontalResolution) + X;
+        Pixel = ((UINT32 *)mFrameBuffer.Base) + ((i + Y) * mFrameBuffer.HorizontalResolution) + X;
         for (j = 0; j < Width; j++) {
             *Pixel = (Bits & 0x80) ? mForegroundColor : mBackgroundColor;
             Bits = Bits << 1;
@@ -87,7 +84,7 @@ GfxFillBlock (
     UINT32 *Pixel;
 
     for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)mFrameBufferBase) + ((i + Y) * mHorizontalResolution) + X;
+        Pixel = ((UINT32 *)mFrameBuffer.Base) + ((i + Y) * mFrameBuffer.HorizontalResolution) + X;
         for (j = 0; j < Width; j++) {
             *Pixel = Color;
             Pixel++;
@@ -103,8 +100,8 @@ GfxFillScreen (
     UINT32 *Pixel;
     UINT32 *MaxPixel;
 
-    Pixel = (UINT32 *)mFrameBufferBase;
-    MaxPixel =  (UINT32 *)mFrameBufferBase + mFrameBufferSize;
+    Pixel = (UINT32 *)mFrameBuffer.Base;
+    MaxPixel =  (UINT32 *) mFrameBuffer.Base + mFrameBuffer.Size;
     while (Pixel < MaxPixel) {
         *Pixel = Color;
         Pixel++;
@@ -114,13 +111,13 @@ GfxFillScreen (
 UINT32
 GfxGetHorizontalResolution ()
 {
-    return mHorizontalResolution;
+    return mFrameBuffer.HorizontalResolution;
 }
 
 UINT32
 GfxGetVerticalResolution ()
 {
-    return mVerticalResolution;
+    return mFrameBuffer.VerticalResolution;
 }
 
 VOID
@@ -129,8 +126,8 @@ GfxPlayDrawMemoryAsBitmapDemo ()
     UINT8 *Memory = 0;
 
     while (1) {
-        GfxDrawBitmap(0, 0, mHorizontalResolution, mVerticalResolution,
+        GfxDrawBitmap(0, 0, mFrameBuffer.HorizontalResolution, mFrameBuffer.VerticalResolution,
             0x0000ff00, 0, Memory);
-        Memory += mHorizontalResolution * mVerticalResolution / 8;
+        Memory += mFrameBuffer.HorizontalResolution * mFrameBuffer.VerticalResolution / 8;
     }
 }

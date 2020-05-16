@@ -3,10 +3,17 @@
 
 #include "types.h"
 
+typedef struct _GFX_FRAME_BUFFER {
+    UINTN   Base;
+    UINTN   Size;
+    UINT32  HorizontalResolution;
+    UINT32  VerticalResolution;
+} GFX_FRAME_BUFFER;
+
 VOID
 GfxInitializeGraphics (
-    IN UINT64 FrameBufferBase,
-    IN UINT64 FrameBufferSize,
+    IN UINTN  FrameBufferBase,
+    IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution
     );
