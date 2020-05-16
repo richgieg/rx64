@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "memory.h"
 #include "runtime.h"
 
 static GFX_FRAME_BUFFER mFrameBuffer;
@@ -15,6 +16,17 @@ GfxInitializeGraphics (
     mFrameBuffer.Size = FrameBufferSize;
     mFrameBuffer.HorizontalResolution = HorizontalResolution;
     mFrameBuffer.VerticalResolution = VerticalResolution;
+}
+
+GFX_FRAME_BUFFER *
+GfxCreateBuffer ()
+{
+    GFX_FRAME_BUFFER *FrameBuffer;
+    FrameBuffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
+    FrameBuffer->HorizontalResolution = GfxGetHorizontalResolution();
+    FrameBuffer->VerticalResolution = GfxGetVerticalResolution();
+    FrameBuffer->Size = mFrameBuffer.HorizontalResolution * mFrameBuffer.VerticalResolution * 4;
+    FrameBuffer->Base = (UINTN)MmAllocatePages(mFrameBuffer.Size / MM_PAGE_SIZE);
 }
 
 VOID

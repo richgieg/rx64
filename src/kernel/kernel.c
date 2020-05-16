@@ -2,12 +2,15 @@
 #include "console.h"
 #include "graphics.h"
 #include "kernel.h"
+#include "memory.h"
 
 VOID
 KernelEntry (
     IN LOADER_INFO *LoaderInfo
     )
 {
+    MmInitialize();
+
     GfxInitializeGraphics(
         LoaderInfo->Graphics.FrameBufferBase,
         LoaderInfo->Graphics.FrameBufferSize,

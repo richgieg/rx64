@@ -5,9 +5,17 @@
 
 #define MM_PAGE_SIZE 4096
 
+VOID
+MmInitialize ();
+
 VOID *
 MmAllocatePages (
     UINTN NoPages
+    );
+
+VOID *
+MmAllocatePool (
+    UINTN Size
     );
 
 #endif

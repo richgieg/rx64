@@ -6,15 +6,15 @@
 #define CELL_WIDTH_PIXELS      8
 #define CELL_HEIGHT_PIXELS     19
 
-static UINT16 mColumns;
-static UINT16 mRows;
-static UINT16 mHorizontalPaddingPixels;
-static UINT16 mVerticalPaddingPixels;
-static UINT16 mCurrentColumn;
-static UINT16 mCurrentRow;
-static UINT32 mForegroundColor;
-static UINT32 mBackgroundColor;
-static GFX_FRAME_BUFFER mFrameBuffer;
+static UINT16           mColumns;
+static UINT16           mRows;
+static UINT16           mHorizontalPaddingPixels;
+static UINT16           mVerticalPaddingPixels;
+static UINT16           mCurrentColumn;
+static UINT16           mCurrentRow;
+static UINT32           mForegroundColor;
+static UINT32           mBackgroundColor;
+static GFX_FRAME_BUFFER *mFrameBuffer;
 
 VOID
 ScrollToNewRow ();
@@ -30,15 +30,10 @@ CnInitializeConsole ()
     mCurrentRow = 0;
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
+    mFrameBuffer = GfxCreateBuffer();
 
-    // TODO: Get new frame buffer from graphics module!
-    mFrameBuffer.HorizontalResolution = GfxGetHorizontalResolution();
-    mFrameBuffer.VerticalResolution = GfxGetVerticalResolution();
-    mFrameBuffer.Size = mFrameBuffer.HorizontalResolution * mFrameBuffer.VerticalResolution * 4;
-    mFrameBuffer.Base = (UINTN)MmAllocatePages(mFrameBuffer.Size / MM_PAGE_SIZE);
-    
     GfxFillScreen(mBackgroundColor);
-    GfxFillBuffer(&mFrameBuffer, mBackgroundColor);
+    GfxFillBuffer(mFrameBuffer, mBackgroundColor);
 }
 
 VOID
@@ -89,9 +84,9 @@ ScrollToNewRow ()
     LastRowWidth = GfxGetHorizontalResolution();
 
     // Scrolls rows (second through last) up to the first row.
-    GfxBltLinesInBuffer(&mFrameBuffer, DestinationY, SourceY, NoLines);
-    GfxFillBlockInBuffer(&mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
-    GfxCopyBufferToScreen(&mFrameBuffer);
+    GfxBltLinesInBuffer(mFrameBuffer, DestinationY, SourceY, NoLines);
+    GfxFillBlockInBuffer(mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+    GfxCopyBufferToScreen(mFrameBuffer);
 
     // NOTE: Below is my original method. It's fast in a virtual machine,
     // but very slow when running on my Dell G5 laptop. Writing to the
@@ -125,7 +120,7 @@ CnPutChar (
     Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
 
     GfxFillBlockOnScreen(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
-    GfxFillBlockInBuffer(&mFrameBuffer, X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+    GfxFillBlockInBuffer(mFrameBuffer, X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
 }
 
 VOID

@@ -18,6 +18,9 @@ GfxInitializeGraphics (
     IN UINT32 VerticalResolution
     );
 
+GFX_FRAME_BUFFER *
+GfxCreateBuffer ();
+
 VOID
 GfxBltLinesInBuffer (
     IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
