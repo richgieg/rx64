@@ -65,8 +65,8 @@ GfxDrawBitmapInBuffer (
     IN UINT32                   Y,
     IN UINT32                   Width,
     IN UINT32                   Height,
-    IN UINT32                   mForegroundColor,
-    IN UINT32                   mBackgroundColor,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
     IN CONST UINT8              *Bitmap
     )
 {
@@ -80,9 +80,9 @@ GfxDrawBitmapInBuffer (
     BitCounter = 0;
 
     for (i = 0; i < Height; i++) {
-        Pixel = ((UINT32 *)mScreenBuffer->Base) + ((i + Y) * mScreenBuffer->HorizontalResolution) + X;
+        Pixel = ((UINT32 *)Buffer->Base) + ((i + Y) * Buffer->HorizontalResolution) + X;
         for (j = 0; j < Width; j++) {
-            *Pixel = (Bits & 0x80) ? mForegroundColor : mBackgroundColor;
+            *Pixel = (Bits & 0x80) ? ForegroundColor : BackgroundColor;
             Bits = Bits << 1;
             Pixel++;
             BitCounter++;

@@ -3,8 +3,11 @@
 #include "kernel.h"
 #include "memory.h"
 
-#define CELL_WIDTH_PIXELS      8
-#define CELL_HEIGHT_PIXELS     19
+#define CELL_WIDTH_PIXELS       8
+#define CELL_HEIGHT_PIXELS      19
+
+#define FIRST_PRINTABLE_CHAR    0x20
+#define LAST_PRINTABLE_CHAR     0x7e
 
 static UINT16           mColumns;
 static UINT16           mRows;
@@ -15,6 +18,7 @@ static UINT16           mCurrentRow;
 static UINT32           mForegroundColor;
 static UINT32           mBackgroundColor;
 static GFX_FRAME_BUFFER *mFrameBuffer;
+static UINT8            Font[];
 
 VOID
 ScrollToNewRow ();
@@ -113,14 +117,17 @@ CnPutChar (
         KeBugCheck();
     }
 
-    UINT32 X;
-    UINT32 Y;
+    UINT32  X;
+    UINT32  Y;
+    UINT8   *Bitmap;
 
-    X = Column * CELL_WIDTH_PIXELS + mHorizontalPaddingPixels;
-    Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
-
-    GfxFillBlockOnScreen(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
-    GfxFillBlockInBuffer(mFrameBuffer, X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+    if (Char >= FIRST_PRINTABLE_CHAR && Char <= LAST_PRINTABLE_CHAR) {
+        X = Column * CELL_WIDTH_PIXELS + mHorizontalPaddingPixels;
+        Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
+        Bitmap = &Font[(Char - FIRST_PRINTABLE_CHAR) * CELL_HEIGHT_PIXELS];
+        GfxDrawBitmapOnScreen(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor, mBackgroundColor, Bitmap);
+        GfxDrawBitmapInBuffer(mFrameBuffer, X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor, mBackgroundColor, Bitmap);
+    }
 }
 
 VOID
@@ -130,3 +137,49 @@ CnSetForegroundColor (
 {
     mForegroundColor = Color;
 }
+
+static UINT8 Font[] = {
+
+    // 0x20     Space   (FIRST_PRINTABLE_CHAR)
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+
+    // 0x21     !
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00000000,
+    0b00000000,
+    0b00011000,
+    0b00011000,
+    0b00000000,
+    0b00000000,
+    0b00000000
+
+};

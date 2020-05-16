@@ -23,7 +23,7 @@ KernelEntry (
     UINT32 Color = 0;
     for (;;) {
         CnSetForegroundColor(Color);
-        CnPrint(L"A");
+        CnPrint(L"!");
         Color++;
     }
 

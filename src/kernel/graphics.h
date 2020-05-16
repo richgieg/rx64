@@ -43,8 +43,8 @@ GfxDrawBitmapInBuffer (
     IN UINT32                   Y,
     IN UINT32                   Width,
     IN UINT32                   Height,
-    IN UINT32                   mForegroundColor,
-    IN UINT32                   mBackgroundColor,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
     IN CONST UINT8              *Bitmap
     );
 
@@ -54,8 +54,8 @@ GfxDrawBitmapOnScreen (
     IN UINT32                   Y,
     IN UINT32                   Width,
     IN UINT32                   Height,
-    IN UINT32                   mForegroundColor,
-    IN UINT32                   mBackgroundColor,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
     IN CONST UINT8              *Bitmap
     );
 
