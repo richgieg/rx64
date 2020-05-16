@@ -19,10 +19,11 @@ GfxInitializeGraphics (
     );
 
 VOID
-GfxBltLines (
-    IN UINT32   DestinationY,
-    IN UINT32   SourceY,
-    IN UINTN    NoLines
+GfxBltLinesInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINTN                    NoLines
     );
 
 VOID

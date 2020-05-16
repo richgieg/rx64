@@ -13,6 +13,7 @@ static UINT16 mCurrentColumn;
 static UINT16 mCurrentRow;
 static UINT32 mForegroundColor;
 static UINT32 mBackgroundColor;
+static GFX_FRAME_BUFFER mFrameBuffer;
 
 VOID
 ScrollToNewRow ();
@@ -28,8 +29,13 @@ CnInitializeConsole ()
     mCurrentRow = 0;
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
+    mFrameBuffer.Base = 0x700000;
+    mFrameBuffer.HorizontalResolution = GfxGetHorizontalResolution();
+    mFrameBuffer.VerticalResolution = GfxGetVerticalResolution();
+    mFrameBuffer.Size = mFrameBuffer.HorizontalResolution * mFrameBuffer.VerticalResolution * 4;
     
     GfxFillScreen(mBackgroundColor);
+    GfxFillBuffer(&mFrameBuffer, mBackgroundColor);
 }
 
 VOID
@@ -56,9 +62,8 @@ CnPrint(
             }
         }
         if (mCurrentRow == mRows) {
-            // ScrollToNewRow();
-            // mCurrentRow--;
-            mCurrentRow = 0;
+            ScrollToNewRow();
+            mCurrentRow--;
         }
     }
 }
@@ -79,8 +84,9 @@ ScrollToNewRow ()
     LastRowX = 0;
     LastRowY = NoLines + mVerticalPaddingPixels;
     LastRowWidth = GfxGetHorizontalResolution();
-    GfxBltLines(DestinationY, SourceY, NoLines);
-    GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+    GfxBltLinesInBuffer(&mFrameBuffer, DestinationY, SourceY, NoLines);
+    GfxFillBlockInBuffer(&mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+    GfxCopyBufferToScreen(&mFrameBuffer);
 }
 
 VOID
@@ -101,6 +107,7 @@ CnPutChar (
     Y = Row * CELL_HEIGHT_PIXELS + mVerticalPaddingPixels;
 
     GfxFillBlockOnScreen(X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
+    GfxFillBlockInBuffer(&mFrameBuffer, X, Y, CELL_WIDTH_PIXELS, CELL_HEIGHT_PIXELS, mForegroundColor);
 }
 
 VOID

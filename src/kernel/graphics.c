@@ -18,19 +18,20 @@ GfxInitializeGraphics (
 }
 
 VOID
-GfxBltLines (
-    IN UINT32   DestinationY,
-    IN UINT32   SourceY,
-    IN UINTN    NoLines
+GfxBltLinesInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *FrameBuffer,
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINTN                    NoLines
     )
 {
     VOID *Source;
     VOID *Destination;
     UINTN Length;
 
-    Source = ((UINT32 *)mFrameBuffer.Base) + (SourceY * mFrameBuffer.Base);
-    Destination = ((UINT32 *)mFrameBuffer.Base) + (DestinationY * mFrameBuffer.HorizontalResolution);
-    Length = NoLines * mFrameBuffer.HorizontalResolution * sizeof(UINT32);
+    Source = ((UINT32 *)FrameBuffer->Base) + (SourceY * FrameBuffer->HorizontalResolution);
+    Destination = ((UINT32 *)FrameBuffer->Base) + (DestinationY * FrameBuffer->HorizontalResolution);
+    Length = NoLines * FrameBuffer->HorizontalResolution * sizeof(UINT32);
     RtCopyMemory(Destination, Source, Length);
 }
 

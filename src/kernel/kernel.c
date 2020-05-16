@@ -15,32 +15,14 @@ KernelEntry (
         LoaderInfo->Graphics.VerticalResolution
     );
 
-    // CnInitializeConsole();
-
-    // for (int i = 0; i < 13440; i++) {
-    //     CnPrint(L"A");
-    // }
-
-    // UINT32 Color = 0;
-
-    // for (;;) {
-    //     CnPrint(L"A");
-    //     CnSetForegroundColor(Color++);
-    // }
-
-    // GfxFillScreen(255);
-    // GfxFillBlockOnScreen(800, 600, 160, 160, 0xff00);
-
-    GFX_FRAME_BUFFER buf;
-    buf.Base = 0x700000;
-    buf.Size = 1920 * 1080 * 4;
-    buf.HorizontalResolution = 1920;
-    buf.VerticalResolution = 1080;
+    CnInitializeConsole();
 
     UINT32 Color = 0;
     for (;;) {
-        GfxFillBuffer(&buf, Color);
-        GfxCopyBufferToScreen(&buf);
+        CnPrint(L"AAAAAAAAAAA\n");
+        CnPrint(L"AAAAAAAAAAAAAAAAA\n");
+        CnPrint(L"AAAAAAAAAAAAAAAAAAAAAAAA\n");
+        CnSetForegroundColor(Color);
         Color++;
     }
 
