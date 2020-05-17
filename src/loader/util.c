@@ -24,6 +24,22 @@ ExitBootServices (
     }
 }
 
+EFI_PHYSICAL_ADDRESS
+GetPml4TableAddress ()
+{
+    EFI_PHYSICAL_ADDRESS Pml4TableAddress;
+
+    asm(
+        "mov %%cr3, %%rax;"
+        "mov %%rax, %0;"
+        :"=r"(Pml4TableAddress)
+        :
+        :"%rax", "%rcx", "%rdx"
+    );
+
+    return Pml4TableAddress;
+}
+
 VOID *
 LoadKernelImage (
     IN EFI_HANDLE   LoaderImageHandle,

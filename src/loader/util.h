@@ -8,6 +8,9 @@ ExitBootServices (
     IN EFI_HANDLE LoaderImageHandle
     );
 
+EFI_PHYSICAL_ADDRESS
+GetPml4TableAddress ();
+
 VOID *
 LoadKernelImage (
     IN EFI_HANDLE   LoaderImageHandle,
