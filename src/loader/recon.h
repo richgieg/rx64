@@ -4,6 +4,9 @@
 #include <efi.h>
 
 VOID
+PrintControlRegisters ();
+
+VOID
 PrintEnvironmentVariables (
     IN BOOLEAN PauseAfterEntry
     );

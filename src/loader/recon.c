@@ -4,6 +4,39 @@
 #include "util.h"
 
 VOID
+PrintControlRegisters ()
+{
+    UINT64 CR0;
+    UINT64 CR3;
+    UINT64 CR4;
+    UINT32 IA32_EFER;
+
+    asm(
+        "mov %%cr0, %%rax;"
+        "mov %%rax, %0;"
+        "mov %%cr3, %%rax;"
+        "mov %%rax, %1;"
+        "mov %%cr4, %%rax;"
+        "mov %%rax, %2;"
+        "mov $0xC0000080, %%ecx;"
+        "rdmsr;"
+        "mov %%eax, %3;"
+
+        :"=r"(CR0),
+         "=r"(CR3),
+         "=r"(CR4),
+         "=r"(IA32_EFER)
+        :
+        :"%rax", "%rcx", "%rdx"
+    );
+
+    Print(L"CR0:        %x\n", CR0);
+    Print(L"CR3:        %x\n", CR3);
+    Print(L"CR4:        %x\n", CR4);
+    Print(L"IA32_EFER:  %x\n", IA32_EFER);
+}
+
+VOID
 PrintEnvironmentVariables (
     IN BOOLEAN  PauseAfterEntry
     )
