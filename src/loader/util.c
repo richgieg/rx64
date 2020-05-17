@@ -27,16 +27,18 @@ ExitBootServices (
 EFI_PHYSICAL_ADDRESS
 GetPml4TableAddress ()
 {
-    EFI_PHYSICAL_ADDRESS Pml4TableAddress;
+    EFI_PHYSICAL_ADDRESS    Pml4TableAddress;
+    UINT64                  CR3;
 
     asm(
         "mov %%cr3, %%rax;"
         "mov %%rax, %0;"
-        :"=r"(Pml4TableAddress)
+        :"=r"(CR3)
         :
         :"%rax", "%rcx", "%rdx"
     );
-
+    // Ignore bits 0 through 11 (PWT and PCD bits, etc.).
+    Pml4TableAddress = CR3 & 0xfffffffffffff000;
     return Pml4TableAddress;
 }
 

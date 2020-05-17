@@ -27,6 +27,8 @@ efi_main (
     // ExitBootServices(ImageHandle);
     // KernelEntry(LoaderInfo);
 
+    PrintControlRegisters();
+
     EFI_PHYSICAL_ADDRESS Pml4TableAddress;
     Pml4TableAddress = GetPml4TableAddress();
     Print(L"%x\n", Pml4TableAddress);
