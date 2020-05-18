@@ -18,6 +18,9 @@ efi_main (
     // Initialize EFI library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
     InitializeLib(ImageHandle, SystemTable);
+    // Disable watchdog timer (prevent system restart after 5 minutes).
+    BS->SetWatchdogTimer(0, 0, 0, NULL);
+
     // // PrintEnvironmentVariables(FALSE);
     // // PrintMemoryMap(FALSE);
     // KernelEntry = LoadKernelImage(ImageHandle, L"kernel.elf");
@@ -27,15 +30,9 @@ efi_main (
     // ExitBootServices(ImageHandle);
     // KernelEntry(LoaderInfo);
 
+    PrintMemoryMap(TRUE);
     PrintControlRegisters();
-
-    PrintPml4TableEntries();
-
-    // for (;;) {
-    //     Print(L"%x\n", *Pml4TableEntry);
-    //     Pml4TableEntry++;
-    //     WaitForKeyStroke(NULL);
-    // }
+    PrintPml4Table(FALSE, FALSE);
 
     // Kernel should never return, but if it does...
     for (;;) {

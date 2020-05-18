@@ -4,7 +4,10 @@
 #include "util.h"
 
 VOID
-PrintPml4TableEntries ()
+PrintPml4Table (
+    IN BOOLEAN SkipLargePages,
+    IN BOOLEAN PauseAfterEntry
+    )
 {
     EFI_PHYSICAL_ADDRESS    Pml4TableAddress;
     UINT64                  *Pml4TableEntry;
@@ -18,7 +21,7 @@ PrintPml4TableEntries ()
     for (i = 0; i < 512; i++) {
         if (*Pml4TableEntry & 1) {
             PdpTableAddress = *Pml4TableEntry & 0x0000fffffffff000;
-            Print(L"\nEntry %d: ", i);
+            Print(L"\nPML4E %d : { PDPT=%x } ", i, PdpTableAddress);
             if (*Pml4TableEntry & 0x8000000000000000) {
                 Print (L"[ Execute-Disable ] ");
             }
@@ -26,7 +29,7 @@ PrintPml4TableEntries ()
                 Print(L"[ Accessed ] ");
             }
             if (*Pml4TableEntry & 0x10) {
-                Print(L"[ Cache-Disabled ] ");
+                Print(L"[ Cache-Disable ] ");
             }
             if (*Pml4TableEntry & 0x8) {
                 Print(L"[ Write-Through ] ");
@@ -41,60 +44,186 @@ PrintPml4TableEntries ()
             } else {
                 Print(L"[ Read-Only ] ");
             }
-            WaitForKeyStroke(NULL);
-            PrintPdpTableEntries(PdpTableAddress);
+            if (PauseAfterEntry) {
+                WaitForKeyStroke(NULL);
+            }
+            PrintPdpTable(PdpTableAddress, SkipLargePages, PauseAfterEntry);
         }
         Pml4TableEntry++;
     }
 }
 
 VOID
-PrintPdpTableEntries (
-    EFI_PHYSICAL_ADDRESS PdpTableAddress
+PrintPdpTable (
+    IN EFI_PHYSICAL_ADDRESS     PdpTableAddress,
+    IN BOOLEAN                  SkipLargePages,
+    IN BOOLEAN                  PauseAfterEntry
     )
 {
     UINT64                  *PdpTableEntry;
-    EFI_PHYSICAL_ADDRESS    PageDirectoryAddress;
+    EFI_PHYSICAL_ADDRESS    PageDirectoryOrLargePageAddress;
     int                     i;
+    BOOLEAN                 IsLargePage;
 
-    Print(L"\n    PDP Table Address: %x", PdpTableAddress);
     PdpTableEntry = (UINT64 *)PdpTableAddress;
     // 512 PDP table entries (4096 bytes)
     for (i = 0; i < 512; i++) {
-        if (*PdpTableEntry & 1) {
-            PageDirectoryAddress = *PdpTableEntry & 0x0000fffffffff000;
-            Print(L"\n    Entry %d: ", i);
+        IsLargePage = *PdpTableEntry & 0x80;
+        if ((*PdpTableEntry & 1) && !(SkipLargePages && IsLargePage)) {
+            PageDirectoryOrLargePageAddress = *PdpTableEntry & 0x0000fffffffff000;
+            Print(L"\n    PDPTE %d : ", i);
             // Maps a 1 GB Page
-            if (*PdpTableEntry & 0x80) {
-                Print(L"    (1 GB Page)\n");
+            if (IsLargePage) {
+                Print(L"{ 1 GB Page=%x } ", PageDirectoryOrLargePageAddress);
             // References page directory
             } else {
-                if (*PdpTableEntry & 0x8000000000000000) {
-                    Print (L"[ Execute-Disable ] ");
-                }
-                if (*PdpTableEntry & 0x20) {
-                    Print(L"[ Accessed ] ");
-                }
-                if (*PdpTableEntry & 0x10) {
-                    Print(L"[ Cache-Disabled ] ");
-                }
-                if (*PdpTableEntry & 0x8) {
-                    Print(L"[ Write-Through ] ");
-                }
-                if (*PdpTableEntry & 0x4) {
-                    Print(L"[ User/Supervisor ] ");
-                } else {
-                    Print(L"[ Supervisor-Only ] ");
-                }
-                if (*PdpTableEntry & 0x2) {
-                    Print(L"[ Read/Write ] ");
-                } else {
-                    Print(L"[ Read-Only ] ");
-                }
+                Print(L"{ PD=%x } ", PageDirectoryOrLargePageAddress);
             }
-            WaitForKeyStroke(NULL);
+            if (*PdpTableEntry & 0x8000000000000000) {
+                Print (L"[ Execute-Disable ] ");
+            }
+            if (*PdpTableEntry & 0x40 && IsLargePage) {
+                Print(L"[ Dirty ] ");
+            }
+            if (*PdpTableEntry & 0x20) {
+                Print(L"[ Accessed ] ");
+            }
+            if (*PdpTableEntry & 0x10) {
+                Print(L"[ Cache-Disable ] ");
+            }
+            if (*PdpTableEntry & 0x8) {
+                Print(L"[ Write-Through ] ");
+            }
+            if (*PdpTableEntry & 0x4) {
+                Print(L"[ User/Supervisor ] ");
+            } else {
+                Print(L"[ Supervisor-Only ] ");
+            }
+            if (*PdpTableEntry & 0x2) {
+                Print(L"[ Read/Write ] ");
+            } else {
+                Print(L"[ Read-Only ] ");
+            }
+            if (PauseAfterEntry) {
+                WaitForKeyStroke(NULL);
+            }
+            if (!IsLargePage) {
+                PrintPageDirectory(PageDirectoryOrLargePageAddress, SkipLargePages, PauseAfterEntry);
+            }
         }
         PdpTableEntry++;
+    }
+}
+
+VOID
+PrintPageDirectory (
+    IN EFI_PHYSICAL_ADDRESS     PageDirectoryAddress,
+    IN BOOLEAN                  SkipLargePages,
+    IN BOOLEAN                  PauseAfterEntry
+    )
+{
+    UINT64                  *PageDirectoryEntry;
+    EFI_PHYSICAL_ADDRESS    PageTableOrLargePageAddress;
+    int                     i;
+    BOOLEAN                 IsLargePage;
+
+    PageDirectoryEntry = (UINT64 *)PageDirectoryAddress;
+    // 512 Page directory entries (4096 bytes)
+    for (i = 0; i < 512; i++) {
+        IsLargePage = *PageDirectoryEntry & 0x80;
+        if ((*PageDirectoryEntry & 1) && !(SkipLargePages && IsLargePage)) {
+            PageTableOrLargePageAddress = *PageDirectoryEntry & 0x0000fffffffff000;
+            Print(L"\n        PDE %d : ", i);
+            // Maps a 2 MB Page
+            if (IsLargePage) {
+                Print(L"{ 2 MB Page=%x } ", PageTableOrLargePageAddress);
+            // References page directory
+            } else {
+                Print(L"{ PT=%x } ", PageTableOrLargePageAddress);
+            }
+
+            if (*PageDirectoryEntry & 0x8000000000000000) {
+                Print (L"[ Execute-Disable ] ");
+            }
+            if (*PageDirectoryEntry & 0x40 && IsLargePage) {
+                Print(L"[ Dirty ] ");
+            }
+            if (*PageDirectoryEntry & 0x20) {
+                Print(L"[ Accessed ] ");
+            }
+            if (*PageDirectoryEntry & 0x10) {
+                Print(L"[ Cache-Disable ] ");
+            }
+            if (*PageDirectoryEntry & 0x8) {
+                Print(L"[ Write-Through ] ");
+            }
+            if (*PageDirectoryEntry & 0x4) {
+                Print(L"[ User/Supervisor ] ");
+            } else {
+                Print(L"[ Supervisor-Only ] ");
+            }
+            if (*PageDirectoryEntry & 0x2) {
+                Print(L"[ Read/Write ] ");
+            } else {
+                Print(L"[ Read-Only ] ");
+            }
+            if (PauseAfterEntry) {
+                WaitForKeyStroke(NULL);
+            }
+            if (!IsLargePage) {
+                PrintPageTable(PageTableOrLargePageAddress, PauseAfterEntry);
+            }
+        }
+        PageDirectoryEntry++;
+    }
+}
+
+VOID
+PrintPageTable (
+    IN EFI_PHYSICAL_ADDRESS     PageTableAddress,
+    IN BOOLEAN                  PauseAfterEntry
+    )
+{
+    UINT64                  *PageTableEntry;
+    EFI_PHYSICAL_ADDRESS    PageAddress;
+    int                     i;
+
+    PageTableEntry = (UINT64 *)PageTableAddress;
+    // 512 Page table entries (4096 bytes)
+    for (i = 0; i < 512; i++) {
+        if (*PageTableEntry & 1) {
+            PageAddress = *PageTableEntry & 0x0000fffffffff000;
+            Print(L"\n            PTE %d : { Page=%x } ", i, PageAddress);
+            if (*PageTableEntry & 0x8000000000000000) {
+                Print (L"[ Execute-Disable ] ");
+            }
+            if (*PageTableEntry & 0x40) {
+                Print(L"[ Dirty ] ");
+            }
+            if (*PageTableEntry & 0x20) {
+                Print(L"[ Accessed ] ");
+            }
+            if (*PageTableEntry & 0x10) {
+                Print(L"[ Cache-Disable ] ");
+            }
+            if (*PageTableEntry & 0x8) {
+                Print(L"[ Write-Through ] ");
+            }
+            if (*PageTableEntry & 0x4) {
+                Print(L"[ User/Supervisor ] ");
+            } else {
+                Print(L"[ Supervisor-Only ] ");
+            }
+            if (*PageTableEntry & 0x2) {
+                Print(L"[ Read/Write ] ");
+            } else {
+                Print(L"[ Read-Only ] ");
+            }
+            if (PauseAfterEntry) {
+                WaitForKeyStroke(NULL);
+            }
+        }
+        PageTableEntry++;
     }
 }
 
