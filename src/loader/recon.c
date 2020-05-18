@@ -4,6 +4,48 @@
 #include "util.h"
 
 VOID
+PrintPml4Entries ()
+{
+    EFI_PHYSICAL_ADDRESS Pml4TableAddress;
+    UINT64 *Pml4TableEntry;
+    UINT64 PdpTableAddress;
+    int i;
+
+    Pml4TableAddress = GetPml4TableAddress();
+    Print(L"\nPML4 Table Address: %x\n", Pml4TableAddress);
+    Pml4TableEntry = (UINT64 *)Pml4TableAddress;
+    // 512 PML4 table entries (4096 bytes).
+    for (i = 0; i < 512; i++) {
+        if (*Pml4TableEntry & 1) {
+            PdpTableAddress = *Pml4TableEntry & 0x0000fffffffff000;
+            Print(L"\nPML4 Table Entry %d:\n", i);
+            Print(L"PDP Table Address: %x\n", PdpTableAddress);
+            if (*Pml4TableEntry & 0x20) {
+                Print(L"Accessed  ");
+            }
+            if (*Pml4TableEntry & 0x10) {
+                Print(L"Cache Disabled  ");
+            }
+            if (*Pml4TableEntry & 0x8) {
+                Print(L"Write-Through  ");
+            }
+            if (*Pml4TableEntry & 0x4) {
+                Print(L"User & Supervisor  ");
+            } else {
+                Print(L"Supervisor Only  ");
+            }
+            if (*Pml4TableEntry & 0x2) {
+                Print(L"Read & Write  ");
+            } else {
+                Print(L"Readonly  ");
+            }
+            Print(L"\n");
+        }
+        Pml4TableEntry++;
+    }
+}
+
+VOID
 PrintControlRegisters ()
 {
     UINT64 CR0;
@@ -30,7 +72,7 @@ PrintControlRegisters ()
         :"%rax", "%rcx", "%rdx"
     );
 
-    Print(L"CR0:        %x\n", CR0);
+    Print(L"\nCR0:        %x\n", CR0);
     Print(L"CR3:        %x\n", CR3);
     Print(L"CR4:        %x\n", CR4);
     Print(L"IA32_EFER:  %x\n", IA32_EFER);

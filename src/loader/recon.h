@@ -4,6 +4,9 @@
 #include <efi.h>
 
 VOID
+PrintPml4Entries ();
+
+VOID
 PrintControlRegisters ();
 
 VOID
