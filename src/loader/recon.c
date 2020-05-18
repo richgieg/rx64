@@ -4,7 +4,7 @@
 #include "util.h"
 
 VOID
-PrintPml4Entries ()
+PrintPml4TableEntries ()
 {
     EFI_PHYSICAL_ADDRESS Pml4TableAddress;
     UINT64 *Pml4TableEntry;
@@ -19,27 +19,26 @@ PrintPml4Entries ()
         if (*Pml4TableEntry & 1) {
             PdpTableAddress = *Pml4TableEntry & 0x0000fffffffff000;
             Print(L"\nPML4 Table Entry %d:\n", i);
-            Print(L"PDP Table Address: %x\n", PdpTableAddress);
             if (*Pml4TableEntry & 0x20) {
-                Print(L"Accessed  ");
+                Print(L"Accessed ");
             }
             if (*Pml4TableEntry & 0x10) {
-                Print(L"Cache Disabled  ");
+                Print(L"Cache-Disabled ");
             }
             if (*Pml4TableEntry & 0x8) {
-                Print(L"Write-Through  ");
+                Print(L"Write-Through ");
             }
             if (*Pml4TableEntry & 0x4) {
-                Print(L"User & Supervisor  ");
+                Print(L"User/Supervisor ");
             } else {
-                Print(L"Supervisor Only  ");
+                Print(L"Supervisor-Only ");
             }
             if (*Pml4TableEntry & 0x2) {
-                Print(L"Read & Write  ");
+                Print(L"Read/Write ");
             } else {
-                Print(L"Readonly  ");
+                Print(L"Read-Only ");
             }
-            Print(L"\n");
+            Print(L"\nPDP Table Address: %x\n", PdpTableAddress);
         }
         Pml4TableEntry++;
     }

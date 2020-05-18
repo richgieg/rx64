@@ -29,7 +29,7 @@ efi_main (
 
     PrintControlRegisters();
 
-    PrintPml4Entries();
+    PrintPml4TableEntries();
 
     // for (;;) {
     //     Print(L"%x\n", *Pml4TableEntry);
