@@ -7,6 +7,11 @@ VOID
 PrintPml4TableEntries ();
 
 VOID
+PrintPdpTableEntries (
+    EFI_PHYSICAL_ADDRESS PdpTableAddress
+    );
+
+VOID
 PrintControlRegisters ();
 
 VOID

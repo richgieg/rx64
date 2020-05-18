@@ -6,41 +6,95 @@
 VOID
 PrintPml4TableEntries ()
 {
-    EFI_PHYSICAL_ADDRESS Pml4TableAddress;
-    UINT64 *Pml4TableEntry;
-    UINT64 PdpTableAddress;
-    int i;
+    EFI_PHYSICAL_ADDRESS    Pml4TableAddress;
+    UINT64                  *Pml4TableEntry;
+    EFI_PHYSICAL_ADDRESS    PdpTableAddress;
+    int                     i;
 
     Pml4TableAddress = GetPml4TableAddress();
-    Print(L"\nPML4 Table Address: %x\n", Pml4TableAddress);
+    Print(L"\nPML4 Table Address: %x", Pml4TableAddress);
     Pml4TableEntry = (UINT64 *)Pml4TableAddress;
     // 512 PML4 table entries (4096 bytes).
     for (i = 0; i < 512; i++) {
         if (*Pml4TableEntry & 1) {
             PdpTableAddress = *Pml4TableEntry & 0x0000fffffffff000;
-            Print(L"\nPML4 Table Entry %d:\n", i);
+            Print(L"\nEntry %d: ", i);
+            if (*Pml4TableEntry & 0x8000000000000000) {
+                Print (L"[ Execute-Disable ] ");
+            }
             if (*Pml4TableEntry & 0x20) {
-                Print(L"Accessed ");
+                Print(L"[ Accessed ] ");
             }
             if (*Pml4TableEntry & 0x10) {
-                Print(L"Cache-Disabled ");
+                Print(L"[ Cache-Disabled ] ");
             }
             if (*Pml4TableEntry & 0x8) {
-                Print(L"Write-Through ");
+                Print(L"[ Write-Through ] ");
             }
             if (*Pml4TableEntry & 0x4) {
-                Print(L"User/Supervisor ");
+                Print(L"[ User/Supervisor ] ");
             } else {
-                Print(L"Supervisor-Only ");
+                Print(L"[ Supervisor-Only ] ");
             }
             if (*Pml4TableEntry & 0x2) {
-                Print(L"Read/Write ");
+                Print(L"[ Read/Write ] ");
             } else {
-                Print(L"Read-Only ");
+                Print(L"[ Read-Only ] ");
             }
-            Print(L"\nPDP Table Address: %x\n", PdpTableAddress);
+            WaitForKeyStroke(NULL);
+            PrintPdpTableEntries(PdpTableAddress);
         }
         Pml4TableEntry++;
+    }
+}
+
+VOID
+PrintPdpTableEntries (
+    EFI_PHYSICAL_ADDRESS PdpTableAddress
+    )
+{
+    UINT64                  *PdpTableEntry;
+    EFI_PHYSICAL_ADDRESS    PageDirectoryAddress;
+    int                     i;
+
+    Print(L"\n    PDP Table Address: %x", PdpTableAddress);
+    PdpTableEntry = (UINT64 *)PdpTableAddress;
+    // 512 PDP table entries (4096 bytes)
+    for (i = 0; i < 512; i++) {
+        if (*PdpTableEntry & 1) {
+            PageDirectoryAddress = *PdpTableEntry & 0x0000fffffffff000;
+            Print(L"\n    Entry %d: ", i);
+            // Maps a 1 GB Page
+            if (*PdpTableEntry & 0x80) {
+                Print(L"    (1 GB Page)\n");
+            // References page directory
+            } else {
+                if (*PdpTableEntry & 0x8000000000000000) {
+                    Print (L"[ Execute-Disable ] ");
+                }
+                if (*PdpTableEntry & 0x20) {
+                    Print(L"[ Accessed ] ");
+                }
+                if (*PdpTableEntry & 0x10) {
+                    Print(L"[ Cache-Disabled ] ");
+                }
+                if (*PdpTableEntry & 0x8) {
+                    Print(L"[ Write-Through ] ");
+                }
+                if (*PdpTableEntry & 0x4) {
+                    Print(L"[ User/Supervisor ] ");
+                } else {
+                    Print(L"[ Supervisor-Only ] ");
+                }
+                if (*PdpTableEntry & 0x2) {
+                    Print(L"[ Read/Write ] ");
+                } else {
+                    Print(L"[ Read-Only ] ");
+                }
+            }
+            WaitForKeyStroke(NULL);
+        }
+        PdpTableEntry++;
     }
 }
 
