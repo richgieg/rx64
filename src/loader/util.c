@@ -42,10 +42,11 @@ GetPml4TableAddress ()
     return Pml4TableAddress;
 }
 
-VOID *
+VOID
 LoadKernelImage (
-    IN EFI_HANDLE   LoaderImageHandle,
-    IN CHAR16       *FileName
+    IN EFI_HANDLE           LoaderImageHandle,
+    IN CHAR16               *FileName,
+    IN KERNEL_IMAGE_INFO    *Info
     )
 {
     EFI_STATUS              Status;
@@ -148,7 +149,9 @@ LoadKernelImage (
     }
 
     FreePool(KernelBuffer);
-    return (VOID *)ElfHeader->e_entry;
+
+    Info->KernelEntry = (VOID *)ElfHeader->e_entry;
+
 }
 
 VOID

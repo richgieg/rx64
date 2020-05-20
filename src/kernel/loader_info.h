@@ -4,7 +4,9 @@
 #include "types.h"
 
 typedef struct _LOADER_INFO {
-    UINTN   FrameBufferBase;
+    UINT64  KernelPhysicalAddress;
+    UINTN   NoKernelPages;
+    UINT64  FrameBufferBase;
     UINTN   FrameBufferSize;
     UINT32  HorizontalResolution;
     UINT32  VerticalResolution;

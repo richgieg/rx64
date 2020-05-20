@@ -4,7 +4,7 @@
 #include "types.h"
 
 typedef struct _GFX_FRAME_BUFFER {
-    UINTN   Base;
+    UINT64  Base;
     UINTN   Size;
     UINT32  HorizontalResolution;
     UINT32  VerticalResolution;
@@ -12,7 +12,7 @@ typedef struct _GFX_FRAME_BUFFER {
 
 VOID
 GfxInitializeGraphics (
-    IN UINTN  FrameBufferBase,
+    IN UINT64 FrameBufferBase,
     IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution

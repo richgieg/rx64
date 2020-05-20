@@ -6,7 +6,7 @@ static GFX_FRAME_BUFFER *mScreenBuffer;
 
 VOID
 GfxInitializeGraphics (
-    IN UINTN  FrameBufferBase,
+    IN UINT64 FrameBufferBase,
     IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution

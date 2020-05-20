@@ -5,7 +5,7 @@
 #include "../kernel/loader_info.h"
 
 typedef struct _SET_GRAPHICS_MODE_RESULT {
-    UINTN   FrameBufferBase;
+    UINT64  FrameBufferBase;
     UINTN   FrameBufferSize;
     UINT32  HorizontalResolution;
     UINT32  VerticalResolution;
