@@ -55,6 +55,8 @@ LoadKernelImage (
     EFI_FILE_IO_INTERFACE   *FileSystem;
     EFI_FILE_HANDLE         RootDirectory;
     EFI_FILE_HANDLE         KernelFileHandle;
+    EFI_FILE_INFO           *FileInfo;
+    UINTN                   FileInfoSize;
     UINTN                   KernelBufferSize;
     VOID                    *KernelBuffer;
     Elf64_Ehdr              *ElfHeader;
@@ -92,14 +94,30 @@ LoadKernelImage (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    // Load kernel image into memory.
+    // Open kernel image file.
     Status = RootDirectory->Open(
         RootDirectory, &KernelFileHandle, FileName, EFI_FILE_MODE_READ, 0);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to open kernel image\n");
         Exit(EFI_SUCCESS, 0, NULL);
     }
-    KernelBufferSize = 0x100000; // 1 MB
+
+    // Get size of kernel image.
+    FileInfoSize = 0;
+    Status = KernelFileHandle->GetInfo(KernelFileHandle, &gEfiFileInfoGuid, &FileInfoSize, NULL);
+    if (Status != EFI_BUFFER_TOO_SMALL) {
+        Print(L"Failed to get required size to store kernel file info\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+    FileInfo = AllocatePool(FileInfoSize);
+    Status = KernelFileHandle->GetInfo(KernelFileHandle, &gEfiFileInfoGuid, &FileInfoSize, FileInfo);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to get kernel file info\n");
+        Exit(EFI_SUCCESS, 0, NULL);
+    }
+
+    // Load kernel into memory.
+    KernelBufferSize = FileInfo->FileSize;
     KernelBuffer = AllocatePool(KernelBufferSize);
     if (KernelBuffer == NULL) {
         Print(L"Failed to allocate memory for kernel image\n");
@@ -115,8 +133,6 @@ LoadKernelImage (
         Print(L"Failed to close kernel image file handle\n");
         Exit(EFI_SUCCESS, 0, NULL);
     }
-
-    Print(L"\nKernel Image Size:  %x\n\n", KernelBufferSize);
 
     // Parse kernel image and copy PT_LOAD segments to the required locations.
     ElfHeader = (Elf64_Ehdr *)KernelBuffer;
@@ -148,10 +164,10 @@ LoadKernelImage (
         Print(L"Pages Allocated:    %x\n\n", NoPages);
     }
 
+    FreePool(FileInfo);
     FreePool(KernelBuffer);
 
     Info->KernelEntry = (VOID *)ElfHeader->e_entry;
-
 }
 
 VOID
