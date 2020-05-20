@@ -18,7 +18,7 @@ efi_main (
     )
 {
     LOADER_INFO                 *LoaderInfo;
-    KERNEL_IMAGE_INFO           KernelImageInfo;
+    KERNEL_IMAGE_INFO           *KernelImageInfo;
     SET_GRAPHICS_MODE_RESULT    SetGraphicsModeResult;
 
     // Initialize EFI library (Set BS, RT, and ST globals).
@@ -31,24 +31,16 @@ efi_main (
     // // PrintMemoryMap(FALSE);
 
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
-
-    LoadKernelImage(ImageHandle, L"kernel.elf", &KernelImageInfo);
-    LoaderInfo->KernelPhysicalAddress = KernelImageInfo.PhysicalAddress;
-    LoaderInfo->NoKernelPages = KernelImageInfo.NoPages;
-
+    KernelImageInfo = LoadKernelImage(ImageHandle, L"kernel.elf");
     SetGraphicsMode(&SetGraphicsModeResult);
+    LoaderInfo->NoSections = KernelImageInfo->NoSections;
+    LoaderInfo->Sections = KernelImageInfo->Sections;
     LoaderInfo->FrameBufferBase = SetGraphicsModeResult.FrameBufferBase;
     LoaderInfo->FrameBufferSize = SetGraphicsModeResult.FrameBufferSize;
     LoaderInfo->HorizontalResolution = SetGraphicsModeResult.HorizontalResolution;
     LoaderInfo->VerticalResolution = SetGraphicsModeResult.VerticalResolution;
     ExitBootServices(ImageHandle);
-    KernelImageInfo.KernelEntry(LoaderInfo);
-
-    // PrintMemoryMap(TRUE);
-    // PrintControlRegisters();
-    // PrintPml4Table(FALSE, FALSE);
-
-    // MapFrameBuffer(LoaderInfo->Graphics.FrameBufferBase);
+    KernelImageInfo->KernelEntry(LoaderInfo);
 
     // Kernel should never return, but if it does...
     for (;;) {

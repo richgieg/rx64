@@ -3,13 +3,19 @@
 
 #include "types.h"
 
+typedef struct _KERNEL_SECTION {
+    UINT64  PhysicalAddress;
+    UINT64  VirtualAddress;
+    UINTN   NoPages;
+} KERNEL_SECTION;
+
 typedef struct _LOADER_INFO {
-    UINT64  KernelPhysicalAddress;
-    UINTN   NoKernelPages;
-    UINT64  FrameBufferBase;
-    UINTN   FrameBufferSize;
-    UINT32  HorizontalResolution;
-    UINT32  VerticalResolution;
+    UINTN           NoSections;
+    KERNEL_SECTION  *Sections;
+    UINT64          FrameBufferBase;
+    UINTN           FrameBufferSize;
+    UINT32          HorizontalResolution;
+    UINT32          VerticalResolution;
 } LOADER_INFO;
 
 #endif

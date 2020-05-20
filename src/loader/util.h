@@ -5,9 +5,9 @@
 #include "../kernel/loader_info.h"
 
 typedef struct _KERNEL_IMAGE_INFO {
-    VOID    (*KernelEntry)(LOADER_INFO *LoaderInfo);
-    UINT64  PhysicalAddress;
-    UINTN   NoPages;
+    VOID            (*KernelEntry)(LOADER_INFO *LoaderInfo);
+    UINTN           NoSections;
+    KERNEL_SECTION  Sections[];
 } KERNEL_IMAGE_INFO;
 
 VOID
@@ -18,11 +18,10 @@ ExitBootServices (
 EFI_PHYSICAL_ADDRESS
 GetPml4TableAddress ();
 
-VOID
+KERNEL_IMAGE_INFO *
 LoadKernelImage (
     IN EFI_HANDLE           LoaderImageHandle,
-    IN CHAR16               *FileName,
-    IN KERNEL_IMAGE_INFO    *Info
+    IN CHAR16               *FileName
     );
 
 VOID

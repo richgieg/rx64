@@ -42,11 +42,10 @@ GetPml4TableAddress ()
     return Pml4TableAddress;
 }
 
-VOID
+KERNEL_IMAGE_INFO *
 LoadKernelImage (
     IN EFI_HANDLE           LoaderImageHandle,
-    IN CHAR16               *FileName,
-    IN KERNEL_IMAGE_INFO    *Info
+    IN CHAR16               *FileName
     )
 {
     EFI_STATUS              Status;
@@ -62,8 +61,14 @@ LoadKernelImage (
     Elf64_Ehdr              *ElfHeader;
     Elf64_Phdr              *ElfProgramHeader;
     EFI_PHYSICAL_ADDRESS    PhysicalAddress;
+    KERNEL_IMAGE_INFO       *KernelImageInfo;
+    KERNEL_SECTION          *KernelSection;
     UINTN                   NoPages;
     UINTN                   i;
+
+    // Allocate enough to hold KERNEL_IMAGE_INFO (has variable
+    // array which holds info about each section in the image).
+    KernelImageInfo = AllocatePool(EFI_PAGE_SIZE);
 
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
@@ -136,13 +141,16 @@ LoadKernelImage (
 
     // Parse kernel image and copy PT_LOAD segments to the required locations.
     ElfHeader = (Elf64_Ehdr *)KernelBuffer;
+    KernelImageInfo->KernelEntry = (VOID *)ElfHeader->e_entry;
+    KernelImageInfo->NoSections = 0;
+    KernelSection = KernelImageInfo->Sections;
     for (i = 0; i < ElfHeader->e_phnum; i++) {
         ElfProgramHeader = ((Elf64_Phdr *)(KernelBuffer + ElfHeader->e_phoff)) + i;
         if (ElfProgramHeader->p_type != PT_LOAD) {
             continue;
         }
         NoPages = ElfProgramHeader->p_memsz / EFI_PAGE_SIZE;
-        if (ElfProgramHeader->pmemsz % EFI_PAGE_SIZE) {
+        if (ElfProgramHeader->p_memsz % EFI_PAGE_SIZE) {
             NoPages++;
         }
         PhysicalAddress = ElfProgramHeader->p_paddr;
@@ -159,18 +167,24 @@ LoadKernelImage (
             (VOID *)(KernelBuffer + ElfProgramHeader->p_offset),
             ElfProgramHeader->p_filesz
         );
-        Print(L"Physical Address:   %x\n", ElfProgramHeader->p_paddr);
-        Print(L"Virtual Address:    %x\n", ElfProgramHeader->p_vaddr);
-        Print(L"Image Offset:       %x\n", ElfProgramHeader->p_offset);
-        Print(L"Size in Image:      %x\n", ElfProgramHeader->p_filesz);
-        Print(L"Size in Memory:     %x\n", ElfProgramHeader->p_memsz);
-        Print(L"Pages Allocated:    %x\n\n", NoPages);
+        // Print(L"Physical Address:   %x\n", ElfProgramHeader->p_paddr);
+        // Print(L"Virtual Address:    %x\n", ElfProgramHeader->p_vaddr);
+        // Print(L"Image Offset:       %x\n", ElfProgramHeader->p_offset);
+        // Print(L"Size in Image:      %x\n", ElfProgramHeader->p_filesz);
+        // Print(L"Size in Memory:     %x\n", ElfProgramHeader->p_memsz);
+        // Print(L"Pages Allocated:    %x\n\n", NoPages);
+
+        KernelSection->NoPages = NoPages;
+        KernelSection->PhysicalAddress = PhysicalAddress;
+        KernelSection->VirtualAddress = 0;
+        KernelSection++;
+        KernelImageInfo->NoSections++;
     }
 
     FreePool(FileInfo);
     FreePool(KernelBuffer);
 
-    Info->KernelEntry = (VOID *)ElfHeader->e_entry;
+    return KernelImageInfo;
 }
 
 VOID
