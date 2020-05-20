@@ -17,8 +17,9 @@ efi_main (
     IN EFI_SYSTEM_TABLE     *SystemTable
     )
 {
-    LOADER_INFO     *LoaderInfo;
-    VOID            (*KernelEntry)(LOADER_INFO *LoaderInfo);
+    LOADER_INFO                 *LoaderInfo;
+    SET_GRAPHICS_MODE_RESULT    SetGraphicsModeResult;
+    VOID                        (*KernelEntry)(LOADER_INFO *LoaderInfo);
 
     // Initialize EFI library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
@@ -28,18 +29,22 @@ efi_main (
 
     // // PrintEnvironmentVariables(FALSE);
     // // PrintMemoryMap(FALSE);
-    // KernelEntry = LoadKernelImage(ImageHandle, L"kernel.elf");
-    // // WaitForKeyStroke(L"\nPress any key to launch kernel...\n");
+    KernelEntry = LoadKernelImage(ImageHandle, L"kernel.elf");
+    // WaitForKeyStroke(L"\nPress any key to launch kernel...\n");
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
-    SetGraphicsMode(&LoaderInfo->Graphics);
-    // ExitBootServices(ImageHandle);
-    // KernelEntry(LoaderInfo);
+    SetGraphicsMode(&SetGraphicsModeResult);
+    LoaderInfo->FrameBufferBase = SetGraphicsModeResult.FrameBufferBase;
+    LoaderInfo->FrameBufferSize = SetGraphicsModeResult.FrameBufferSize;
+    LoaderInfo->HorizontalResolution = SetGraphicsModeResult.HorizontalResolution;
+    LoaderInfo->VerticalResolution = SetGraphicsModeResult.VerticalResolution;
+    ExitBootServices(ImageHandle);
+    KernelEntry(LoaderInfo);
 
     // PrintMemoryMap(TRUE);
     // PrintControlRegisters();
     // PrintPml4Table(FALSE, FALSE);
 
-    MapFrameBuffer(LoaderInfo->Graphics.FrameBufferBase);
+    // MapFrameBuffer(LoaderInfo->Graphics.FrameBufferBase);
 
     // Kernel should never return, but if it does...
     for (;;) {

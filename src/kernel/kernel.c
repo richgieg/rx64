@@ -12,10 +12,10 @@ KernelEntry (
     MmInitialize();
 
     GfxInitializeGraphics(
-        LoaderInfo->Graphics.FrameBufferBase,
-        LoaderInfo->Graphics.FrameBufferSize,
-        LoaderInfo->Graphics.HorizontalResolution,
-        LoaderInfo->Graphics.VerticalResolution
+        LoaderInfo->FrameBufferBase,
+        LoaderInfo->FrameBufferSize,
+        LoaderInfo->HorizontalResolution,
+        LoaderInfo->VerticalResolution
     );
 
     CnInitializeConsole();

@@ -4,7 +4,7 @@
 
 VOID
 SetGraphicsMode (
-    LOADER_INFO_GRAPHICS *LoaderInfoGraphics
+    IN SET_GRAPHICS_MODE_RESULT *Result
     )
 {
     EFI_STATUS Status;
@@ -40,8 +40,8 @@ SetGraphicsMode (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    LoaderInfoGraphics->FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
-    LoaderInfoGraphics->FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
-    LoaderInfoGraphics->HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
-    LoaderInfoGraphics->VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;
+    Result->FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
+    Result->FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
+    Result->HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
+    Result->VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;
 }
