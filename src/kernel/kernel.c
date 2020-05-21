@@ -11,6 +11,7 @@ KernelEntry (
 {
     MmInitialize();
 
+    // TODO: Map virtual address range to framebuffer base.
     GfxInitializeGraphics(
         LoaderInfo->FrameBufferBase,
         LoaderInfo->FrameBufferSize,
