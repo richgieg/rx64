@@ -41,6 +41,7 @@ ld \
     --entry KernelEntry \
     -nostdlib \
     -static \
+    -Ttext-segment 0xffff800000000000 \
     -o bin/kernel.elf
 
 

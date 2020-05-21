@@ -6,11 +6,6 @@
 #include "util.h"
 #include "../kernel/loader_info.h"
 
-VOID
-MapFrameBuffer (
-    EFI_PHYSICAL_ADDRESS FrameBufferBase
-    );
-
 EFI_STATUS
 efi_main (
     IN EFI_HANDLE           ImageHandle,
@@ -45,40 +40,5 @@ efi_main (
     // Kernel should never return, but if it does...
     for (;;) {
         asm("hlt");
-    }
-}
-
-VOID
-MapFrameBuffer (
-    EFI_PHYSICAL_ADDRESS FrameBufferBase
-    )
-{
-    UINT64 *Pml4Table;
-    UINT64 *PdpTable;
-    UINT64 *PageDirectory;
-    UINT64 *PageTable;
-    EFI_PHYSICAL_ADDRESS NewPages;
-    UINT32 *VirtualFrameBuffer;
-    int i;
-
-    BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 3, &NewPages);
-    Pml4Table = (UINT64 *)GetPml4TableAddress();
-    PdpTable = (UINT64 *)NewPages;
-    PageDirectory = (UINT64 *)(NewPages + 4096);
-    PageTable = (UINT64 *)(NewPages + 8192);
-
-    PageTable[0] = FrameBufferBase & 0x0000fffffffff000 | 0x23;
-    Print(L"%x\n", PageTable[0]);
-    PageDirectory[0] = (UINT64)PageTable & 0x0000fffffffff000 | 0x23;
-    Print(L"%x\n", PageDirectory[0]);
-    PdpTable[0] = (UINT64)PageDirectory & 0x0000fffffffff000 | 0x23;
-    Print(L"%x\n", PdpTable[0]);
-    Pml4Table[256] = (UINT64)PdpTable & 0x0000fffffffff000 | 0x23;
-    Print(L"%x\n", Pml4Table[256]);
-
-    VirtualFrameBuffer = (UINT32 *)0xffff800000000000;
-    for (i = 0; i < 1024; i++) {
-        *VirtualFrameBuffer = 0xff0000;
-        VirtualFrameBuffer++;
     }
 }

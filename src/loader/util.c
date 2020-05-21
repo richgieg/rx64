@@ -35,7 +35,7 @@ GetPml4TableAddress ()
         "mov %%rax, %0;"
         :"=r"(CR3)
         :
-        :"%rax", "%rcx", "%rdx"
+        :"%rax"
     );
     // Ignore bits 0 through 11 (PWT and PCD bits, etc.).
     Pml4TableAddress = CR3 & 0xfffffffffffff000;
@@ -61,6 +61,7 @@ LoadKernelImage (
     Elf64_Ehdr              *ElfHeader;
     Elf64_Phdr              *ElfProgramHeader;
     EFI_PHYSICAL_ADDRESS    PhysicalAddress;
+    EFI_VIRTUAL_ADDRESS     VirtualAddress;
     KERNEL_IMAGE_INFO       *KernelImageInfo;
     KERNEL_SECTION          *KernelSection;
     UINTN                   NoPages;
@@ -144,6 +145,7 @@ LoadKernelImage (
     KernelImageInfo->KernelEntry = (VOID *)ElfHeader->e_entry;
     KernelImageInfo->NoSections = 0;
     KernelSection = KernelImageInfo->Sections;
+
     for (i = 0; i < ElfHeader->e_phnum; i++) {
         ElfProgramHeader = ((Elf64_Phdr *)(KernelBuffer + ElfHeader->e_phoff)) + i;
         if (ElfProgramHeader->p_type != PT_LOAD) {
@@ -152,11 +154,10 @@ LoadKernelImage (
         NoPages = ElfProgramHeader->p_memsz / EFI_PAGE_SIZE;
         if (ElfProgramHeader->p_memsz % EFI_PAGE_SIZE) {
             NoPages++;
-        }
-        PhysicalAddress = ElfProgramHeader->p_paddr;
-        Status = BS->AllocatePages(AllocateAddress, EfiLoaderData, NoPages, &PhysicalAddress);
+        };
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NoPages, &PhysicalAddress);
         if (EFI_ERROR(Status)) {
-            Print(L"Failed to allocate physical memory at %x\n", i, PhysicalAddress);
+            Print(L"Failed to allocate pages for kernel section %d\n", i);
             Exit(EFI_SUCCESS, 0, NULL);
         }
         // Zero all allocated memory in case segment contains BSS.
@@ -167,16 +168,11 @@ LoadKernelImage (
             (VOID *)(KernelBuffer + ElfProgramHeader->p_offset),
             ElfProgramHeader->p_filesz
         );
-        // Print(L"Physical Address:   %x\n", ElfProgramHeader->p_paddr);
-        // Print(L"Virtual Address:    %x\n", ElfProgramHeader->p_vaddr);
-        // Print(L"Image Offset:       %x\n", ElfProgramHeader->p_offset);
-        // Print(L"Size in Image:      %x\n", ElfProgramHeader->p_filesz);
-        // Print(L"Size in Memory:     %x\n", ElfProgramHeader->p_memsz);
-        // Print(L"Pages Allocated:    %x\n\n", NoPages);
+        MapVirtualToPhysicalPages(ElfProgramHeader->p_vaddr, PhysicalAddress, NoPages);
 
         KernelSection->NoPages = NoPages;
         KernelSection->PhysicalAddress = PhysicalAddress;
-        KernelSection->VirtualAddress = 0;
+        KernelSection->VirtualAddress = ElfProgramHeader->p_vaddr;
         KernelSection++;
         KernelImageInfo->NoSections++;
     }
@@ -185,6 +181,90 @@ LoadKernelImage (
     FreePool(KernelBuffer);
 
     return KernelImageInfo;
+}
+
+VOID
+MapVirtualToPhysicalPages (
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress,
+    IN UINTN    NoPages
+    )
+{
+    UINTN i;
+
+    for (i = 0; i < NoPages; i++) {
+        MapVirtualToPhysicalPage(VirtualAddress, PhysicalAddress);
+        VirtualAddress += i * EFI_PAGE_SIZE;
+        PhysicalAddress += i * EFI_PAGE_SIZE;
+    }
+}
+
+VOID
+MapVirtualToPhysicalPage (
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress
+    )
+{
+    EFI_STATUS  Status;
+    UINT64      *Pml4;
+    UINT64      *Pdpt;
+    UINT64      *Pd;
+    UINT64      *Pt;
+    UINTN       Pml4Index;
+    UINTN       PdptIndex;
+    UINTN       PdIndex;
+    UINTN       PtIndex;
+
+    Pml4 = (UINT64 *)GetPml4TableAddress();
+    Pml4Index = (VirtualAddress >> 39) & 0x1ff;
+    PdptIndex = (VirtualAddress >> 30) & 0x1ff;
+    PdIndex = (VirtualAddress >> 21) & 0x1ff;
+    PtIndex = (VirtualAddress >> 12) & 0x1ff;
+
+    // If PML4 entry not present then allocate a page for its
+    // corresponding page directory pointer table.
+    if (!(Pml4[Pml4Index] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pdpt);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PDPT\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        Pml4[Pml4Index] = (UINT64)Pdpt | 0x23;
+    // Otherwise, get page directory pointer table address from it.
+    } else {
+        Pdpt = (UINT64 *)(Pml4[Pml4Index] & 0x00fffffffffffff000);
+    }
+
+    // If page directory pointer table entry not present then
+    // allocate a page for its corresponding page directory.
+    if (!(Pdpt[PdptIndex] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pd);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PD\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        Pdpt[PdptIndex] = (UINT64)Pd | 0x23;
+    // Otherwise, get page directory address from it.
+    } else {
+        Pd = (UINT64 *)(Pdpt[PdptIndex] & 0x00fffffffffffff000);
+    }
+
+    // If page directory entry not present then allocate a page
+    // for its corresponding page table.
+    if (!(Pd[PdIndex] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pt);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PT\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        Pd[PdIndex] = (UINT64)Pt | 0x23;
+    // Otherwise, get page table address from it.
+    } else {
+        Pt = (UINT64 *)(Pd[PdIndex] & 0x00fffffffffffff000);
+    }
+
+    // Write entry to page table.
+    Pt[PtIndex] = PhysicalAddress | 0x23;
 }
 
 VOID

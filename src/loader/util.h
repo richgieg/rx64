@@ -25,6 +25,19 @@ LoadKernelImage (
     );
 
 VOID
+MapVirtualToPhysicalPages (
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress,
+    IN UINTN    NoPages
+    );
+
+VOID
+MapVirtualToPhysicalPage (
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress
+    );
+
+VOID
 WaitForKeyStroke (
     IN CHAR16   *Prompt
     );
