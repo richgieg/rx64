@@ -6,7 +6,10 @@
 #define MM_PAGE_SIZE 4096
 
 VOID
-MmInitialize ();
+MmInitialize (
+    UINT64  ContiguousPhysicalMemoryBase,
+    UINTN   NoPages
+    );
 
 VOID *
 MmAllocatePages (

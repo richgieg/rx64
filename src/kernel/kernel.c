@@ -9,7 +9,8 @@ KernelEntry (
     IN LOADER_INFO *LoaderInfo
     )
 {
-    MmInitialize();
+    MmInitialize(LoaderInfo->ContiguousPhysicalMemoryAddress,
+        LoaderInfo->NoContinguousPhysicalMemoryPages);
 
     // TODO: Map virtual address range to framebuffer base.
     GfxInitializeGraphics(

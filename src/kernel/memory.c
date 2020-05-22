@@ -3,17 +3,27 @@
 #include "kernel.h"
 #include "memory.h"
 
-#define PAGE_BASE_ADDRESS 0x700000;
-#define POOL_BASE_ADDRESS 0x6f0000;
-
-static UINTN mNextPageAddress;
-static UINTN mNextPoolAddress;
+static UINT64   mContiguousPhysicalMemoryBase;
+static UINTN    mNoPages;
+static UINT64   mBasePoolAddress;
+static UINT64   mNextPoolAddress;
+static UINT64   mBasePageAddress;
+static UINT64   mNextPageAddress;
 
 VOID
-MmInitialize ()
+MmInitialize (
+    UINT64  ContiguousPhysicalMemoryBase,
+    UINTN   NoPages
+    )
 {
-    mNextPageAddress = PAGE_BASE_ADDRESS;
-    mNextPoolAddress = POOL_BASE_ADDRESS;
+    mContiguousPhysicalMemoryBase = ContiguousPhysicalMemoryBase;
+    mNoPages = NoPages;
+    // Pool is 1 MB.
+    mBasePoolAddress = mContiguousPhysicalMemoryBase;
+    mNextPoolAddress = mBasePoolAddress;
+    // Start page allocations after the pool.
+    mBasePageAddress = mBasePoolAddress + 0x100000;
+    mNextPageAddress = mBasePageAddress;
 }
 
 VOID *
@@ -32,9 +42,8 @@ MmAllocatePool (
     UINTN Size
     )
 {
-    // Temporary... Make sure pool allocation doesn't
-    // run into page allocations.
-    if (mNextPoolAddress + Size >= 0x700000) {
+    // Ensure that new pool allocation doesn't run into page allocations.
+    if (mNextPoolAddress + Size >= mBasePageAddress) {
         KeBugCheck();
     }
     VOID *Address;
