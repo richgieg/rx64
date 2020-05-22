@@ -48,24 +48,24 @@ LoadKernelImage (
     IN CHAR16               *FileName
     )
 {
-    EFI_STATUS              Status;
-    EFI_LOADED_IMAGE        *LoadedImage;
-    EFI_DEVICE_PATH         *DevicePath;
-    EFI_FILE_IO_INTERFACE   *FileSystem;
-    EFI_FILE_HANDLE         RootDirectory;
-    EFI_FILE_HANDLE         KernelFileHandle;
-    EFI_FILE_INFO           *FileInfo;
-    UINTN                   FileInfoSize;
-    UINTN                   KernelBufferSize;
-    VOID                    *KernelBuffer;
-    Elf64_Ehdr              *ElfHeader;
-    Elf64_Phdr              *ElfProgramHeader;
-    EFI_PHYSICAL_ADDRESS    PhysicalAddress;
-    EFI_VIRTUAL_ADDRESS     VirtualAddress;
-    KERNEL_IMAGE_INFO       *KernelImageInfo;
-    KERNEL_SECTION          *KernelSection;
-    UINTN                   NoPages;
-    UINTN                   i;
+    EFI_STATUS                  Status;
+    EFI_LOADED_IMAGE            *LoadedImage;
+    EFI_DEVICE_PATH             *DevicePath;
+    EFI_FILE_IO_INTERFACE       *FileSystem;
+    EFI_FILE_HANDLE             RootDirectory;
+    EFI_FILE_HANDLE             KernelFileHandle;
+    EFI_FILE_INFO               *FileInfo;
+    UINTN                       FileInfoSize;
+    UINTN                       KernelBufferSize;
+    VOID                        *KernelBuffer;
+    Elf64_Ehdr                  *ElfHeader;
+    Elf64_Phdr                  *ElfProgramHeader;
+    EFI_PHYSICAL_ADDRESS        PhysicalAddress;
+    EFI_VIRTUAL_ADDRESS         VirtualAddress;
+    KERNEL_IMAGE_INFO           *KernelImageInfo;
+    LOADER_PAGE_MAPPING_INFO    *KernelSection;
+    UINTN                       NoPages;
+    UINTN                       i;
 
     // Allocate enough to hold KERNEL_IMAGE_INFO (has variable
     // array which holds info about each section in the image).
@@ -143,8 +143,8 @@ LoadKernelImage (
     // Parse kernel image and copy PT_LOAD segments to the required locations.
     ElfHeader = (Elf64_Ehdr *)KernelBuffer;
     KernelImageInfo->KernelEntry = (VOID *)ElfHeader->e_entry;
-    KernelImageInfo->NoSections = 0;
-    KernelSection = KernelImageInfo->Sections;
+    KernelImageInfo->NoSectionMappings = 0;
+    KernelSection = KernelImageInfo->SectionMappings;
 
     for (i = 0; i < ElfHeader->e_phnum; i++) {
         ElfProgramHeader = ((Elf64_Phdr *)(KernelBuffer + ElfHeader->e_phoff)) + i;
@@ -174,7 +174,7 @@ LoadKernelImage (
         KernelSection->PhysicalAddress = PhysicalAddress;
         KernelSection->VirtualAddress = ElfProgramHeader->p_vaddr;
         KernelSection++;
-        KernelImageInfo->NoSections++;
+        KernelImageInfo->NoSectionMappings++;
     }
 
     FreePool(FileInfo);

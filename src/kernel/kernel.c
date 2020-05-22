@@ -13,7 +13,7 @@ KernelEntry (
 
     // TODO: Map virtual address range to framebuffer base.
     GfxInitializeGraphics(
-        LoaderInfo->FrameBufferBase,
+        LoaderInfo->FrameBufferPhysicalAddress,
         LoaderInfo->FrameBufferSize,
         LoaderInfo->HorizontalResolution,
         LoaderInfo->VerticalResolution

@@ -28,9 +28,9 @@ efi_main (
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
     KernelImageInfo = LoadKernelImage(ImageHandle, L"kernel.elf");
     SetGraphicsMode(&SetGraphicsModeResult);
-    LoaderInfo->NoSections = KernelImageInfo->NoSections;
-    LoaderInfo->Sections = KernelImageInfo->Sections;
-    LoaderInfo->FrameBufferBase = SetGraphicsModeResult.FrameBufferBase;
+    LoaderInfo->NoKernelSectionMappings = KernelImageInfo->NoSectionMappings;
+    LoaderInfo->KernelSectionMappings = KernelImageInfo->SectionMappings;
+    LoaderInfo->FrameBufferPhysicalAddress = SetGraphicsModeResult.FrameBufferBase;
     LoaderInfo->FrameBufferSize = SetGraphicsModeResult.FrameBufferSize;
     LoaderInfo->HorizontalResolution = SetGraphicsModeResult.HorizontalResolution;
     LoaderInfo->VerticalResolution = SetGraphicsModeResult.VerticalResolution;

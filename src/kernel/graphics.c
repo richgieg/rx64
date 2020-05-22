@@ -6,14 +6,14 @@ static GFX_FRAME_BUFFER *mScreenBuffer;
 
 VOID
 GfxInitializeGraphics (
-    IN UINT64 FrameBufferBase,
+    IN UINT64 FrameBufferPhysicalAddress,
     IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution
     )
 {
     mScreenBuffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
-    mScreenBuffer->Base = FrameBufferBase;
+    mScreenBuffer->Base = FrameBufferPhysicalAddress;
     mScreenBuffer->Size = FrameBufferSize;
     mScreenBuffer->HorizontalResolution = HorizontalResolution;
     mScreenBuffer->VerticalResolution = VerticalResolution;
