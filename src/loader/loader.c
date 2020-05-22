@@ -15,6 +15,7 @@ efi_main (
     LOADER_INFO                 *LoaderInfo;
     KERNEL_IMAGE_INFO           *KernelImageInfo;
     SET_GRAPHICS_MODE_RESULT    SetGraphicsModeResult;
+    CONTIGUOUS_MEMORY_INFO      ContiguousPhysicalMemoryInfo;
 
     // Initialize EFI library (Set BS, RT, and ST globals).
     // BS = Boot Services, RT = Runtime Services, ST = System Table.
@@ -22,8 +23,8 @@ efi_main (
     // Disable watchdog timer (prevent system restart after 5 minutes).
     BS->SetWatchdogTimer(0, 0, 0, NULL);
 
-    // // PrintEnvironmentVariables(FALSE);
-    // // PrintMemoryMap(FALSE);
+    // PrintEnvironmentVariables(FALSE);
+    // PrintMemoryMap(FALSE);
 
     LoaderInfo = AllocatePool(sizeof(LOADER_INFO));
     KernelImageInfo = LoadKernelImage(ImageHandle, L"kernel.elf");
@@ -34,7 +35,9 @@ efi_main (
     LoaderInfo->FrameBufferSize = SetGraphicsModeResult.FrameBufferSize;
     LoaderInfo->HorizontalResolution = SetGraphicsModeResult.HorizontalResolution;
     LoaderInfo->VerticalResolution = SetGraphicsModeResult.VerticalResolution;
-    ExitBootServices(ImageHandle);
+    ExitBootServices(ImageHandle, &ContiguousPhysicalMemoryInfo);
+    LoaderInfo->ContiguousPhysicalMemoryAddress = ContiguousPhysicalMemoryInfo.BaseAddress;
+    LoaderInfo->NoContinguousPhysicalMemoryPages = ContiguousPhysicalMemoryInfo.NoPages;
     KernelImageInfo->KernelEntry(LoaderInfo);
 
     // Kernel should never return, but if it does...

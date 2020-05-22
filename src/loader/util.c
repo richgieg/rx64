@@ -5,15 +5,19 @@
 
 VOID
 ExitBootServices (
-    IN EFI_HANDLE           LoaderImageHandle
+    IN EFI_HANDLE               LoaderImageHandle,
+    IN CONTIGUOUS_MEMORY_INFO   *ContiguousPhysicalMemoryInfo
     )
 {
     EFI_STATUS              Status;
     EFI_MEMORY_DESCRIPTOR   *MemoryMap;
+    EFI_MEMORY_DESCRIPTOR   *MemoryMapEntry;
     UINTN                   NoEntries;
     UINTN                   MapKey;
     UINTN                   DescriptorSize;
     UINT32                  DescriptorVersion;
+    UINTN                   NoPages;
+    UINTN                   i;
 
     // Get most current memory map then exit boot services.
     MemoryMap = LibMemoryMap(&NoEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
@@ -21,6 +25,18 @@ ExitBootServices (
     if (EFI_ERROR(Status)) {
         Print(L"Failed to exit boot services\n");
         Exit(EFI_SUCCESS, 0, NULL);
+    }
+
+    // Get largest block of contiguous physical memory.
+    MemoryMapEntry = MemoryMap;
+    ContiguousPhysicalMemoryInfo->NoPages = 0;
+    for (i = 0; i < NoEntries; i++) {
+        if (MemoryMapEntry->Type == EfiConventionalMemory &&
+            MemoryMapEntry->NumberOfPages > ContiguousPhysicalMemoryInfo->NoPages) {
+            ContiguousPhysicalMemoryInfo->BaseAddress = MemoryMapEntry->PhysicalStart;
+            ContiguousPhysicalMemoryInfo->NoPages = MemoryMapEntry->NumberOfPages;
+        }
+        MemoryMapEntry = NextMemoryDescriptor(MemoryMapEntry, DescriptorSize);
     }
 }
 

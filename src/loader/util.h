@@ -10,9 +10,15 @@ typedef struct _KERNEL_IMAGE_INFO {
     LOADER_PAGE_MAPPING_INFO    SectionMappings[];
 } KERNEL_IMAGE_INFO;
 
+typedef struct _CONTIGUOUS_MEMORY_INFO {
+    UINT64  BaseAddress;
+    UINTN   NoPages;
+} CONTIGUOUS_MEMORY_INFO;
+
 VOID
 ExitBootServices (
-    IN EFI_HANDLE LoaderImageHandle
+    IN EFI_HANDLE               LoaderImageHandle,
+    IN CONTIGUOUS_MEMORY_INFO   *ContiguousPhysicalMemoryInfo
     );
 
 EFI_PHYSICAL_ADDRESS
