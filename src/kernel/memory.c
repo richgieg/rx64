@@ -81,8 +81,8 @@ MmMapVirtualToPhysicalPages (
 
     for (i = 0; i < NoPages; i++) {
         MmMapVirtualToPhysicalPage(VirtualAddress, PhysicalAddress);
-        VirtualAddress += i * MM_PAGE_SIZE;
-        PhysicalAddress += i * MM_PAGE_SIZE;
+        VirtualAddress += MM_PAGE_SIZE;
+        PhysicalAddress += MM_PAGE_SIZE;
     }
 }
 

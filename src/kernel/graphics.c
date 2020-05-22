@@ -2,6 +2,8 @@
 #include "memory.h"
 #include "runtime.h"
 
+#define VIRTUAL_FRAME_BUFFER_BASE 0xffffff8000000000
+
 static GFX_FRAME_BUFFER *mScreenBuffer;
 
 VOID
@@ -12,8 +14,13 @@ GfxInitializeGraphics (
     IN UINT32 VerticalResolution
     )
 {
+    UINTN NoPages;
+
+    NoPages = FrameBufferSize / MM_PAGE_SIZE;
+    MmMapVirtualToPhysicalPages(VIRTUAL_FRAME_BUFFER_BASE,
+        FrameBufferPhysicalAddress, NoPages);
     mScreenBuffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
-    mScreenBuffer->Base = FrameBufferPhysicalAddress;
+    mScreenBuffer->Base = VIRTUAL_FRAME_BUFFER_BASE;
     mScreenBuffer->Size = FrameBufferSize;
     mScreenBuffer->HorizontalResolution = HorizontalResolution;
     mScreenBuffer->VerticalResolution = VerticalResolution;
@@ -155,7 +162,7 @@ GfxFillBuffer (
     UINT32 *MaxPixel;
 
     Pixel = (UINT32 *)Buffer->Base;
-    MaxPixel =  (UINT32 *)Buffer->Base + Buffer->Size;
+    MaxPixel =  (UINT32 *)(Buffer->Base + Buffer->Size);
     while (Pixel < MaxPixel) {
         *Pixel = Color;
         Pixel++;

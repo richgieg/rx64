@@ -210,8 +210,8 @@ MapVirtualToPhysicalPages (
 
     for (i = 0; i < NoPages; i++) {
         MapVirtualToPhysicalPage(VirtualAddress, PhysicalAddress);
-        VirtualAddress += i * EFI_PAGE_SIZE;
-        PhysicalAddress += i * EFI_PAGE_SIZE;
+        VirtualAddress += EFI_PAGE_SIZE;
+        PhysicalAddress += EFI_PAGE_SIZE;
     }
 }
 
