@@ -37,6 +37,23 @@ MmAllocatePages (
     return Address;
 }
 
+VOID
+MmZeroPages (
+    VOID    *Pages,
+    UINTN   NoPages
+    )
+{
+    UINT64  *ZeroWriter;
+    UINT64  *Max;
+
+    ZeroWriter = (UINT64 *)Pages;
+    Max = (UINT64 *)(Pages + (NoPages * MM_PAGE_SIZE));
+
+    while (ZeroWriter < Max) {
+        *ZeroWriter++ = 0;
+    }
+}
+
 VOID *
 MmAllocatePool (
     UINTN Size
@@ -111,6 +128,7 @@ MmMapVirtualToPhysicalPage (
     // corresponding page directory pointer table.
     if (!(Pml4[Pml4Index] & 1)) {
         Pdpt = MmAllocatePages(1);
+        MmZeroPages(Pdpt, 1);
         Pml4[Pml4Index] = (UINT64)Pdpt | 0x23;
     // Otherwise, get page directory pointer table address from it.
     } else {
@@ -121,6 +139,7 @@ MmMapVirtualToPhysicalPage (
     // allocate a page for its corresponding page directory.
     if (!(Pdpt[PdptIndex] & 1)) {
         Pd = MmAllocatePages(1);
+        MmZeroPages(Pd, 1);
         Pdpt[PdptIndex] = (UINT64)Pd | 0x23;
     // Otherwise, get page directory address from it.
     } else {
@@ -131,6 +150,7 @@ MmMapVirtualToPhysicalPage (
     // for its corresponding page table.
     if (!(Pd[PdIndex] & 1)) {
         Pt = MmAllocatePages(1);
+        MmZeroPages(Pt, 1);
         Pd[PdIndex] = (UINT64)Pt | 0x23;
     // Otherwise, get page table address from it.
     } else {

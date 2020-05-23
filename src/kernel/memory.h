@@ -16,6 +16,12 @@ MmAllocatePages (
     UINTN NoPages
     );
 
+VOID
+MmZeroPages (
+    VOID    *Pages,
+    UINTN   NoPages
+    );
+
 VOID *
 MmAllocatePool (
     UINTN Size

@@ -193,6 +193,9 @@ LoadKernelImage (
         KernelImageInfo->NoSectionMappings++;
     }
 
+    FreePool(FileInfo);
+    FreePool(KernelBuffer);
+
     return KernelImageInfo;
 }
 
@@ -242,6 +245,7 @@ MapVirtualToPhysicalPage (
             Print(L"Failed to allocate page for PDPT\n");
             Exit(EFI_SUCCESS, 0, NULL);
         }
+        ZeroMem(Pdpt, EFI_PAGE_SIZE);
         Pml4[Pml4Index] = (UINT64)Pdpt | 0x23;
     // Otherwise, get page directory pointer table address from it.
     } else {
@@ -256,6 +260,7 @@ MapVirtualToPhysicalPage (
             Print(L"Failed to allocate page for PD\n");
             Exit(EFI_SUCCESS, 0, NULL);
         }
+        ZeroMem(Pd, EFI_PAGE_SIZE);
         Pdpt[PdptIndex] = (UINT64)Pd | 0x23;
     // Otherwise, get page directory address from it.
     } else {
@@ -270,6 +275,7 @@ MapVirtualToPhysicalPage (
             Print(L"Failed to allocate page for PT\n");
             Exit(EFI_SUCCESS, 0, NULL);
         }
+        ZeroMem(Pt, EFI_PAGE_SIZE);
         Pd[PdIndex] = (UINT64)Pt | 0x23;
     // Otherwise, get page table address from it.
     } else {
