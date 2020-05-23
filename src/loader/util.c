@@ -193,9 +193,6 @@ LoadKernelImage (
         KernelImageInfo->NoSectionMappings++;
     }
 
-    FreePool(FileInfo);
-    FreePool(KernelBuffer);
-
     return KernelImageInfo;
 }
 

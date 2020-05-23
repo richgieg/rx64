@@ -14,7 +14,7 @@ typedef struct _LOADER_INFO {
     LOADER_PAGE_MAPPING_INFO    *KernelSectionMappings;
     UINT64                      ContiguousPhysicalMemoryAddress;
     UINTN                       NoContinguousPhysicalMemoryPages;
-    UINT64                      FrameBufferPhysicalAddress;
+    UINT64                      FrameBufferBase;
     UINTN                       FrameBufferSize;
     UINT32                      HorizontalResolution;
     UINT32                      VerticalResolution;

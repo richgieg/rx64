@@ -12,9 +12,8 @@ KernelEntry (
     MmInitialize(LoaderInfo->ContiguousPhysicalMemoryAddress,
         LoaderInfo->NoContinguousPhysicalMemoryPages);
 
-    // TODO: Map virtual address range to framebuffer base.
     GfxInitializeGraphics(
-        LoaderInfo->FrameBufferPhysicalAddress,
+        LoaderInfo->FrameBufferBase,
         LoaderInfo->FrameBufferSize,
         LoaderInfo->HorizontalResolution,
         LoaderInfo->VerticalResolution

@@ -1,17 +1,21 @@
 #include <efi.h>
 #include <efilib.h>
 #include "graphics.h"
+#include "util.h"
+
+#define VIRTUAL_FRAME_BUFFER_BASE 0xffffff8000000000
 
 VOID
 SetGraphicsMode (
     IN SET_GRAPHICS_MODE_RESULT *Result
     )
 {
-    EFI_STATUS Status;
-    EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphicsOutput;
-    UINT32 Mode;
-    UINTN SizeOfInfo;
-    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
+    EFI_STATUS                              Status;
+    EFI_GRAPHICS_OUTPUT_PROTOCOL            *GraphicsOutput;
+    UINT32                                  Mode;
+    UINTN                                   SizeOfInfo;
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION    *Info;
+    UINTN                                   NoPages;
 
     Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, (VOID **)&GraphicsOutput);
     if (EFI_ERROR(Status)) {
@@ -40,7 +44,14 @@ SetGraphicsMode (
         Exit(EFI_SUCCESS, 0, NULL);
     }
 
-    Result->FrameBufferBase = GraphicsOutput->Mode->FrameBufferBase;
+    NoPages = GraphicsOutput->Mode->FrameBufferSize / EFI_PAGE_SIZE;
+    if (GraphicsOutput->Mode->FrameBufferSize % EFI_PAGE_SIZE) {
+        NoPages++;
+    }
+    MapVirtualToPhysicalPages(VIRTUAL_FRAME_BUFFER_BASE,
+        GraphicsOutput->Mode->FrameBufferBase, NoPages);
+
+    Result->FrameBufferBase = VIRTUAL_FRAME_BUFFER_BASE;
     Result->FrameBufferSize = GraphicsOutput->Mode->FrameBufferSize;
     Result->HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
     Result->VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;

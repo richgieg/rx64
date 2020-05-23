@@ -31,7 +31,7 @@ efi_main (
     SetGraphicsMode(&SetGraphicsModeResult);
     LoaderInfo->NoKernelSectionMappings = KernelImageInfo->NoSectionMappings;
     LoaderInfo->KernelSectionMappings = KernelImageInfo->SectionMappings;
-    LoaderInfo->FrameBufferPhysicalAddress = SetGraphicsModeResult.FrameBufferBase;
+    LoaderInfo->FrameBufferBase = SetGraphicsModeResult.FrameBufferBase;
     LoaderInfo->FrameBufferSize = SetGraphicsModeResult.FrameBufferSize;
     LoaderInfo->HorizontalResolution = SetGraphicsModeResult.HorizontalResolution;
     LoaderInfo->VerticalResolution = SetGraphicsModeResult.VerticalResolution;

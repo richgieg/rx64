@@ -2,25 +2,18 @@
 #include "memory.h"
 #include "runtime.h"
 
-#define VIRTUAL_FRAME_BUFFER_BASE 0xffffff8000000000
-
 static GFX_FRAME_BUFFER *mScreenBuffer;
 
 VOID
 GfxInitializeGraphics (
-    IN UINT64 FrameBufferPhysicalAddress,
+    IN UINT64 FrameBufferBase,
     IN UINTN  FrameBufferSize,
     IN UINT32 HorizontalResolution,
     IN UINT32 VerticalResolution
     )
 {
-    UINTN NoPages;
-
-    NoPages = FrameBufferSize / MM_PAGE_SIZE;
-    MmMapVirtualToPhysicalPages(VIRTUAL_FRAME_BUFFER_BASE,
-        FrameBufferPhysicalAddress, NoPages);
     mScreenBuffer = MmAllocatePool(sizeof(GFX_FRAME_BUFFER));
-    mScreenBuffer->Base = VIRTUAL_FRAME_BUFFER_BASE;
+    mScreenBuffer->Base = FrameBufferBase;
     mScreenBuffer->Size = FrameBufferSize;
     mScreenBuffer->HorizontalResolution = HorizontalResolution;
     mScreenBuffer->VerticalResolution = VerticalResolution;
