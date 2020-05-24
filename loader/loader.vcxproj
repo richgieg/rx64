@@ -178,9 +178,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="efi_main.c" />
+    <ClCompile Include="load.c" />
+    <ClCompile Include="memory.c" />
     <ClCompile Include="util.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="load.h" />
+    <ClInclude Include="memory.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
