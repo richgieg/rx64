@@ -30,7 +30,7 @@ LoadKernelImage (
 
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
-        LoaderImageHandle, &LoadedImageProtocol, (VOID **)&LoadedImage);
+        LoaderImageHandle, &LoadedImageProtocol, &LoadedImage);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to get info about loader image\n");
         return Status;
@@ -38,7 +38,7 @@ LoadKernelImage (
 
     // Get device path for this loader's image.
     Status = BS->HandleProtocol(
-        LoadedImage->DeviceHandle, &DevicePathProtocol, (VOID **)&DevicePath);
+        LoadedImage->DeviceHandle, &DevicePathProtocol, &DevicePath);
     if (EFI_ERROR(Status) || DevicePath == NULL) {
         Print(L"Failed to get device path for loader image\n");
         return Status;
@@ -46,7 +46,7 @@ LoadKernelImage (
 
     // Open the volume where this loader's image resides.
     Status = BS->HandleProtocol(
-        LoadedImage->DeviceHandle, &FileSystemProtocol, (VOID **)&FileSystem);
+        LoadedImage->DeviceHandle, &FileSystemProtocol, &FileSystem);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to get handle to loader file system\n");
         return Status;
@@ -102,10 +102,7 @@ LoadKernelImage (
     SectionHeader = (IMAGE_SECTION_HEADER *)(
         (UINT8 *)(&NtHeader->OptionalHeader) + NtHeader->FileHeader.SizeOfOptionalHeader);
 
-    NumPages = NtHeader->OptionalHeader.SizeOfHeaders / EFI_PAGE_SIZE;
-    if (NtHeader->OptionalHeader.SizeOfHeaders % EFI_PAGE_SIZE) {
-        NumPages++;
-    }
+    NumPages = CalculatePagesFromBytes(NtHeader->OptionalHeader.SizeOfHeaders);
     Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to allocated pages for kernel headers\n");
@@ -118,10 +115,7 @@ LoadKernelImage (
     SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
 
     for (int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++) {
-        NumPages = SectionHeader[i].Misc.VirtualSize / EFI_PAGE_SIZE;
-        if (SectionHeader[i].Misc.VirtualSize % EFI_PAGE_SIZE) {
-            NumPages++;
-        }
+        NumPages = CalculatePagesFromBytes(SectionHeader[i].Misc.VirtualSize);
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
         if (EFI_ERROR(Status)) {
             Print(L"Failed to allocate pages for kernel %a section\n", SectionHeader->Name);

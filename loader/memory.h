@@ -2,6 +2,11 @@
 
 #include <efi.h>
 
+UINTN
+CalculatePagesFromBytes (
+    IN UINTN Bytes
+    );
+
 VOID
 MapVirtualToPhysicalPages (
     IN UINT64   VirtualAddress,

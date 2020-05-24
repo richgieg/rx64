@@ -99,7 +99,11 @@ typedef struct _IMAGE_SECTION_HEADER {
 } IMAGE_SECTION_HEADER;
 
 typedef struct _KERNEL_IMAGE_INFO {
-    VOID (*kmain)();
+    VOID (*kmain) (
+        IN UINT64 FrameBufferBase,
+        IN UINT32 HorizontalResolution,
+        IN UINT32 VerticalResolution
+        );
 } KERNEL_IMAGE_INFO;
 
 EFI_STATUS

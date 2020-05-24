@@ -2,6 +2,14 @@
 #include <efilib.h>
 #include "memory.h"
 
+UINTN
+CalculatePagesFromBytes (
+    IN UINTN NumBytes
+    )
+{
+    return (NumBytes / EFI_PAGE_SIZE) + ((NumBytes % EFI_PAGE_SIZE) ? 1 : 0);
+}
+
 VOID
 MapVirtualToPhysicalPages (
     IN UINT64   VirtualAddress,
