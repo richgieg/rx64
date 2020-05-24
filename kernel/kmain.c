@@ -1,9 +1,9 @@
-void kmain(unsigned __int32 *framebuffer) {
+#include <intrin.h>
 
-    for (int i = 0; i < 1920 * 1080; i++) {
-        *framebuffer++ = 0xff;
+void kmain() {
+
+    for (;;) {
+        __halt();
     }
-
-    for (;;);
 
 }

@@ -1,5 +1,6 @@
 #include <efi.h>
 #include <efilib.h>
+#include <intrin.h>
 #include "util.h"
 
 typedef struct _IMAGE_FILE_HEADER {
@@ -98,10 +99,28 @@ typedef struct _IMAGE_SECTION_HEADER {
     UINT32  Characteristics;
 } IMAGE_SECTION_HEADER;
 
+typedef struct _KERNEL_IMAGE_INFO {
+    VOID (*kmain)();
+} KERNEL_IMAGE_INFO;
+
 EFI_STATUS
 LoadKernelImage (
-    IN EFI_HANDLE   LoaderImageHandle,
-    IN CHAR16       *FileName
+    IN EFI_HANDLE           LoaderImageHandle,
+    IN CHAR16               *FileName,
+    OUT KERNEL_IMAGE_INFO   **KernelImageInfo
+    );
+
+VOID
+MapVirtualToPhysicalPages(
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress,
+    IN UINTN    NumPages
+    );
+
+VOID
+MapVirtualToPhysicalPage(
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress
     );
 
 EFI_STATUS
@@ -110,19 +129,31 @@ efi_main (
     EFI_SYSTEM_TABLE    *SystemTable
     )
 {
+    EFI_STATUS          Status;
+    KERNEL_IMAGE_INFO   *KernelImageInfo;
+
     InitializeLib(ImageHandle, SystemTable);
 
-    LoadKernelImage(ImageHandle, L"kernel.exe");
+    Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelImageInfo);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to load kernel image\n");
+        return Status;
+    }
 
-    WaitForKeyStroke(L"Press any key to exit...");
+    Print(L"%lx\n", KernelImageInfo->kmain);
+
+    WaitForKeyStroke(L"Press any key to enter kernel...");
+
+    KernelImageInfo->kmain();
 
     return EFI_SUCCESS;
 }
 
 EFI_STATUS
 LoadKernelImage (
-    IN EFI_HANDLE   LoaderImageHandle,
-    IN CHAR16       *FileName
+    IN EFI_HANDLE           LoaderImageHandle,
+    IN CHAR16               *FileName,
+    OUT KERNEL_IMAGE_INFO   **KernelImageInfo
     )
 {
     EFI_STATUS                  Status;
@@ -244,8 +275,6 @@ LoadKernelImage (
     SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
     
     for (int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++) {
-        VirtualAddress = NtHeader->OptionalHeader.ImageBase +
-            SectionHeader[i].VirtualAddress;
         NumPages = SectionHeader[i].Misc.VirtualSize / EFI_PAGE_SIZE;
         if (SectionHeader[i].Misc.VirtualSize % EFI_PAGE_SIZE) {
             NumPages++;
@@ -258,18 +287,112 @@ LoadKernelImage (
         ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
         CopyMem((VOID *)PhysicalAddress, SectionData, SectionHeader[i].SizeOfRawData);
 
+        VirtualAddress = NtHeader->OptionalHeader.ImageBase +
+            SectionHeader[i].VirtualAddress;
+        MapVirtualToPhysicalPages(VirtualAddress, PhysicalAddress, NumPages);
+
         Print(L"%a\n", SectionHeader[i].Name);
         Print(L"    Virtual Address:  %lx\n", VirtualAddress);
         Print(L"    Virtual Size:     %lx\n", SectionHeader[i].Misc.VirtualSize);
         Print(L"    Size of Raw Data: %lx\n", SectionHeader[i].SizeOfRawData);
         Print(L"    Number of Pages:  %d\n", NumPages);
         Print(L"%x\n", *SectionData);
-
         Print(L"\n");
 
         SectionData += SectionHeader[i].SizeOfRawData;
-        
     }
 
+    *KernelImageInfo = AllocatePool(sizeof(KERNEL_IMAGE_INFO));
+    (*KernelImageInfo)->kmain = (VOID *)(NtHeader->OptionalHeader.ImageBase +
+        NtHeader->OptionalHeader.AddressOfEntryPoint);
+
     return EFI_SUCCESS;
+}
+
+VOID
+MapVirtualToPhysicalPages(
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress,
+    IN UINTN    NumPages
+    )
+{
+    UINTN i;
+
+    for (i = 0; i < NumPages; i++) {
+        MapVirtualToPhysicalPage(VirtualAddress, PhysicalAddress);
+        VirtualAddress += EFI_PAGE_SIZE;
+        PhysicalAddress += EFI_PAGE_SIZE;
+    }
+}
+
+VOID
+MapVirtualToPhysicalPage(
+    IN UINT64   VirtualAddress,
+    IN UINT64   PhysicalAddress
+    )
+{
+    EFI_STATUS  Status;
+    UINT64      *Pml4;
+    UINT64      *Pdpt;
+    UINT64      *Pd;
+    UINT64      *Pt;
+    UINTN       Pml4Index;
+    UINTN       PdptIndex;
+    UINTN       PdIndex;
+    UINTN       PtIndex;
+
+    // Address of PML4 is in CR3 register.
+    Pml4 = (UINT64 *)__readcr3();
+    Pml4Index = (VirtualAddress >> 39) & 0x1ff;
+    PdptIndex = (VirtualAddress >> 30) & 0x1ff;
+    PdIndex = (VirtualAddress >> 21) & 0x1ff;
+    PtIndex = (VirtualAddress >> 12) & 0x1ff;
+
+    // If PML4 entry not present then allocate a page for its
+    // corresponding page directory pointer table.
+    if (!(Pml4[Pml4Index] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pdpt);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PDPT\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        ZeroMem(Pdpt, EFI_PAGE_SIZE);
+        Pml4[Pml4Index] = (UINT64)Pdpt | 0x23;
+        // Otherwise, get page directory pointer table address from it.
+    } else {
+        Pdpt = (UINT64 *)(Pml4[Pml4Index] & 0x00fffffffffffff000);
+    }
+
+    // If page directory pointer table entry not present then
+    // allocate a page for its corresponding page directory.
+    if (!(Pdpt[PdptIndex] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pd);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PD\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        ZeroMem(Pd, EFI_PAGE_SIZE);
+        Pdpt[PdptIndex] = (UINT64)Pd | 0x23;
+        // Otherwise, get page directory address from it.
+    } else {
+        Pd = (UINT64 *)(Pdpt[PdptIndex] & 0x00fffffffffffff000);
+    }
+
+    // If page directory entry not present then allocate a page
+    // for its corresponding page table.
+    if (!(Pd[PdIndex] & 1)) {
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pt);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate page for PT\n");
+            Exit(EFI_SUCCESS, 0, NULL);
+        }
+        ZeroMem(Pt, EFI_PAGE_SIZE);
+        Pd[PdIndex] = (UINT64)Pt | 0x23;
+        // Otherwise, get page table address from it.
+    } else {
+        Pt = (UINT64 *)(Pd[PdIndex] & 0x00fffffffffffff000);
+    }
+
+    // Write entry to page table.
+    Pt[PtIndex] = PhysicalAddress | 0x23;
 }
