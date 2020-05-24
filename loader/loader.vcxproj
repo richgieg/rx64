@@ -76,6 +76,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -89,6 +90,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

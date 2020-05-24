@@ -78,6 +78,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -87,6 +88,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
