@@ -3,6 +3,6 @@
 #include <efi.h>
 
 VOID
-WaitForKeyStroke(
+WaitForKeyStroke (
     IN CHAR16 *Prompt
     );
