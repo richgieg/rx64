@@ -2,8 +2,6 @@
 #include <efilib.h>
 #include "util.h"
 
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
-
 typedef struct _IMAGE_FILE_HEADER {
     UINT16 Machine;
     UINT16 NumberOfSections;
@@ -18,6 +16,8 @@ typedef struct _IMAGE_DATA_DIRECTORY {
     UINT32 VirtualAddress;
     UINT32 Size;
 } IMAGE_DATA_DIRECTORY;
+
+#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
 
 typedef struct _IMAGE_OPTIONAL_HEADER64 {
     UINT16                  Magic;
@@ -80,6 +80,24 @@ typedef struct _IMAGE_DOS_HEADER {      // DOS .EXE header
     UINT32   e_lfanew;                    // File address of new exe header
 } IMAGE_DOS_HEADER;
 
+#define IMAGE_SIZEOF_SHORT_NAME              8
+
+typedef struct _IMAGE_SECTION_HEADER {
+    CHAR8   Name[IMAGE_SIZEOF_SHORT_NAME];
+    union {
+        UINT32 PhysicalAddress;
+        UINT32 VirtualSize;
+    } Misc;
+    UINT32  VirtualAddress;
+    UINT32  SizeOfRawData;
+    UINT32  PointerToRawData;
+    UINT32  PointerToRelocations;
+    UINT32  PointerToLinenumbers;
+    UINT16  NumberOfRelocations;
+    UINT16  NumberOfLinenumbers;
+    UINT32  Characteristics;
+} IMAGE_SECTION_HEADER;
+
 EFI_STATUS
 LoadKernelImage (
     IN EFI_HANDLE   LoaderImageHandle,
@@ -116,7 +134,7 @@ LoadKernelImage (
     EFI_FILE_INFO               *FileInfo;
     UINTN                       FileInfoSize;
     UINTN                       KernelBufferSize;
-    VOID                        *KernelBuffer;
+    UINT8                       *KernelBuffer;
 
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
@@ -187,18 +205,71 @@ LoadKernelImage (
         return Status;
     }
 
-    IMAGE_DOS_HEADER *DosHeader = KernelBuffer;
-    IMAGE_NT_HEADERS64 *PeHeader =
-        (IMAGE_NT_HEADERS64 *)((UINT64)DosHeader + DosHeader->e_lfanew);
+    IMAGE_DOS_HEADER *DosHeader;
+    IMAGE_NT_HEADERS64 *NtHeader;
+    IMAGE_SECTION_HEADER *SectionHeader;
+    UINT8 *SectionData;
+    EFI_PHYSICAL_ADDRESS PhysicalAddress;
+    EFI_VIRTUAL_ADDRESS VirtualAddress;
+    UINTN NumPages;
 
-    Print(L"Sections: %d\n", PeHeader->FileHeader.NumberOfSections);
-    Print(L"Size of Optional Header: %d\n\n", PeHeader->FileHeader.SizeOfOptionalHeader);
+    DosHeader = (IMAGE_DOS_HEADER *)KernelBuffer;
+    NtHeader = (IMAGE_NT_HEADERS64 *)((UINT64)DosHeader + DosHeader->e_lfanew);
+    SectionHeader = (IMAGE_SECTION_HEADER *)(
+        (UINT8 *)(&NtHeader->OptionalHeader) + NtHeader->FileHeader.SizeOfOptionalHeader);
 
-    Print(L"Image Base:  %lx\n", PeHeader->OptionalHeader.ImageBase);
-    Print(L"Entry Point: %lx\n\n", PeHeader->OptionalHeader.AddressOfEntryPoint);
+    Print(L"Sections: %d\n", NtHeader->FileHeader.NumberOfSections);
+    Print(L"Size of Optional Header: %d\n\n", NtHeader->FileHeader.SizeOfOptionalHeader);
+    Print(L"Size of All Headers: %d\n\n", NtHeader->OptionalHeader.SizeOfHeaders);
 
-    Print(L"File Alignment:    %lx\n", PeHeader->OptionalHeader.FileAlignment);
-    Print(L"Section Alignment: %lx\n\n", PeHeader->OptionalHeader.SectionAlignment);
+    Print(L"Image Base:  %lx\n", NtHeader->OptionalHeader.ImageBase);
+    Print(L"Entry Point: %lx\n\n", NtHeader->OptionalHeader.AddressOfEntryPoint);
+
+    Print(L"File Alignment:    %lx\n", NtHeader->OptionalHeader.FileAlignment);
+    Print(L"Section Alignment: %lx\n\n", NtHeader->OptionalHeader.SectionAlignment);
+
+    NumPages = NtHeader->OptionalHeader.SizeOfHeaders / EFI_PAGE_SIZE;
+    if (NtHeader->OptionalHeader.SizeOfHeaders % EFI_PAGE_SIZE) {
+        NumPages++;
+    }
+    Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to allocated pages for kernel headers\n");
+        return Status;
+    }
+    ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
+    CopyMem((VOID *)PhysicalAddress, KernelBuffer,
+        NtHeader->OptionalHeader.SizeOfHeaders);
+
+    SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
+    
+    for (int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++) {
+        VirtualAddress = NtHeader->OptionalHeader.ImageBase +
+            SectionHeader[i].VirtualAddress;
+        NumPages = SectionHeader[i].Misc.VirtualSize / EFI_PAGE_SIZE;
+        if (SectionHeader[i].Misc.VirtualSize % EFI_PAGE_SIZE) {
+            NumPages++;
+        }
+        Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
+        if (EFI_ERROR(Status)) {
+            Print(L"Failed to allocate pages for kernel %a section\n", SectionHeader->Name);
+            return Status;
+        }
+        ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
+        CopyMem((VOID *)PhysicalAddress, SectionData, SectionHeader[i].SizeOfRawData);
+
+        Print(L"%a\n", SectionHeader[i].Name);
+        Print(L"    Virtual Address:  %lx\n", VirtualAddress);
+        Print(L"    Virtual Size:     %lx\n", SectionHeader[i].Misc.VirtualSize);
+        Print(L"    Size of Raw Data: %lx\n", SectionHeader[i].SizeOfRawData);
+        Print(L"    Number of Pages:  %d\n", NumPages);
+        Print(L"%x\n", *SectionData);
+
+        Print(L"\n");
+
+        SectionData += SectionHeader[i].SizeOfRawData;
+        
+    }
 
     return EFI_SUCCESS;
 }
