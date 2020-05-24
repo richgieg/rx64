@@ -74,6 +74,8 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.efi</TargetExt>
     <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -85,6 +87,8 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.efi</TargetExt>
     <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
