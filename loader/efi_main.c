@@ -1,16 +1,17 @@
 #include <efi.h>
 #include <efilib.h>
+#include <intrin.h>
+#include "util.h"
 
-EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
+EFI_STATUS
+efi_main (
+    EFI_HANDLE ImageHandle,
+    EFI_SYSTEM_TABLE *SystemTable
+    )
 {
-	UINTN Event;
+    InitializeLib(ImageHandle, SystemTable);
 
-	InitializeLib(ImageHandle, SystemTable);
+    WaitForKeyStroke(L"Press any key to exit...");
 
-	Print(L"Press any key to exit...\n");
-
-	ST->ConIn->Reset(ST->ConIn, FALSE);
-	ST->BootServices->WaitForEvent(1, &ST->ConIn->WaitForKey, &Event);
-
-	return EFI_SUCCESS;
+    return EFI_SUCCESS;
 }
