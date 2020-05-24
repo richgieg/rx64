@@ -5,4 +5,4 @@
 VOID
 WaitForKeyStroke(
     IN CHAR16 *Prompt
-);
+    );

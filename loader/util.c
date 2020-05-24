@@ -5,7 +5,7 @@
 VOID
 WaitForKeyStroke(
     IN CHAR16 *Prompt
-)
+    )
 {
     if (Prompt != NULL) {
         Print(L"%s", Prompt);
