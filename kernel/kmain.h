@@ -3,22 +3,24 @@
 
 #pragma once
 
+#include <types.h>
+
 typedef struct _LOADER_GRAPHICS_INFO {
-    unsigned __int64 FrameBufferBase;
-    unsigned __int64 NumPages;
-    unsigned __int32 HorizontalResolution;
-    unsigned __int32 VerticalResolution;
+    UINT64 FrameBufferBase;
+    UINT64 NumPages;
+    UINT32 HorizontalResolution;
+    UINT32 VerticalResolution;
 } LOADER_GRAPHICS_INFO;
 
 typedef struct _LOADER_MEMORY_MAPPING {
-    unsigned __int64 PhysicalAddress;
-    unsigned __int64 VirtualAddress;
-    unsigned __int64 NumPages;
+    UINT64 PhysicalAddress;
+    UINT64 VirtualAddress;
+    UINT64 NumPages;
 } LOADER_MEMORY_MAPPING;
 
 typedef struct _LOADER_MEMORY_INFO {
     LOADER_MEMORY_MAPPING   *Mappings;
-    unsigned __int64        NumMappings;
+    UINT64                  NumMappings;
 } LOADER_MEMORY_INFO;
 
 typedef struct _LOADER_INFO {

@@ -94,7 +94,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_UNICODE;UNICODE;HAVE_USE_MS_ABI;GNU_EFI_USE_EXTERNAL_STDARG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64;$(SolutionDir)\kernel</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -153,7 +153,7 @@
       <FunctionLevelLinking>
       </FunctionLevelLinking>
       <PreprocessorDefinitions>_UNICODE;UNICODE;HAVE_USE_MS_ABI;GNU_EFI_USE_EXTERNAL_STDARG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\gnu-efi\gnu-efi-code\inc;$(SolutionDir)\gnu-efi\gnu-efi-code\inc\x86_64;$(SolutionDir)\kernel</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAs>CompileAsC</CompileAs>
