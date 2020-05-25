@@ -14,12 +14,14 @@ efi_main (
     )
 {
     EFI_STATUS              Status;
+    LOADER_INFO             *LoaderInfo;
     KERNEL_ENTRY            KernelEntry;
     LOADER_GRAPHICS_INFO    *GraphicsInfo;
     LOADER_MEMORY_INFO      *MemoryInfo;
-    LOADER_INFO             *LoaderInfo;
 
     InitializeLib(ImageHandle, SystemTable);
+
+    LoaderInfo = AllocatePool(sizeof(LoaderInfo));
 
     Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelEntry);
     if (EFI_ERROR(Status)) {
@@ -39,7 +41,6 @@ efi_main (
         return Status;
     }
 
-    LoaderInfo = AllocatePool(sizeof(LoaderInfo));
     LoaderInfo->GraphicsInfo = GraphicsInfo;
     LoaderInfo->MemoryInfo = MemoryInfo;
 
