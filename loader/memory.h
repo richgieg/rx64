@@ -3,7 +3,7 @@
 #include <efi.h>
 #include "../kernel/kmain.h"
 
-#define PagesFromBytes(b) ((b / EFI_PAGE_SIZE) + ((b % EFI_PAGE_SIZE) ? 1 : 0))
+#define PagesFromBytes(b) ((UINTN)(b / EFI_PAGE_SIZE) + ((b % EFI_PAGE_SIZE) ? 1 : 0))
 
 EFI_STATUS
 GetMemoryInfo (
