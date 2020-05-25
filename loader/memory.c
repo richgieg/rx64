@@ -3,7 +3,8 @@
 #include "memory.h"
 #include "memory_.h"
 
-#define MAX_MAPPINGS 100
+#define MAX_MAPPINGS            1000
+#define MAX_AVAILABLE_RANGES    1000
 
 static LOADER_MEMORY_MAPPING    *mMappings;
 static UINTN                    mNumMappings;
@@ -13,9 +14,46 @@ GetMemoryInfo (
     OUT LOADER_MEMORY_INFO **MemoryInfo
     )
 {
+    LOADER_AVAILABLE_MEMORY_RANGE   *AvailableRanges;
+    UINTN                           NumAvailableRanges;
+    EFI_MEMORY_DESCRIPTOR           *MemoryMap;
+    EFI_MEMORY_DESCRIPTOR           *MemoryMapEntry;
+    UINTN                           NumEntries;
+    UINTN                           MapKey;
+    UINTN                           DescriptorSize;
+    UINT32                          DescriptorVersion;
+
     *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
+    AvailableRanges = AllocatePool(
+        sizeof(LOADER_AVAILABLE_MEMORY_RANGE) * MAX_AVAILABLE_RANGES);
+    NumAvailableRanges = 0;
+    MemoryMap = LibMemoryMap(&NumEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
+    MemoryMapEntry = MemoryMap;
+
+    for (UINTN i = 0; i < NumEntries; i++) {
+        switch (MemoryMapEntry->Type) {
+            case EfiBootServicesCode:
+            case EfiBootServicesData:
+            case EfiLoaderCode:
+            case EfiLoaderData:
+            case EfiConventionalMemory: {
+                // Fail if exhausted maximum number of ranges.
+                if (NumAvailableRanges >= MAX_AVAILABLE_RANGES) {
+                    return EFI_ABORTED;
+                }
+                AvailableRanges[NumAvailableRanges].PhysicalAddress = MemoryMapEntry->PhysicalStart;
+                AvailableRanges[NumAvailableRanges].NumPages = MemoryMapEntry->NumberOfPages;
+                NumAvailableRanges++;
+                break;
+            }
+        }
+        MemoryMapEntry = NextMemoryDescriptor(MemoryMapEntry, DescriptorSize);
+    }
+
     (*MemoryInfo)->Mappings = mMappings;
     (*MemoryInfo)->NumMappings = mNumMappings;
+    (*MemoryInfo)->AvailableRanges = AvailableRanges;
+    (*MemoryInfo)->NumAvailableRanges = NumAvailableRanges;
 
     return EFI_SUCCESS;
 }

@@ -18,9 +18,16 @@ typedef struct _LOADER_MEMORY_MAPPING {
     UINT64 NumPages;
 } LOADER_MEMORY_MAPPING;
 
+typedef struct _LOADER_AVAILABLE_MEMORY_RANGE {
+    UINT64 PhysicalAddress;
+    UINT64 NumPages;
+} LOADER_AVAILABLE_MEMORY_RANGE;
+
 typedef struct _LOADER_MEMORY_INFO {
-    LOADER_MEMORY_MAPPING   *Mappings;
-    UINT64                  NumMappings;
+    LOADER_MEMORY_MAPPING           *Mappings;
+    UINT64                          NumMappings;
+    LOADER_AVAILABLE_MEMORY_RANGE   *AvailableRanges;
+    UINT64                          NumAvailableRanges;
 } LOADER_MEMORY_INFO;
 
 typedef struct _LOADER_INFO {
