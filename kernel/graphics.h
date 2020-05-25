@@ -17,6 +17,29 @@ GfxInitializeGraphics (
     );
 
 VOID
+GfxDrawBitmapInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
+    IN CONST UINT8              *Bitmap
+    );
+
+VOID
+GfxDrawBitmapOnScreen (
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   ForegroundColor,
+    IN UINT32                   BackgroundColor,
+    IN CONST UINT8              *Bitmap
+    );
+
+VOID
 GfxFillBuffer (
     IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   Color
