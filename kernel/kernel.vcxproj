@@ -168,10 +168,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="console.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="kmain.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="console.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="kmain.h" />
     <ClInclude Include="types.h" />

@@ -1,7 +1,8 @@
-#include <graphics.h>
-#include <intrin.h>
 #include <kmain.h>
+#include <intrin.h>
 #include <types.h>
+#include <graphics.h>
+#include <console.h>
 
 void kmain (
     LOADER_INFO *LoaderInfo
@@ -12,7 +13,7 @@ void kmain (
         LoaderInfo->GraphicsInfo->HorizontalResolution,
         LoaderInfo->GraphicsInfo->VerticalResolution);
     
-    GfxFillScreen(0xff);
+    CnInitializeConsole();
 
     for (;;) {
         __halt();

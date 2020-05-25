@@ -26,3 +26,9 @@ VOID
 GfxFillScreen (
     IN UINT32 Color
     );
+
+UINT32
+GfxGetHorizontalResolution ();
+
+UINT32
+GfxGetVerticalResolution ();

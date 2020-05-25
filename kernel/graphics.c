@@ -40,3 +40,15 @@ GfxFillScreen (
 {
     GfxFillBuffer(&mScreenBuffer, Color);
 }
+
+UINT32
+GfxGetHorizontalResolution ()
+{
+    return mScreenBuffer.HorizontalResolution;
+}
+
+UINT32
+GfxGetVerticalResolution ()
+{
+    return mScreenBuffer.VerticalResolution;
+}
