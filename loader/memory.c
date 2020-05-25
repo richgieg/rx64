@@ -81,8 +81,8 @@ MapMemory (
         MapPage(VirtualAddress + i, PhysicalAddress + i);
     }
     // Add mapping record.
-    mMappings[mNumMappings].PhysicalAddress = VirtualAddress;
-    mMappings[mNumMappings].VirtualAddress = PhysicalAddress;
+    mMappings[mNumMappings].PhysicalAddress = PhysicalAddress;
+    mMappings[mNumMappings].VirtualAddress = VirtualAddress;
     mMappings[mNumMappings].NumPages = NumPages;
     mNumMappings++;
 
