@@ -3,6 +3,7 @@
 #include <intrin.h>
 #include "graphics.h"
 #include "load.h"
+#include "memory.h"
 #include "util.h"
 
 EFI_STATUS
@@ -31,6 +32,18 @@ efi_main (
     if (EFI_ERROR(Status)) {
         Print(L"LoadKernelImage failed\n");
         return Status;
+    }
+
+    MEMORY_MAPPING *MemoryMappings;
+    UINTN numMemoryMappings;
+    numMemoryMappings = GetMemoryMappings(&MemoryMappings);
+    Print(L"Memory Mappings: %d\n", numMemoryMappings);
+
+    for (UINTN i = 0; i < numMemoryMappings; i++) {
+        Print(L"Virtual:  %lx\n", MemoryMappings[i].VirtualAddress);
+        Print(L"Physical: %lx\n", MemoryMappings[i].PhysicalAddress);
+        Print(L"Pages:    %d\n", MemoryMappings[i].NumPages);
+        Print(L"\n");
     }
 
     WaitForKeyStroke(L"Press any key to enter kernel...");

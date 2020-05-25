@@ -1,6 +1,12 @@
 #include <efi.h>
 #include <efilib.h>
 #include "memory.h"
+#include "memory_.h"
+
+#define MAX_MAPPINGS 100
+
+static MEMORY_MAPPING   *mMemoryMappings;
+static UINTN            mNumMemoryMappings;
 
 UINTN
 CalculatePagesFromBytes (
@@ -10,8 +16,17 @@ CalculatePagesFromBytes (
     return (NumBytes / EFI_PAGE_SIZE) + ((NumBytes % EFI_PAGE_SIZE) ? 1 : 0);
 }
 
-VOID
-MapVirtualToPhysicalPages (
+UINTN
+GetMemoryMappings (
+    OUT MEMORY_MAPPING **MemoryMappings
+    )
+{
+    *MemoryMappings = mMemoryMappings;
+    return mNumMemoryMappings;
+}
+
+EFI_STATUS
+MapMemory (
     IN UINT64   VirtualAddress,
     IN UINT64   PhysicalAddress,
     IN UINTN    NumPages
@@ -19,15 +34,30 @@ MapVirtualToPhysicalPages (
 {
     UINTN i;
 
-    for (i = 0; i < NumPages; i++) {
-        MapVirtualToPhysicalPage(VirtualAddress, PhysicalAddress);
-        VirtualAddress += EFI_PAGE_SIZE;
-        PhysicalAddress += EFI_PAGE_SIZE;
+    // On first call, allocate memory for MEMORY_MAPPING records.
+    if (mMemoryMappings == NULL) {
+        mMemoryMappings = AllocatePool(sizeof(MEMORY_MAPPING) * MAX_MAPPINGS);
+        ZeroMem(mMemoryMappings, sizeof(MEMORY_MAPPING) * MAX_MAPPINGS);
     }
+    // Fail if exhausted maximum number of mappings.
+    if (mNumMemoryMappings >= MAX_MAPPINGS) {
+        return EFI_ABORTED;
+    }
+    // Map the pages.
+    for (i = 0; i < NumPages * EFI_PAGE_SIZE; i += EFI_PAGE_SIZE) {
+        MapPage(VirtualAddress + i, PhysicalAddress + i);
+    }
+    // Add mapping record.
+    mMemoryMappings[mNumMemoryMappings].PhysicalAddress = VirtualAddress;
+    mMemoryMappings[mNumMemoryMappings].VirtualAddress = PhysicalAddress;
+    mMemoryMappings[mNumMemoryMappings].NumPages = NumPages;
+    mNumMemoryMappings++;
+
+    return EFI_SUCCESS;
 }
 
 VOID
-MapVirtualToPhysicalPage (
+MapPage (
     IN UINT64   VirtualAddress,
     IN UINT64   PhysicalAddress
     )

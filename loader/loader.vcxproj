@@ -187,6 +187,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="load.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="memory_.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

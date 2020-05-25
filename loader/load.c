@@ -97,11 +97,13 @@ LoadKernelImage (
         return Status;
     }
 
+    // Access the headers at the beginning of kernel image.
     DosHeader = (IMAGE_DOS_HEADER *)KernelBuffer;
     NtHeader = (IMAGE_NT_HEADERS64 *)((UINT64)DosHeader + DosHeader->e_lfanew);
     SectionHeader = (IMAGE_SECTION_HEADER *)(
         (UINT8 *)(&NtHeader->OptionalHeader) + NtHeader->FileHeader.SizeOfOptionalHeader);
 
+    // Allocate pages for headers and copy them to the new pages.
     NumPages = CalculatePagesFromBytes(NtHeader->OptionalHeader.SizeOfHeaders);
     Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
     if (EFI_ERROR(Status)) {
@@ -111,9 +113,11 @@ LoadKernelImage (
     ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
     CopyMem((VOID *)PhysicalAddress, KernelBuffer,
         NtHeader->OptionalHeader.SizeOfHeaders);
+    VirtualAddress = NtHeader->OptionalHeader.ImageBase;
+    MapMemory(VirtualAddress, PhysicalAddress, NumPages);
 
+    // Allocate pages for sections and copy them to the new pages.
     SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
-
     for (int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++) {
         NumPages = CalculatePagesFromBytes(SectionHeader[i].Misc.VirtualSize);
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
@@ -123,17 +127,16 @@ LoadKernelImage (
         }
         ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
         CopyMem((VOID *)PhysicalAddress, SectionData, SectionHeader[i].SizeOfRawData);
-
         VirtualAddress = NtHeader->OptionalHeader.ImageBase +
             SectionHeader[i].VirtualAddress;
-        MapVirtualToPhysicalPages(VirtualAddress, PhysicalAddress, NumPages);
+        MapMemory(VirtualAddress, PhysicalAddress, NumPages);
 
-        Print(L"%a\n", SectionHeader[i].Name);
-        Print(L"    Virtual Address:  %lx\n", VirtualAddress);
-        Print(L"    Virtual Size:     %lx\n", SectionHeader[i].Misc.VirtualSize);
-        Print(L"    Size of Raw Data: %lx\n", SectionHeader[i].SizeOfRawData);
-        Print(L"    Number of Pages:  %d\n", NumPages);
-        Print(L"\n");
+        //Print(L"%a\n", SectionHeader[i].Name);
+        //Print(L"    Virtual Address:  %lx\n", VirtualAddress);
+        //Print(L"    Virtual Size:     %lx\n", SectionHeader[i].Misc.VirtualSize);
+        //Print(L"    Size of Raw Data: %lx\n", SectionHeader[i].SizeOfRawData);
+        //Print(L"    Number of Pages:  %d\n", NumPages);
+        //Print(L"\n");
 
         SectionData += SectionHeader[i].SizeOfRawData;
     }

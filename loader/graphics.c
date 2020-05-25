@@ -26,8 +26,12 @@ GetGraphicsInfo (
     }
 
     NumPages = CalculatePagesFromBytes(GraphicsOutput->Mode->FrameBufferSize);
-    MapVirtualToPhysicalPages(FRAME_BUFFER_VIRTUAL_BASE,
+    Status = MapMemory(FRAME_BUFFER_VIRTUAL_BASE,
         GraphicsOutput->Mode->FrameBufferBase, NumPages);
+    if (EFI_ERROR(Status)) {
+        Print(L"Failed to map virtual address for framebuffer\n");
+        return Status;
+    }
 
     *GraphicsInfo = AllocatePool(sizeof(GRAPHICS_INFO));
     (*GraphicsInfo)->FrameBufferBase = FRAME_BUFFER_VIRTUAL_BASE;
