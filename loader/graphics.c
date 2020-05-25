@@ -12,7 +12,6 @@ GetGraphicsInfo (
 {
     EFI_STATUS                      Status;
     EFI_GRAPHICS_OUTPUT_PROTOCOL    *GraphicsOutput;
-    UINTN                           NumPages;
 
     Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, &GraphicsOutput);
     if (EFI_ERROR(Status)) {
@@ -25,9 +24,10 @@ GetGraphicsInfo (
         return EFI_UNSUPPORTED;
     }
 
-    NumPages = CalculatePagesFromBytes(GraphicsOutput->Mode->FrameBufferSize);
-    Status = MapMemory(FRAME_BUFFER_VIRTUAL_BASE,
-        GraphicsOutput->Mode->FrameBufferBase, NumPages);
+    Status = MapMemory(
+        FRAME_BUFFER_VIRTUAL_BASE,
+        GraphicsOutput->Mode->FrameBufferBase,
+        PagesFromBytes(GraphicsOutput->Mode->FrameBufferSize));
     if (EFI_ERROR(Status)) {
         Print(L"Failed to map virtual address for framebuffer\n");
         return Status;

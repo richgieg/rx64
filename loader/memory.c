@@ -8,14 +8,6 @@
 static LOADER_MEMORY_MAPPING    *mMappings;
 static UINTN                    mNumMappings;
 
-UINTN
-CalculatePagesFromBytes (
-    IN UINTN NumBytes
-    )
-{
-    return (NumBytes / EFI_PAGE_SIZE) + ((NumBytes % EFI_PAGE_SIZE) ? 1 : 0);
-}
-
 EFI_STATUS
 GetMemoryInfo (
     OUT LOADER_MEMORY_INFO **MemoryInfo

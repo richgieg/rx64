@@ -105,7 +105,7 @@ LoadKernelImage (
         (UINT8 *)(&NtHeader->OptionalHeader) + NtHeader->FileHeader.SizeOfOptionalHeader);
 
     // Allocate pages for headers and copy them to the new pages.
-    NumPages = CalculatePagesFromBytes(NtHeader->OptionalHeader.SizeOfHeaders);
+    NumPages = PagesFromBytes(NtHeader->OptionalHeader.SizeOfHeaders);
     Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
     if (EFI_ERROR(Status)) {
         Print(L"Failed to allocated pages for kernel headers\n");
@@ -120,7 +120,7 @@ LoadKernelImage (
     // Allocate pages for sections and copy them to the new pages.
     SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
     for (int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++) {
-        NumPages = CalculatePagesFromBytes(SectionHeader[i].Misc.VirtualSize);
+        NumPages = PagesFromBytes(SectionHeader[i].Misc.VirtualSize);
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
         if (EFI_ERROR(Status)) {
             Print(L"Failed to allocate pages for kernel %a section\n", SectionHeader->Name);
