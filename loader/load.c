@@ -1,6 +1,7 @@
 #include <efi.h>
 #include <efilib.h>
 #include "load.h"
+#include "load_.h"
 #include "memory.h"
 
 EFI_STATUS

@@ -47,5 +47,8 @@
     <ClInclude Include="memory_.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="load_.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

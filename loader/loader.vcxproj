@@ -186,6 +186,7 @@
   <ItemGroup>
     <ClInclude Include="graphics.h" />
     <ClInclude Include="load.h" />
+    <ClInclude Include="load_.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="memory_.h" />
     <ClInclude Include="util.h" />
