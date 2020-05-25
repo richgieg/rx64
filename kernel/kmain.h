@@ -7,7 +7,6 @@
 
 typedef struct _LOADER_GRAPHICS_INFO {
     UINT64 FrameBufferBase;
-    UINT64 NumPages;
     UINT32 HorizontalResolution;
     UINT32 VerticalResolution;
 } LOADER_GRAPHICS_INFO;
