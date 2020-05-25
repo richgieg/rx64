@@ -5,6 +5,7 @@
 #include "load.h"
 #include "memory.h"
 #include "util.h"
+#include "../kernel/kmain.h"
 
 EFI_STATUS
 efi_main (
@@ -13,14 +14,14 @@ efi_main (
     )
 {
     EFI_STATUS              Status;
-    VOID                    (*kmain)(LOADER_INFO *);
+    KERNEL_ENTRY            KernelEntry;
     LOADER_GRAPHICS_INFO    *GraphicsInfo;
     LOADER_MEMORY_INFO      *MemoryInfo;
     LOADER_INFO             *LoaderInfo;
 
     InitializeLib(ImageHandle, SystemTable);
 
-    Status = LoadKernelImage(ImageHandle, L"kernel.exe", &kmain);
+    Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelEntry);
     if (EFI_ERROR(Status)) {
         Print(L"LoadKernelImage failed\n");
         return Status;
@@ -45,7 +46,7 @@ efi_main (
     WaitForKeyStroke(L"Press any key to enter kernel...");
 
     // Transfer control to the kernel.
-    kmain(LoaderInfo);
+    KernelEntry(LoaderInfo);
 
     // Kernel should never return, but in case it does...
     for (;;) {

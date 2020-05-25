@@ -5,7 +5,7 @@
 
 EFI_STATUS
 LoadKernelImage (
-    IN EFI_HANDLE           LoaderImageHandle,
-    IN CHAR16               *FileName,
-    OUT VOID                (**kmain)(LOADER_INFO *)
+    IN EFI_HANDLE       LoaderImageHandle,
+    IN CHAR16           *FileName,
+    OUT KERNEL_ENTRY    *KernelEntry
     );

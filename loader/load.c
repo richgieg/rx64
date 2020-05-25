@@ -3,12 +3,13 @@
 #include "load.h"
 #include "load_.h"
 #include "memory.h"
+#include "../kernel/kmain.h"
 
 EFI_STATUS
 LoadKernelImage (
-    IN EFI_HANDLE           LoaderImageHandle,
-    IN CHAR16               *FileName,
-    OUT VOID                (**kmain)(LOADER_INFO *)
+    IN EFI_HANDLE       LoaderImageHandle,
+    IN CHAR16           *FileName,
+    OUT KERNEL_ENTRY    *KernelEntry
     )
 {
     EFI_STATUS                  Status;
@@ -27,7 +28,7 @@ LoadKernelImage (
     UINT8                       *SectionData;
     EFI_PHYSICAL_ADDRESS        PhysicalAddress;
     EFI_VIRTUAL_ADDRESS         VirtualAddress;
-    UINTN NumPages;
+    UINTN                       NumPages;
 
     // Get info about this loader's image.
     Status = BS->HandleProtocol(
@@ -142,7 +143,7 @@ LoadKernelImage (
         SectionData += SectionHeader[i].SizeOfRawData;
     }
 
-    *kmain = (VOID *)(NtHeader->OptionalHeader.ImageBase +
+    *KernelEntry = (KERNEL_ENTRY)(NtHeader->OptionalHeader.ImageBase +
         NtHeader->OptionalHeader.AddressOfEntryPoint);
 
     return EFI_SUCCESS;

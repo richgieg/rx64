@@ -25,3 +25,5 @@ typedef struct _LOADER_INFO {
     LOADER_GRAPHICS_INFO    *GraphicsInfo;
     LOADER_MEMORY_INFO      *MemoryInfo;
 } LOADER_INFO;
+
+typedef void (*KERNEL_ENTRY)(LOADER_INFO *);
