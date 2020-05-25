@@ -18,9 +18,9 @@ efi_main (
     KERNEL_ENTRY            KernelEntry;
     LOADER_GRAPHICS_INFO    *GraphicsInfo;
     LOADER_MEMORY_INFO      *MemoryInfo;
+    UINTN                   MemoryMapKey;
 
     InitializeLib(ImageHandle, SystemTable);
-
     LoaderInfo = AllocatePool(sizeof(LoaderInfo));
 
     Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelEntry);
@@ -34,19 +34,20 @@ efi_main (
         Print(L"GetGraphicsInfo failed\n");
         return Status;
     }
+    LoaderInfo->GraphicsInfo = GraphicsInfo;
 
-    Status = GetMemoryInfo(&MemoryInfo);
+    Status = GetMemoryInfo(&MemoryInfo, &MemoryMapKey);
     if (EFI_ERROR(Status)) {
         Print(L"GetMemoryInfo failed\n");
         return Status;
     }
-
-    LoaderInfo->GraphicsInfo = GraphicsInfo;
     LoaderInfo->MemoryInfo = MemoryInfo;
 
-    WaitForKeyStroke(L"Press any key to enter kernel...");
-
-    // Transfer control to the kernel.
+    Status = BS->ExitBootServices(ImageHandle, MemoryMapKey);
+    if (EFI_ERROR(Status)) {
+        Print(L"ExitBootServices failed\n");
+        return Status;
+    }
     KernelEntry(LoaderInfo);
 
     // Kernel should never return, but in case it does...

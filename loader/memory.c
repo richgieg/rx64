@@ -11,7 +11,8 @@ static UINTN                    mNumMappings;
 
 EFI_STATUS
 GetMemoryInfo (
-    OUT LOADER_MEMORY_INFO **MemoryInfo
+    OUT LOADER_MEMORY_INFO  **MemoryInfo,
+    OUT UINTN               *MemoryMapKey
     )
 {
     LOADER_AVAILABLE_MEMORY_RANGE   *AvailableRanges;
@@ -19,7 +20,6 @@ GetMemoryInfo (
     EFI_MEMORY_DESCRIPTOR           *MemoryMap;
     EFI_MEMORY_DESCRIPTOR           *MemoryMapEntry;
     UINTN                           NumEntries;
-    UINTN                           MapKey;
     UINTN                           DescriptorSize;
     UINT32                          DescriptorVersion;
 
@@ -27,7 +27,7 @@ GetMemoryInfo (
     AvailableRanges = AllocatePool(
         sizeof(LOADER_AVAILABLE_MEMORY_RANGE) * MAX_AVAILABLE_RANGES);
     NumAvailableRanges = 0;
-    MemoryMap = LibMemoryMap(&NumEntries, &MapKey, &DescriptorSize, &DescriptorVersion);
+    MemoryMap = LibMemoryMap(&NumEntries, MemoryMapKey, &DescriptorSize, &DescriptorVersion);
     MemoryMapEntry = MemoryMap;
 
     for (UINTN i = 0; i < NumEntries; i++) {

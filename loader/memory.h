@@ -7,7 +7,8 @@
 
 EFI_STATUS
 GetMemoryInfo (
-    OUT LOADER_MEMORY_INFO **MemoryInfo
+    OUT LOADER_MEMORY_INFO  **MemoryInfo,
+    OUT UINTN               *MemoryMapKey
     );
 
 EFI_STATUS
