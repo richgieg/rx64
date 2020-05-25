@@ -17,11 +17,11 @@ typedef struct _LOADER_MEMORY_MAPPING {
 } LOADER_MEMORY_MAPPING;
 
 typedef struct _LOADER_MEMORY_INFO {
-    LOADER_MEMORY_MAPPING *Mappings;
-    unsigned __int64 NumMappings;
+    LOADER_MEMORY_MAPPING   *Mappings;
+    unsigned __int64        NumMappings;
 } LOADER_MEMORY_INFO;
 
 typedef struct _LOADER_INFO {
-    LOADER_GRAPHICS_INFO *GraphicsInfo;
-    LOADER_MEMORY_INFO *MemoryInfo;
+    LOADER_GRAPHICS_INFO    *GraphicsInfo;
+    LOADER_MEMORY_INFO      *MemoryInfo;
 } LOADER_INFO;
