@@ -169,6 +169,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="console.c" />
+    <ClCompile Include="debug.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="kmain.c" />
     <ClCompile Include="runtime.c" />
@@ -176,6 +177,7 @@
   <ItemGroup>
     <ClInclude Include="console.h" />
     <ClInclude Include="console_.h" />
+    <ClInclude Include="debug.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="kmain.h" />
     <ClInclude Include="runtime.h" />

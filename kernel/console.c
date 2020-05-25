@@ -19,6 +19,7 @@ static UINT32           mForegroundColor;
 static UINT32           mBackgroundColor;
 static GFX_FRAME_BUFFER *mOptimizationBuffer;
 static BYTE             Font[FONT_ARRAY_SIZE];
+static BOOLEAN          mInitialized;
 
 VOID
 CnInitializeConsole ()
@@ -32,8 +33,14 @@ CnInitializeConsole ()
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
     mOptimizationBuffer = NULL;
-
+    mInitialized = TRUE;
     GfxFillScreen(mBackgroundColor);
+}
+
+BOOLEAN
+CnConsoleInitialized ()
+{
+    return mInitialized;
 }
 
 VOID
@@ -125,6 +132,22 @@ CnPutChar (
         GfxDrawBitmapOnScreen(X, Y, FONT_WIDTH_PIXELS, FONT_HEIGHT_PIXELS,
             mForegroundColor, mBackgroundColor, Bitmap);
     }
+}
+
+VOID
+CnClear ()
+{
+    mCurrentColumn = 0;
+    mCurrentRow = 0;
+    GfxFillScreen(mBackgroundColor);
+}
+
+VOID
+CnSetBackgroundColor (
+    IN UINT32 Color
+    )
+{
+    mBackgroundColor = Color;
 }
 
 VOID

@@ -5,6 +5,9 @@
 VOID
 CnInitializeConsole ();
 
+BOOLEAN
+CnConsoleInitialized ();
+
 VOID
 CnPrint(
     IN CONST CHAR16 *String
@@ -15,6 +18,14 @@ CnPutChar (
     IN UINT16 Column,
     IN UINT16 Row,
     IN CHAR16 Char
+    );
+
+VOID
+CnClear ();
+
+VOID
+CnSetBackgroundColor (
+    IN UINT32 Color
     );
 
 VOID
