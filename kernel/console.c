@@ -1,5 +1,6 @@
 #include <console.h>
 #include <console_.h>
+#include <debug.h>
 #include <graphics.h>
 
 #define FIRST_PRINTABLE_CHAR    0x20
@@ -117,13 +118,16 @@ CnPutChar (
     IN CHAR16 Char
     )
 {
-    if (Column >= mColumns || Row >= mRows) {
-        //KeBugCheck();
-    }
-
     UINT32  X;
     UINT32  Y;
     UINT8   *Bitmap;
+
+    if (Column >= mColumns) {
+        DbgHalt(L"CnPutChar argument 'Column' is out of range.");
+    }
+    if (Row >= mRows) {
+        DbgHalt(L"CnPutChar argument 'Row' is out of range.");
+    }
 
     if (Char >= FIRST_PRINTABLE_CHAR && Char <= LAST_PRINTABLE_CHAR) {
         X = Column * FONT_WIDTH_PIXELS + mHorizontalPaddingPixels;

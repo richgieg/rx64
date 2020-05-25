@@ -3,6 +3,7 @@
 #include <types.h>
 #include <graphics.h>
 #include <console.h>
+#include <runtime.h>
 
 void kmain (
     LOADER_INFO *LoaderInfo
