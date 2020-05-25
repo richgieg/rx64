@@ -32,8 +32,11 @@ void kmain (
 
     CnPrint(L"\n");
     for (UINT64 i = 0; i < LoaderInfo->MemoryInfo->NumAvailableRanges; i++) {
-        CnPrint(L"Physical: ");
+        CnPrint(L"Start: ");
         CnPrintHexWithPad(LoaderInfo->MemoryInfo->AvailableRanges[i].PhysicalAddress, 16);
+        CnPrint(L"  End: ");
+        CnPrintHexWithPad(LoaderInfo->MemoryInfo->AvailableRanges[i].PhysicalAddress + 
+            (LoaderInfo->MemoryInfo->AvailableRanges[i].NumPages * 4096) - 1, 16);
         CnPrint(L"  Pages: ");
         CnPrintHex(LoaderInfo->MemoryInfo->AvailableRanges[i].NumPages);
         CnPrint(L"\n");
