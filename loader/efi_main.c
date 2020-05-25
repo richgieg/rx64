@@ -13,14 +13,14 @@ efi_main (
     )
 {
     EFI_STATUS              Status;
-    KERNEL_IMAGE_INFO       *KernelImageInfo;
+    VOID                    (*kmain)(LOADER_INFO *);
     LOADER_GRAPHICS_INFO    *GraphicsInfo;
     LOADER_MEMORY_INFO      *MemoryInfo;
     LOADER_INFO             *LoaderInfo;
 
     InitializeLib(ImageHandle, SystemTable);
 
-    Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelImageInfo);
+    Status = LoadKernelImage(ImageHandle, L"kernel.exe", &kmain);
     if (EFI_ERROR(Status)) {
         Print(L"LoadKernelImage failed\n");
         return Status;
@@ -44,8 +44,13 @@ efi_main (
 
     WaitForKeyStroke(L"Press any key to enter kernel...");
 
-    KernelImageInfo->kmain(GraphicsInfo->FrameBufferBase,
-        GraphicsInfo->HorizontalResolution, GraphicsInfo->VerticalResolution);
+    // Transfer control to the kernel.
+    kmain(LoaderInfo);
+
+    // Kernel should never return, but in case it does...
+    for (;;) {
+        __halt();
+    }
 
     return EFI_SUCCESS;
 }

@@ -1,3 +1,6 @@
+// kmain.h
+// Included only by kmain.c and various modules in ../loader.
+
 #pragma once
 
 typedef struct _LOADER_GRAPHICS_INFO {

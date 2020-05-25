@@ -8,7 +8,7 @@ EFI_STATUS
 LoadKernelImage (
     IN EFI_HANDLE           LoaderImageHandle,
     IN CHAR16               *FileName,
-    OUT KERNEL_IMAGE_INFO   **KernelImageInfo
+    OUT VOID                (**kmain)(LOADER_INFO *)
     )
 {
     EFI_STATUS                  Status;
@@ -142,8 +142,7 @@ LoadKernelImage (
         SectionData += SectionHeader[i].SizeOfRawData;
     }
 
-    *KernelImageInfo = AllocatePool(sizeof(KERNEL_IMAGE_INFO));
-    (*KernelImageInfo)->kmain = (VOID *)(NtHeader->OptionalHeader.ImageBase +
+    *kmain = (VOID *)(NtHeader->OptionalHeader.ImageBase +
         NtHeader->OptionalHeader.AddressOfEntryPoint);
 
     return EFI_SUCCESS;
