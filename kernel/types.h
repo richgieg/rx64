@@ -28,3 +28,9 @@ typedef     UINT8               BOOLEAN;
 #ifndef NULL
     #define NULL    ((VOID *) 0)
 #endif
+
+#ifndef IN
+    #define IN          // Argument passed into function
+    #define OUT         // Argument (pointer) returned from function
+    #define OPTIONAL    // Argument is optional
+#endif

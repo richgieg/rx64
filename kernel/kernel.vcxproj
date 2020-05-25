@@ -168,9 +168,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="graphics.c" />
     <ClCompile Include="kmain.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="graphics.h" />
     <ClInclude Include="kmain.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
