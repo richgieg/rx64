@@ -24,6 +24,9 @@
     <ClCompile Include="console.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="runtime.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="kmain.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="console_.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

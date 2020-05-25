@@ -17,6 +17,21 @@ GfxInitializeGraphics (
     );
 
 VOID
+GfxBltLinesInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINT64                   NoLines
+    );
+
+VOID
+GfxBltLinesOnScreen (
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINT64                   NoLines
+    );
+
+VOID
 GfxDrawBitmapInBuffer (
     IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   X,
@@ -37,6 +52,25 @@ GfxDrawBitmapOnScreen (
     IN UINT32                   ForegroundColor,
     IN UINT32                   BackgroundColor,
     IN CONST UINT8              *Bitmap
+    );
+
+VOID
+GfxFillBlockInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   Color
+    );
+
+VOID
+GfxFillBlockOnScreen (
+    IN UINT32 X,
+    IN UINT32 Y,
+    IN UINT32 Width,
+    IN UINT32 Height,
+    IN UINT32 Color
     );
 
 VOID

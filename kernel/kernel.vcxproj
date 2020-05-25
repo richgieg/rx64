@@ -171,12 +171,14 @@
     <ClCompile Include="console.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="kmain.c" />
+    <ClCompile Include="runtime.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="console.h" />
     <ClInclude Include="console_.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="kmain.h" />
+    <ClInclude Include="runtime.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

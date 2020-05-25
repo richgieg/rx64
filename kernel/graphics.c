@@ -1,4 +1,5 @@
 #include <graphics.h>
+#include <runtime.h>
 
 static GFX_FRAME_BUFFER mScreenBuffer;
 
@@ -14,6 +15,34 @@ GfxInitializeGraphics (
         VerticalResolution * 4; // 4 bytes per pixel
     mScreenBuffer.HorizontalResolution = HorizontalResolution;
     mScreenBuffer.VerticalResolution = VerticalResolution;
+}
+
+VOID
+GfxBltLinesInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINT64                   NoLines
+    )
+{
+    VOID    *Source;
+    VOID    *Destination;
+    UINT64  Length;
+
+    Source = ((UINT32 *)Buffer->Base) + ((UINT64)SourceY * Buffer->HorizontalResolution);
+    Destination = ((UINT32 *)Buffer->Base) + ((UINT64)DestinationY * Buffer->HorizontalResolution);
+    Length = NoLines * Buffer->HorizontalResolution * sizeof(UINT32);
+    RtCopyMemory(Destination, Source, Length);
+}
+
+VOID
+GfxBltLinesOnScreen (
+    IN UINT32                   DestinationY,
+    IN UINT32                   SourceY,
+    IN UINT64                   NoLines
+    )
+{
+    GfxBltLinesInBuffer(&mScreenBuffer, DestinationY, SourceY, NoLines);
 }
 
 VOID
@@ -66,6 +95,41 @@ GfxDrawBitmapOnScreen (
 {
     GfxDrawBitmapInBuffer(&mScreenBuffer, X, Y, Width, Height,
         ForegroundColor, BackgroundColor, Bitmap);
+}
+
+VOID
+GfxFillBlockInBuffer (
+    IN CONST GFX_FRAME_BUFFER   *Buffer,
+    IN UINT32                   X,
+    IN UINT32                   Y,
+    IN UINT32                   Width,
+    IN UINT32                   Height,
+    IN UINT32                   Color
+    )
+{
+    UINT64 i;
+    UINT64 j;
+    UINT32 *Pixel;
+
+    for (i = 0; i < Height; i++) {
+        Pixel = ((UINT32 *)Buffer->Base) + ((i + Y) * Buffer->HorizontalResolution) + X;
+        for (j = 0; j < Width; j++) {
+            *Pixel = Color;
+            Pixel++;
+        }
+    }
+}
+
+VOID
+GfxFillBlockOnScreen (
+    IN UINT32 X,
+    IN UINT32 Y,
+    IN UINT32 Width,
+    IN UINT32 Height,
+    IN UINT32 Color
+    )
+{
+    GfxFillBlockInBuffer(&mScreenBuffer, X, Y, Width, Height, Color);
 }
 
 VOID

@@ -17,6 +17,7 @@ static UINT16           mCurrentColumn;
 static UINT16           mCurrentRow;
 static UINT32           mForegroundColor;
 static UINT32           mBackgroundColor;
+static GFX_FRAME_BUFFER *mOptimizationBuffer;
 static BYTE             Font[FONT_ARRAY_SIZE];
 
 VOID
@@ -30,6 +31,7 @@ CnInitializeConsole ()
     mCurrentRow = 0;
     mForegroundColor = 0xe8e8e8;     // gray
     mBackgroundColor = 0;            // black
+    mOptimizationBuffer = NULL;
 
     GfxFillScreen(mBackgroundColor);
 }
@@ -82,22 +84,23 @@ ScrollToNewRow ()
     LastRowWidth = GfxGetHorizontalResolution();
 
     // Scrolls rows (second through last) up to the first row.
-    /*GfxBltLinesInBuffer(mFrameBuffer, DestinationY, SourceY, NoLines);
-    GfxFillBlockInBuffer(mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
-    GfxCopyBufferToScreen(mFrameBuffer);*/
-
-    // NOTE: Below is my original method. It's fast in a virtual machine,
-    // but very slow when running on my Dell G5 laptop. Writing to the
-    // screen's framebuffer is fine, but it seems that reading from it is
-    // very slow. This is why I decided that the console should maintain
-    // its own backup framebuffer. CnPutChar draws on the screen as well
-    // as the backup framebuffer, so they both have the same content.
-    // The scrolling is performed only in the backup framebuffer so we
-    // don't have to read from the screen's framebuffer. The contents of
-    // the backup framebuffer are then copied to the screen.
-
-    // GfxBltLinesOnScreen(DestinationY, SourceY, NoLines);
-    // GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+    if (mOptimizationBuffer) {
+        /*GfxBltLinesInBuffer(mFrameBuffer, DestinationY, SourceY, NoLines);
+        GfxFillBlockInBuffer(mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+        GfxCopyBufferToScreen(mFrameBuffer);*/
+    } else {
+        // NOTE: Below is my original method. It's fast in a virtual machine,
+        // but very slow when running on my Dell G5 laptop. Writing to the
+        // screen's framebuffer is fine, but it seems that reading from it is
+        // very slow. This is why I decided that the console should maintain
+        // its own backup framebuffer. CnPutChar draws on the screen as well
+        // as the backup framebuffer, so they both have the same content.
+        // The scrolling is performed only in the backup framebuffer so we
+        // don't have to read from the screen's framebuffer. The contents of
+        // the backup framebuffer are then copied to the screen.
+         GfxBltLinesOnScreen(DestinationY, SourceY, NoLines);
+         GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, FONT_HEIGHT_PIXELS, mBackgroundColor);
+    }
 }
 
 VOID
@@ -121,6 +124,55 @@ CnPutChar (
         Bitmap = &Font[(Char - FIRST_PRINTABLE_CHAR) * FONT_HEIGHT_PIXELS];
         GfxDrawBitmapOnScreen(X, Y, FONT_WIDTH_PIXELS, FONT_HEIGHT_PIXELS,
             mForegroundColor, mBackgroundColor, Bitmap);
+    }
+}
+
+VOID
+CnSetForegroundColor (
+    IN UINT32 Color
+    )
+{
+    mForegroundColor = Color;
+}
+
+VOID
+Cn__Demo__PrintColorfulChars ()
+{
+    UINT32 Color = 0;
+    CHAR16 *String = L" ";
+
+    for (;;) {
+        CnSetForegroundColor(Color);
+        CnPrint(String);
+        Color++;
+        (*String)++;
+        if (*String == 0x7f) {
+            *String = 0x20;
+        }
+    }
+}
+
+VOID
+Cn__Demo__PrintMemory ()
+{
+    UINT32 Color = 0;
+    UINT8 *Memory = 0;
+    CHAR16 *String = L" ";
+
+    for (;;) {
+        // Disable null-reference warning.
+        #pragma warning( push )
+        #pragma warning( disable : 6011 )
+        if (*Memory > FIRST_PRINTABLE_CHAR && *Memory <= LAST_PRINTABLE_CHAR) {
+        #pragma warning( pop )
+            String[0] = (CHAR16)(*Memory);
+            CnSetForegroundColor(Color);
+            Color++;
+        } else {
+            String[0] = L' ';
+        }
+        CnPrint(String);
+        Memory++;
     }
 }
 

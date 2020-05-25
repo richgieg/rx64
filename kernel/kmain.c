@@ -15,6 +15,9 @@ void kmain (
     
     CnInitializeConsole();
 
+    CnPrint(L"Rx64 v0.0.1\n");
+    CnPrint(L"(c) 2020 Richard Gieg\n");
+
     for (;;) {
         __halt();
     }
