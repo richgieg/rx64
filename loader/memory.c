@@ -5,8 +5,8 @@
 
 #define MAX_MAPPINGS 100
 
-static MEMORY_MAPPING   *mMemoryMappings;
-static UINTN            mNumMemoryMappings;
+static LOADER_MEMORY_MAPPING    *mMappings;
+static UINTN                    mNumMappings;
 
 UINTN
 CalculatePagesFromBytes (
@@ -16,13 +16,16 @@ CalculatePagesFromBytes (
     return (NumBytes / EFI_PAGE_SIZE) + ((NumBytes % EFI_PAGE_SIZE) ? 1 : 0);
 }
 
-UINTN
-GetMemoryMappings (
-    OUT MEMORY_MAPPING **MemoryMappings
+EFI_STATUS
+GetMemoryInfo (
+    OUT LOADER_MEMORY_INFO **MemoryInfo
     )
 {
-    *MemoryMappings = mMemoryMappings;
-    return mNumMemoryMappings;
+    *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
+    (*MemoryInfo)->Mappings = mMappings;
+    (*MemoryInfo)->NumMappings = mNumMappings;
+
+    return EFI_SUCCESS;
 }
 
 EFI_STATUS
@@ -35,12 +38,12 @@ MapMemory (
     UINTN i;
 
     // On first call, allocate memory for MEMORY_MAPPING records.
-    if (mMemoryMappings == NULL) {
-        mMemoryMappings = AllocatePool(sizeof(MEMORY_MAPPING) * MAX_MAPPINGS);
-        ZeroMem(mMemoryMappings, sizeof(MEMORY_MAPPING) * MAX_MAPPINGS);
+    if (mMappings == NULL) {
+        mMappings = AllocatePool(sizeof(LOADER_MEMORY_MAPPING) * MAX_MAPPINGS);
+        ZeroMem(mMappings,sizeof(LOADER_MEMORY_MAPPING) * MAX_MAPPINGS);
     }
     // Fail if exhausted maximum number of mappings.
-    if (mNumMemoryMappings >= MAX_MAPPINGS) {
+    if (mNumMappings >= MAX_MAPPINGS) {
         return EFI_ABORTED;
     }
     // Map the pages.
@@ -48,10 +51,10 @@ MapMemory (
         MapPage(VirtualAddress + i, PhysicalAddress + i);
     }
     // Add mapping record.
-    mMemoryMappings[mNumMemoryMappings].PhysicalAddress = VirtualAddress;
-    mMemoryMappings[mNumMemoryMappings].VirtualAddress = PhysicalAddress;
-    mMemoryMappings[mNumMemoryMappings].NumPages = NumPages;
-    mNumMemoryMappings++;
+    mMappings[mNumMappings].PhysicalAddress = VirtualAddress;
+    mMappings[mNumMappings].VirtualAddress = PhysicalAddress;
+    mMappings[mNumMappings].NumPages = NumPages;
+    mNumMappings++;
 
     return EFI_SUCCESS;
 }

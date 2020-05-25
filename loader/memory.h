@@ -1,21 +1,16 @@
 #pragma once
 
 #include <efi.h>
-
-typedef struct _MEMORY_MAPPING {
-    UINT64  PhysicalAddress;
-    UINT64  VirtualAddress;
-    UINTN   NumPages;
-} MEMORY_MAPPING;
+#include "../kernel/kmain.h"
 
 UINTN
 CalculatePagesFromBytes (
     IN UINTN Bytes
     );
 
-UINTN
-GetMemoryMappings (
-    OUT MEMORY_MAPPING **MemoryMappings
+EFI_STATUS
+GetMemoryInfo (
+    OUT LOADER_MEMORY_INFO **MemoryInfo
     );
 
 EFI_STATUS

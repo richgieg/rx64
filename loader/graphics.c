@@ -7,7 +7,7 @@
 
 EFI_STATUS
 GetGraphicsInfo (
-    GRAPHICS_INFO **GraphicsInfo
+    LOADER_GRAPHICS_INFO **GraphicsInfo
     )
 {
     EFI_STATUS                      Status;
@@ -33,7 +33,7 @@ GetGraphicsInfo (
         return Status;
     }
 
-    *GraphicsInfo = AllocatePool(sizeof(GRAPHICS_INFO));
+    *GraphicsInfo = AllocatePool(sizeof(LOADER_GRAPHICS_INFO));
     (*GraphicsInfo)->FrameBufferBase = FRAME_BUFFER_VIRTUAL_BASE;
     (*GraphicsInfo)->HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
     (*GraphicsInfo)->VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;
