@@ -9,8 +9,19 @@ BOOLEAN
 CnConsoleInitialized ();
 
 VOID
-CnPrint(
+CnPrint (
     IN CONST CHAR16 *String
+    );
+
+VOID
+CnPrintHex (
+    IN UINT64 Value
+    );
+
+VOID
+CnPrintHexWithPad (
+    IN UINT64   Value,
+    IN UINT64   MinimumWidth
     );
 
 VOID

@@ -75,40 +75,51 @@ CnPrint(
 }
 
 VOID
-ScrollToNewRow ()
+CnPrintHex (
+    IN UINT64 Value
+    )
 {
-    UINT32  DestinationY;
-    UINT32  SourceY;
-    UINT32  NoLines;
-    UINT32  LastRowX;
-    UINT32  LastRowY;
-    UINT32  LastRowWidth;
+    CnPrintHexWithPad(Value, 0);
+}
 
-    DestinationY =  mVerticalPaddingPixels;
-    SourceY = FONT_HEIGHT_PIXELS + mVerticalPaddingPixels;
-    NoLines = FONT_HEIGHT_PIXELS * (mRows - 1);
-    LastRowX = 0;
-    LastRowY = NoLines + mVerticalPaddingPixels;
-    LastRowWidth = GfxGetHorizontalResolution();
+VOID
+CnPrintHexWithPad (
+    IN UINT64   Value,
+    IN UINT64   MinimumWidth
+    )
+{
+    // Store up to 16 chars + null terminator.
+    CHAR16 String[17];
+    CHAR16 *CharPointer;
+    UINT8  Nibble;
+    UINT64 i;
 
-    // Scrolls rows (second through last) up to the first row.
-    if (mOptimizationBuffer) {
-        /*GfxBltLinesInBuffer(mFrameBuffer, DestinationY, SourceY, NoLines);
-        GfxFillBlockInBuffer(mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
-        GfxCopyBufferToScreen(mFrameBuffer);*/
-    } else {
-        // NOTE: Below is my original method. It's fast in a virtual machine,
-        // but very slow when running on my Dell G5 laptop. Writing to the
-        // screen's framebuffer is fine, but it seems that reading from it is
-        // very slow. This is why I decided that the console should maintain
-        // its own backup framebuffer. CnPutChar draws on the screen as well
-        // as the backup framebuffer, so they both have the same content.
-        // The scrolling is performed only in the backup framebuffer so we
-        // don't have to read from the screen's framebuffer. The contents of
-        // the backup framebuffer are then copied to the screen.
-         GfxBltLinesOnScreen(DestinationY, SourceY, NoLines);
-         GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, FONT_HEIGHT_PIXELS, mBackgroundColor);
+    if (MinimumWidth > 16) {
+        DbgHalt(L"CnPrintHexWithPad: Argument 'MinimumWidth' is greater than 16.");
     }
+
+    // Point to end of string and add null terminator.
+    CharPointer = &String[16];
+    *CharPointer = 0;
+
+    // Process up to 16 4-bit nibbles.
+    for (i = 0; i < 16; i++) {
+        CharPointer--;
+        Nibble = Value & 0xf;
+        if (Nibble >= 10) {
+            // 97 = ASCII letter 'a'
+            *CharPointer = 97 + Nibble - 10;
+        } else {
+            // 48 = ASCII digit '0'
+            *CharPointer = 48 + Nibble;
+        }
+        Value = Value >> 4;
+        if ((i + 1 >= MinimumWidth) && (Value == 0)) {
+            break;
+        }
+    }
+
+    CnPrint(CharPointer);
 }
 
 VOID
@@ -123,10 +134,10 @@ CnPutChar (
     UINT8   *Bitmap;
 
     if (Column >= mColumns) {
-        DbgHalt(L"CnPutChar argument 'Column' is out of range.");
+        DbgHalt(L"CnPutChar: Argument 'Column' is out of range.");
     }
     if (Row >= mRows) {
-        DbgHalt(L"CnPutChar argument 'Row' is out of range.");
+        DbgHalt(L"CnPutChar: Argument 'Row' is out of range.");
     }
 
     if (Char >= FIRST_PRINTABLE_CHAR && Char <= LAST_PRINTABLE_CHAR) {
@@ -200,6 +211,43 @@ Cn__Demo__PrintMemory ()
         }
         CnPrint(String);
         Memory++;
+    }
+}
+
+VOID
+ScrollToNewRow ()
+{
+    UINT32  DestinationY;
+    UINT32  SourceY;
+    UINT32  NoLines;
+    UINT32  LastRowX;
+    UINT32  LastRowY;
+    UINT32  LastRowWidth;
+
+    DestinationY =  mVerticalPaddingPixels;
+    SourceY = FONT_HEIGHT_PIXELS + mVerticalPaddingPixels;
+    NoLines = FONT_HEIGHT_PIXELS * (mRows - 1);
+    LastRowX = 0;
+    LastRowY = NoLines + mVerticalPaddingPixels;
+    LastRowWidth = GfxGetHorizontalResolution();
+
+    // Scrolls rows (second through last) up to the first row.
+    if (mOptimizationBuffer) {
+        /*GfxBltLinesInBuffer(mFrameBuffer, DestinationY, SourceY, NoLines);
+        GfxFillBlockInBuffer(mFrameBuffer, LastRowX, LastRowY, LastRowWidth, CELL_HEIGHT_PIXELS, mBackgroundColor);
+        GfxCopyBufferToScreen(mFrameBuffer);*/
+    } else {
+        // NOTE: Below is my original method. It's fast in a virtual machine,
+        // but very slow when running on my Dell G5 laptop. Writing to the
+        // screen's framebuffer is fine, but it seems that reading from it is
+        // very slow. This is why I decided that the console should maintain
+        // its own backup framebuffer. CnPutChar draws on the screen as well
+        // as the backup framebuffer, so they both have the same content.
+        // The scrolling is performed only in the backup framebuffer so we
+        // don't have to read from the screen's framebuffer. The contents of
+        // the backup framebuffer are then copied to the screen.
+         GfxBltLinesOnScreen(DestinationY, SourceY, NoLines);
+         GfxFillBlockOnScreen(LastRowX, LastRowY, LastRowWidth, FONT_HEIGHT_PIXELS, mBackgroundColor);
     }
 }
 
