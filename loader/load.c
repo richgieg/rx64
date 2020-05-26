@@ -116,7 +116,7 @@ LoadKernelImage (
     CopyMem((VOID *)PhysicalAddress, KernelBuffer,
         NtHeader->OptionalHeader.SizeOfHeaders);
     VirtualAddress = NtHeader->OptionalHeader.ImageBase;
-    MapMemory(VirtualAddress, PhysicalAddress, NumPages);
+    MapMemory(LoaderKernelMemoryMapping, PhysicalAddress, VirtualAddress, NumPages);
 
     // Allocate pages for sections and copy them to the new pages.
     SectionData = KernelBuffer + NtHeader->OptionalHeader.SizeOfHeaders;
@@ -131,7 +131,7 @@ LoadKernelImage (
         CopyMem((VOID *)PhysicalAddress, SectionData, SectionHeader[i].SizeOfRawData);
         VirtualAddress = NtHeader->OptionalHeader.ImageBase +
             SectionHeader[i].VirtualAddress;
-        MapMemory(VirtualAddress, PhysicalAddress, NumPages);
+        MapMemory(LoaderKernelMemoryMapping, PhysicalAddress, VirtualAddress, NumPages);
 
         //Print(L"%a\n", SectionHeader[i].Name);
         //Print(L"    Virtual Address:  %lx\n", VirtualAddress);

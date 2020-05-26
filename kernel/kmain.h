@@ -11,10 +11,17 @@ typedef struct _LOADER_GRAPHICS_INFO {
     UINT32 VerticalResolution;
 } LOADER_GRAPHICS_INFO;
 
+typedef enum {
+    LoaderKernelMemoryMapping,
+    LoaderFrameBufferMemoryMapping,
+    LoaderMaxMemoryMappingType
+} LOADER_MEMORY_MAPPING_TYPE;
+
 typedef struct _LOADER_MEMORY_MAPPING {
-    UINT64 PhysicalAddress;
-    UINT64 VirtualAddress;
-    UINT64 NumPages;
+    LOADER_MEMORY_MAPPING_TYPE  Type;
+    UINT64                      PhysicalAddress;
+    UINT64                      VirtualAddress;
+    UINT64                      NumPages;
 } LOADER_MEMORY_MAPPING;
 
 typedef struct _LOADER_AVAILABLE_MEMORY_RANGE {

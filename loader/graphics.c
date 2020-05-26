@@ -25,8 +25,9 @@ GetGraphicsInfo (
     }
 
     Status = MapMemory(
-        FRAME_BUFFER_VIRTUAL_BASE,
+        LoaderFrameBufferMemoryMapping,
         GraphicsOutput->Mode->FrameBufferBase,
+        FRAME_BUFFER_VIRTUAL_BASE,
         PagesFromBytes(GraphicsOutput->Mode->FrameBufferSize));
     if (EFI_ERROR(Status)) {
         Print(L"Failed to map virtual address for framebuffer\n");

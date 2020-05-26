@@ -21,7 +21,9 @@ void kmain (
 
     CnPrint(L"\n\n");
     for (UINT64 i = 0; i < LoaderInfo->MemoryInfo->NumMappings; i++) {
-        CnPrint(L"Physical: ");
+        CnPrint(L"Type: ");
+        CnPrintHex(LoaderInfo->MemoryInfo->Mappings[i].Type);
+        CnPrint(L"  Physical: ");
         CnPrintHexWithPad(LoaderInfo->MemoryInfo->Mappings[i].PhysicalAddress, 16);
         CnPrint(L"  Virtual: ");
         CnPrintHexWithPad(LoaderInfo->MemoryInfo->Mappings[i].VirtualAddress, 16);

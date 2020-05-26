@@ -13,7 +13,8 @@ GetMemoryInfo (
 
 EFI_STATUS
 MapMemory (
-    IN UINT64   VirtualAddress,
-    IN UINT64   PhysicalAddress,
-    IN UINTN    NumPages
+    IN LOADER_MEMORY_MAPPING_TYPE   Type,
+    IN UINT64                       PhysicalAddress,
+    IN UINT64                       VirtualAddress,
+    IN UINTN                        NumPages
     );
