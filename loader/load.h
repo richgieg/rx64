@@ -1,7 +1,7 @@
 #pragma once
 
 #include <efi.h>
-#include "../kernel/kmain.h"
+#include "../kernel/loader_info.h"
 
 EFI_STATUS
 LoadKernelImage (

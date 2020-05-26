@@ -3,7 +3,7 @@
 #include "load.h"
 #include "load_.h"
 #include "memory.h"
-#include "../kernel/kmain.h"
+#include "../kernel/loader_info.h"
 
 EFI_STATUS
 LoadKernelImage (

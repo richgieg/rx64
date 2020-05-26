@@ -5,7 +5,7 @@
 #include "load.h"
 #include "memory.h"
 #include "util.h"
-#include "../kernel/kmain.h"
+#include "../kernel/loader_info.h"
 
 EFI_STATUS
 efi_main (

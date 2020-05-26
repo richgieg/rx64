@@ -1,4 +1,4 @@
-#include <kmain.h>
+#include <loader_info.h>
 #include <intrin.h>
 #include <types.h>
 #include <graphics_.h>
@@ -10,10 +10,7 @@ void kmain (
     LOADER_INFO *LoaderInfo
     )
 {
-    GfxInitializeGraphics(
-        LoaderInfo->GraphicsInfo->FrameBufferBase,
-        LoaderInfo->GraphicsInfo->HorizontalResolution,
-        LoaderInfo->GraphicsInfo->VerticalResolution);
+    GfxInitializeGraphics(LoaderInfo->GraphicsInfo);
     
     CnInitializeConsole();
 

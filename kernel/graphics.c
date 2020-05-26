@@ -6,16 +6,14 @@ static GFX_FRAME_BUFFER mScreenBuffer;
 
 VOID
 GfxInitializeGraphics (
-    IN UINT64 FrameBufferBase,
-    IN UINT32 HorizontalResolution,
-    IN UINT32 VerticalResolution
+    LOADER_GRAPHICS_INFO *GraphicsInfo
     )
 {
-    mScreenBuffer.Base = FrameBufferBase;
-    mScreenBuffer.Size = (UINT64)HorizontalResolution *
-        VerticalResolution * 4; // 4 bytes per pixel
-    mScreenBuffer.HorizontalResolution = HorizontalResolution;
-    mScreenBuffer.VerticalResolution = VerticalResolution;
+    mScreenBuffer.Base = GraphicsInfo->FrameBufferBase;
+    mScreenBuffer.Size = (UINT64)GraphicsInfo->HorizontalResolution *
+        GraphicsInfo->VerticalResolution * 4; // 4 bytes per pixel
+    mScreenBuffer.HorizontalResolution = GraphicsInfo->HorizontalResolution;
+    mScreenBuffer.VerticalResolution = GraphicsInfo->VerticalResolution;
 }
 
 VOID

@@ -180,7 +180,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="graphics_.h" />
-    <ClInclude Include="kmain.h" />
+    <ClInclude Include="loader_info.h" />
     <ClInclude Include="runtime.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

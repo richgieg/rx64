@@ -1,6 +1,3 @@
-// kmain.h
-// Included only by kmain.c and various modules in ../loader.
-
 #pragma once
 
 #include <types.h>

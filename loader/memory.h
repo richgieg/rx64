@@ -1,7 +1,7 @@
 #pragma once
 
 #include <efi.h>
-#include "../kernel/kmain.h"
+#include "../kernel/loader_info.h"
 
 #define PagesFromBytes(b) ((UINTN)(b / EFI_PAGE_SIZE) + ((b % EFI_PAGE_SIZE) ? 1 : 0))
 
