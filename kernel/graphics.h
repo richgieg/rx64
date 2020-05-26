@@ -10,13 +10,6 @@ typedef struct _GFX_FRAME_BUFFER {
 } GFX_FRAME_BUFFER;
 
 VOID
-GfxInitializeGraphics (
-    IN UINT64 FrameBufferBase,
-    IN UINT32 HorizontalResolution,
-    IN UINT32 VerticalResolution
-    );
-
-VOID
 GfxBltLinesInBuffer (
     IN CONST GFX_FRAME_BUFFER   *Buffer,
     IN UINT32                   DestinationY,

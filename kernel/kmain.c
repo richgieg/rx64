@@ -1,8 +1,9 @@
 #include <kmain.h>
 #include <intrin.h>
 #include <types.h>
-#include <graphics.h>
+#include <graphics_.h>
 #include <console.h>
+#include <console_.h>
 #include <runtime.h>
 
 void kmain (

@@ -1,5 +1,6 @@
 #include <debug.h>
 #include <console.h>
+#include <console_.h>
 #include <intrin.h>
 
 VOID

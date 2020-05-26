@@ -3,12 +3,6 @@
 #include <types.h>
 
 VOID
-CnInitializeConsole ();
-
-BOOLEAN
-CnConsoleInitialized ();
-
-VOID
 CnPrint (
     IN CONST CHAR16 *String
     );

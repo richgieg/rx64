@@ -1,4 +1,5 @@
 #include <graphics.h>
+#include <graphics_.h>
 #include <runtime.h>
 
 static GFX_FRAME_BUFFER mScreenBuffer;
