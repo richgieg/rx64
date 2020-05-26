@@ -78,7 +78,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,7 +88,7 @@
     <GenerateManifest>false</GenerateManifest>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -181,6 +181,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="graphics_.h" />
+    <ClInclude Include="intrin.h" />
     <ClInclude Include="loader_info.h" />
     <ClInclude Include="memory_.h" />
     <ClInclude Include="runtime.h" />
