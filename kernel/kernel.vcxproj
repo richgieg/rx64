@@ -172,6 +172,7 @@
     <ClCompile Include="debug.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="kmain.c" />
+    <ClCompile Include="memory.c" />
     <ClCompile Include="runtime.c" />
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +182,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="graphics_.h" />
     <ClInclude Include="loader_info.h" />
+    <ClInclude Include="memory_.h" />
     <ClInclude Include="runtime.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
