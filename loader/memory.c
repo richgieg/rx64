@@ -22,6 +22,7 @@ GetMemoryInfo (
     UINTN                           NumEntries;
     UINTN                           DescriptorSize;
     UINT32                          DescriptorVersion;
+    UINT64                          PhysicalEndOfPreviousRange;
 
     *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
     AvailableRanges = AllocatePool(
@@ -39,11 +40,26 @@ GetMemoryInfo (
             case EfiConventionalMemory: {
                 // Fail if exhausted maximum number of ranges.
                 if (NumAvailableRanges >= MAX_AVAILABLE_RANGES) {
+                    Print(L"GetMemoryInfo: Exhausted maximum number of available ranges\n");
                     return EFI_ABORTED;
                 }
-                AvailableRanges[NumAvailableRanges].PhysicalAddress = MemoryMapEntry->PhysicalStart;
-                AvailableRanges[NumAvailableRanges].NumPages = MemoryMapEntry->NumberOfPages;
-                NumAvailableRanges++;
+                // Fail if memory map entries aren't sorted.
+                // TODO: Sort the entries?
+                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart > PhysicalEndOfPreviousRange) {
+                    Print(L"GetMemoryInfo: Memory map entries not sorted\n");
+                    return EFI_ABORTED;
+                }
+                // Consolidate range with previous one if they are contiguous.
+                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart == PhysicalEndOfPreviousRange) {
+                    AvailableRanges[NumAvailableRanges - 1].NumPages += MemoryMapEntry->NumberOfPages;
+                // Otherwise, start a new entry.
+                } else {
+                    AvailableRanges[NumAvailableRanges].PhysicalAddress = MemoryMapEntry->PhysicalStart;
+                    AvailableRanges[NumAvailableRanges].NumPages = MemoryMapEntry->NumberOfPages;
+                    NumAvailableRanges++;
+                }
+                PhysicalEndOfPreviousRange = MemoryMapEntry->PhysicalStart +
+                    (MemoryMapEntry->NumberOfPages * EFI_PAGE_SIZE);
                 break;
             }
         }
@@ -75,6 +91,7 @@ MapMemory (
     }
     // Fail if exhausted maximum number of mappings.
     if (mNumMappings >= MAX_MAPPINGS) {
+        Print(L"MapMemory: Exhausted maximum number of mappings\n");
         return EFI_ABORTED;
     }
     // Map the pages.

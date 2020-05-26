@@ -26,12 +26,14 @@ efi_main (
     Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelEntry);
     if (EFI_ERROR(Status)) {
         Print(L"LoadKernelImage failed\n");
+        WaitForKeyStroke(L"Press any key to exit loader\n");
         return Status;
     }
 
     Status = GetGraphicsInfo(&GraphicsInfo);
     if (EFI_ERROR(Status)) {
         Print(L"GetGraphicsInfo failed\n");
+        WaitForKeyStroke(L"Press any key to exit loader\n");
         return Status;
     }
     LoaderInfo->GraphicsInfo = GraphicsInfo;
@@ -39,6 +41,7 @@ efi_main (
     Status = GetMemoryInfo(&MemoryInfo, &MemoryMapKey);
     if (EFI_ERROR(Status)) {
         Print(L"GetMemoryInfo failed\n");
+        WaitForKeyStroke(L"Press any key to exit loader\n");
         return Status;
     }
     LoaderInfo->MemoryInfo = MemoryInfo;
@@ -46,6 +49,7 @@ efi_main (
     Status = BS->ExitBootServices(ImageHandle, MemoryMapKey);
     if (EFI_ERROR(Status)) {
         Print(L"ExitBootServices failed\n");
+        WaitForKeyStroke(L"Press any key to exit loader\n");
         return Status;
     }
     KernelEntry(LoaderInfo);
