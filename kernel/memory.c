@@ -6,7 +6,13 @@ MmInitializeMemory (
     LOADER_MEMORY_INFO *MemoryInfo
     )
 {
-    CnPrint(L"\n\n");
+    UINT64 UsedPages;
+    UINT64 TotalPages;
+
+    UsedPages = 0;
+    TotalPages = 0;
+
+    CnPrint(L"\n");
     for (UINT64 i = 0; i < MemoryInfo->NumMappings; i++) {
         CnPrint(L"Type: ");
         CnPrintHex(MemoryInfo->Mappings[i].Type);
@@ -17,6 +23,10 @@ MmInitializeMemory (
         CnPrint(L"  Pages: ");
         CnPrintHex(MemoryInfo->Mappings[i].NumPages);
         CnPrint(L"\n");
+
+        if (MemoryInfo->Mappings[i].Type == LoaderKernelMemoryMapping) {
+            UsedPages += MemoryInfo->Mappings[i].NumPages;
+        }
     }
 
     CnPrint(L"\n");
@@ -29,5 +39,13 @@ MmInitializeMemory (
         CnPrint(L"  Pages: ");
         CnPrintHex(MemoryInfo->AvailableRanges[i].NumPages);
         CnPrint(L"\n");
+        TotalPages = TotalPages + MemoryInfo->AvailableRanges[i].NumPages;
     }
+
+    CnPrint(L"\nTotal Bytes:     ");
+    CnPrintHex(TotalPages * 4096);
+    CnPrint(L"\nBytes Used:      ");
+    CnPrintHex(UsedPages * 4096);
+    CnPrint(L"\nBytes Available: ");
+    CnPrintHex((TotalPages - UsedPages) * 4096);
 }
