@@ -45,7 +45,7 @@ GetMemoryInfo (
                 }
                 // Fail if memory map entries aren't sorted.
                 // TODO: Sort the entries?
-                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart > PhysicalEndOfPreviousRange) {
+                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart < PhysicalEndOfPreviousRange) {
                     Print(L"GetMemoryInfo: Memory map entries not sorted\n");
                     return EFI_ABORTED;
                 }
