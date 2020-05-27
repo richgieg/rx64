@@ -60,7 +60,7 @@ MmAllocateInitPool (
         DbgHalt(L"MmAllocateInitPool: Not initialized yet.");
     }
     if ((mInitPoolNextAddress + Size) >= (mInitPoolAddress + mInitPoolSize)) {
-        DbgHalt(L"MmALlocateInitPool: Not enough space.");
+        DbgHalt(L"MmAllocateInitPool: Not enough space.");
     }
     Address = (VOID *)mInitPoolNextAddress;
     mInitPoolNextAddress += Size;
