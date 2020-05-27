@@ -31,6 +31,8 @@ typedef struct _LOADER_MEMORY_INFO {
     UINT64                          NumMappings;
     LOADER_USABLE_MEMORY_RANGE      *UsableRanges;
     UINT64                          NumUsableRanges;
+    UINT64                          ReservedRangePhysicalAddress;
+    UINT64                          NumPagesInReservedRange;
 } LOADER_MEMORY_INFO;
 
 typedef struct _LOADER_INFO {

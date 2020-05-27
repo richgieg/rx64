@@ -4,8 +4,9 @@
 #include "memory.h"
 #include "memory_.h"
 
-#define MAX_MAPPINGS            1000
-#define MAX_USABLE_RANGES       1000
+#define NUM_PAGES_IN_RESERVED_RANGE     256     // 1 MB
+#define MAX_MAPPINGS                    1000
+#define MAX_USABLE_RANGES               1000
 
 static LOADER_MEMORY_MAPPING    *mMappings;
 static UINTN                    mNumMappings;
@@ -16,8 +17,10 @@ GetMemoryInfo (
     OUT UINTN               *MemoryMapKey
     )
 {
+    EFI_STATUS                      Status;
+    UINT64                          ReservedRangePhysicalAddress;
     LOADER_USABLE_MEMORY_RANGE      *UsableRanges;
-    UINTN                           NumUsableRanges;
+    UINTN                           NumUsableRanges;                        
     EFI_MEMORY_DESCRIPTOR           *MemoryMap;
     EFI_MEMORY_DESCRIPTOR           *MemoryMapEntry;
     UINTN                           NumEntries;
@@ -26,8 +29,13 @@ GetMemoryInfo (
     UINT64                          PhysicalEndOfPreviousRange;
 
     *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
-    UsableRanges = AllocatePool(
-        sizeof(LOADER_USABLE_MEMORY_RANGE) * MAX_USABLE_RANGES);
+    Status = ReservedRangePhysicalAddress = BS->AllocatePages(AllocateAnyPages, EfiLoaderData,
+        NUM_PAGES_IN_RESERVED_RANGE, &ReservedRangePhysicalAddress);
+    if (EFI_ERROR(Status)) {
+        Print(L"GetMemoryInfo: Failed to allocate pages for reserved range.\n");
+        return Status;
+    }
+    UsableRanges = AllocatePool(sizeof(LOADER_USABLE_MEMORY_RANGE) * MAX_USABLE_RANGES);
     NumUsableRanges = 0;
     MemoryMap = LibMemoryMap(&NumEntries, MemoryMapKey, &DescriptorSize, &DescriptorVersion);
     MemoryMapEntry = MemoryMap;
@@ -65,6 +73,8 @@ GetMemoryInfo (
         MemoryMapEntry = NextMemoryDescriptor(MemoryMapEntry, DescriptorSize);
     }
 
+    (*MemoryInfo)->ReservedRangePhysicalAddress = ReservedRangePhysicalAddress;
+    (*MemoryInfo)->NumPagesInReservedRange = NUM_PAGES_IN_RESERVED_RANGE;
     (*MemoryInfo)->Mappings = mMappings;
     (*MemoryInfo)->NumMappings = mNumMappings;
     (*MemoryInfo)->UsableRanges = UsableRanges;

@@ -7,6 +7,14 @@ MmInitializeMemory (
     LOADER_MEMORY_INFO *MemoryInfo
     )
 {
+    PrintLoaderMemoryInfo(MemoryInfo);
+}
+
+VOID
+PrintLoaderMemoryInfo (
+    LOADER_MEMORY_INFO *MemoryInfo
+    )
+{
     UINT64 NumUsedPages;
     UINT64 NumUsablePages;
 
@@ -43,10 +51,14 @@ MmInitializeMemory (
         NumUsablePages = NumUsablePages + MemoryInfo->UsableRanges[i].NumPages;
     }
 
-    CnPrint(L"\nUsable Bytes:     ");
+    CnPrint(L"\nStats (bytes):");
+    CnPrint(L"\nUsable:     ");
     CnPrintHex(NumUsablePages * MM_PAGE_SIZE);
-    CnPrint(L"\nBytes Used:       ");
+    CnPrint(L"\nUsed:       ");
     CnPrintHex(NumUsedPages * MM_PAGE_SIZE);
-    CnPrint(L"\nBytes Available:  ");
-    CnPrintHex((NumUsablePages - NumUsedPages) * MM_PAGE_SIZE);
+    CnPrint(L"\nReserved:   ");
+    CnPrintHex(MemoryInfo->NumPagesInReservedRange * MM_PAGE_SIZE);
+    CnPrint(L"\nAvailable:  ");
+    CnPrintHex((NumUsablePages - NumUsedPages -
+        MemoryInfo->NumPagesInReservedRange) * MM_PAGE_SIZE);
 }
