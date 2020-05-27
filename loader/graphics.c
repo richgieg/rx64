@@ -15,12 +15,12 @@ GetGraphicsInfo (
 
     Status = BS->LocateProtocol(&GraphicsOutputProtocol, NULL, &GraphicsOutput);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to get graphics output handle\n");
+        Print(L"Failed to get graphics output handle.\n");
         return Status;
     }
 
     if (GraphicsOutput->Mode->Info->PixelFormat != PixelBlueGreenRedReserved8BitPerColor) {
-        Print(L"Current pixel format not supported\n");
+        Print(L"Current pixel format not supported.\n");
         return EFI_UNSUPPORTED;
     }
 
@@ -30,7 +30,7 @@ GetGraphicsInfo (
         FRAME_BUFFER_VIRTUAL_BASE,
         PagesFromBytes(GraphicsOutput->Mode->FrameBufferSize));
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to map virtual address for framebuffer\n");
+        Print(L"Failed to map virtual address for framebuffer.\n");
         return Status;
     }
 

@@ -34,7 +34,7 @@ LoadKernelImage (
     Status = BS->HandleProtocol(
         LoaderImageHandle, &LoadedImageProtocol, &LoadedImage);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to get info about loader image\n");
+        Print(L"Failed to get info about loader image.\n");
         return Status;
     }
 
@@ -42,7 +42,7 @@ LoadKernelImage (
     Status = BS->HandleProtocol(
         LoadedImage->DeviceHandle, &DevicePathProtocol, &DevicePath);
     if (EFI_ERROR(Status) || DevicePath == NULL) {
-        Print(L"Failed to get device path for loader image\n");
+        Print(L"Failed to get device path for loader image.\n");
         return Status;
     }
 
@@ -50,12 +50,12 @@ LoadKernelImage (
     Status = BS->HandleProtocol(
         LoadedImage->DeviceHandle, &FileSystemProtocol, &FileSystem);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to get handle to loader file system\n");
+        Print(L"Failed to get handle to loader file system.\n");
         return Status;
     }
     Status = FileSystem->OpenVolume(FileSystem, &RootDirectory);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to open loader file system volume\n");
+        Print(L"Failed to open loader file system volume.\n");
         return Status;
     }
 
@@ -63,7 +63,7 @@ LoadKernelImage (
     Status = RootDirectory->Open(
         RootDirectory, &KernelFileHandle, FileName, EFI_FILE_MODE_READ, 0);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to open kernel image\n");
+        Print(L"Failed to open kernel image.\n");
         return Status;
     }
 
@@ -71,13 +71,13 @@ LoadKernelImage (
     FileInfoSize = 0;
     Status = KernelFileHandle->GetInfo(KernelFileHandle, &gEfiFileInfoGuid, &FileInfoSize, NULL);
     if (Status != EFI_BUFFER_TOO_SMALL) {
-        Print(L"Failed to get required size to store kernel file info\n");
+        Print(L"Failed to get required size to store kernel file info.\n");
         return Status;
     }
     FileInfo = AllocatePool(FileInfoSize);
     Status = KernelFileHandle->GetInfo(KernelFileHandle, &gEfiFileInfoGuid, &FileInfoSize, FileInfo);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to get kernel file info\n");
+        Print(L"Failed to get kernel file info.\n");
         return Status;
     }
 
@@ -85,17 +85,17 @@ LoadKernelImage (
     KernelBufferSize = FileInfo->FileSize;
     KernelBuffer = AllocatePool(KernelBufferSize);
     if (KernelBuffer == NULL) {
-        Print(L"Failed to allocate memory for kernel image\n");
+        Print(L"Failed to allocate memory for kernel image.\n");
         return Status;
     }
     Status = KernelFileHandle->Read(KernelFileHandle, &KernelBufferSize, KernelBuffer);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to read kernel image");
+        Print(L"Failed to read kernel image.\n");
         return Status;
     }
     Status = KernelFileHandle->Close(KernelFileHandle);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to close kernel image file handle\n");
+        Print(L"Failed to close kernel image file handle.\n");
         return Status;
     }
 
@@ -109,7 +109,7 @@ LoadKernelImage (
     NumPages = PagesFromBytes(NtHeader->OptionalHeader.SizeOfHeaders);
     Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to allocated pages for kernel headers\n");
+        Print(L"Failed to allocated pages for kernel headers.\n");
         return Status;
     }
     ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);
@@ -124,7 +124,7 @@ LoadKernelImage (
         NumPages = PagesFromBytes(SectionHeader[i].Misc.VirtualSize);
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, NumPages, &PhysicalAddress);
         if (EFI_ERROR(Status)) {
-            Print(L"Failed to allocate pages for kernel %a section\n", SectionHeader->Name);
+            Print(L"Failed to allocate pages for kernel %a section.\n", SectionHeader->Name);
             return Status;
         }
         ZeroMem((VOID *)PhysicalAddress, NumPages * EFI_PAGE_SIZE);

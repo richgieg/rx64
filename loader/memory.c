@@ -41,13 +41,13 @@ GetMemoryInfo (
             case EfiConventionalMemory: {
                 // Fail if exhausted maximum number of ranges.
                 if (NumAvailableRanges >= MAX_AVAILABLE_RANGES) {
-                    Print(L"GetMemoryInfo: Exhausted maximum number of available ranges\n");
+                    Print(L"GetMemoryInfo: Exhausted maximum number of slots for available ranges.\n");
                     return EFI_ABORTED;
                 }
-                // Fail if memory map entries aren't sorted.
+                // Fail if memory map entries aren't sorted because kernel expects them to be.
                 // TODO: Sort the entries?
                 if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart < PhysicalEndOfPreviousRange) {
-                    Print(L"GetMemoryInfo: Memory map entries not sorted\n");
+                    Print(L"GetMemoryInfo: Memory map entries not sorted.\n");
                     return EFI_ABORTED;
                 }
                 // Consolidate range with previous one if they are contiguous.
@@ -93,7 +93,7 @@ MapMemory (
     }
     // Fail if exhausted maximum number of mappings.
     if (mNumMappings >= MAX_MAPPINGS) {
-        Print(L"MapMemory: Exhausted maximum number of mappings\n");
+        Print(L"MapMemory: Exhausted maximum number of slots for mappings.\n");
         return EFI_ABORTED;
     }
     // Map the pages.
@@ -141,7 +141,7 @@ MapPage (
     if (!(Pml4[Pml4Index] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pdpt);
         if (EFI_ERROR(Status)) {
-            Print(L"MapPage: Failed to allocate page for PDPT\n");
+            Print(L"MapPage: Failed to allocate page for page directory pointer table.\n");
             return Status;
         }
         ZeroMem(Pdpt, EFI_PAGE_SIZE);
@@ -156,7 +156,7 @@ MapPage (
     if (!(Pdpt[PdptIndex] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pd);
         if (EFI_ERROR(Status)) {
-            Print(L"MapPage: Failed to allocate page for PD\n");
+            Print(L"MapPage: Failed to allocate page for page directory.\n");
             return Status;
         }
         ZeroMem(Pd, EFI_PAGE_SIZE);
@@ -171,7 +171,7 @@ MapPage (
     if (!(Pd[PdIndex] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pt);
         if (EFI_ERROR(Status)) {
-            Print(L"MapPage: Failed to allocate page for PT\n");
+            Print(L"MapPage: Failed to allocate page for page table.\n");
             return Status;
         }
         ZeroMem(Pt, EFI_PAGE_SIZE);
