@@ -49,7 +49,7 @@ efi_main (
     LoaderInfo->MemoryInfo = MemoryInfo;
 
     Status = BS->ExitBootServices(ImageHandle, MemoryMapKey);
-    if (!EFI_ERROR(Status)) {
+    if (EFI_ERROR(Status)) {
         ReportLoaderError(L"ExitBootServices failed.");
         return Status;
     }
