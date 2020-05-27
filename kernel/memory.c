@@ -63,6 +63,8 @@ MmInitializeMemory (
         NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
         // This is here because static analyzer complains about
         // dereferencing a null pointer on line 69.
+        // There's probably a better way to handle this but I
+        // don't know it yet...
         if (NewEntry == NULL) {
             DbgHalt(L"MmInitializeMemory: Received null pointer from MmAllocateInitPool.");
         }
@@ -109,18 +111,6 @@ MmInitializeMemory (
         }
 
     }
-
-    CurrentEntry = mPhysicalAllocationList;
-    do {
-        CnPrintHex(CurrentEntry->PhysicalAddress);
-        CnPrint(L"\n");
-    } while (CurrentEntry = CurrentEntry->NextPhysical);
-
-    CurrentEntry = mVirtualAllocationList;
-    do {
-        CnPrintHex(CurrentEntry->VirtualAddress);
-        CnPrint(L"\n");
-    } while (CurrentEntry = CurrentEntry->NextVirtual);
 
     // Copy usable physical memory ranges from loader.
     mNumUsableRanges = MemoryInfo->NumUsableRanges;
