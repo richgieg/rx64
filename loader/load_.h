@@ -2,6 +2,8 @@
 
 #include <efi.h>
 
+// The following are ripped from winnt.h so we can parse the kernel PE image.
+
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
 #define IMAGE_SIZEOF_SHORT_NAME             8
 
