@@ -186,6 +186,7 @@
     <ClInclude Include="graphics_.h" />
     <ClInclude Include="intrin.h" />
     <ClInclude Include="loader_info.h" />
+    <ClInclude Include="memory.h" />
     <ClInclude Include="memory_.h" />
     <ClInclude Include="runtime.h" />
     <ClInclude Include="types.h" />

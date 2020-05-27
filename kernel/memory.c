@@ -1,3 +1,4 @@
+#include <memory.h>
 #include <memory_.h>
 #include <console.h>
 
@@ -6,11 +7,11 @@ MmInitializeMemory (
     LOADER_MEMORY_INFO *MemoryInfo
     )
 {
-    UINT64 UsedPages;
-    UINT64 TotalPages;
+    UINT64 NumUsedPages;
+    UINT64 NumUsablePages;
 
-    UsedPages = 0;
-    TotalPages = 0;
+    NumUsedPages = 0;
+    NumUsablePages = 0;
 
     CnPrint(L"\n");
     for (UINT64 i = 0; i < MemoryInfo->NumMappings; i++) {
@@ -25,27 +26,27 @@ MmInitializeMemory (
         CnPrint(L"\n");
 
         if (MemoryInfo->Mappings[i].Type == LoaderKernelMemoryMapping) {
-            UsedPages += MemoryInfo->Mappings[i].NumPages;
+            NumUsedPages += MemoryInfo->Mappings[i].NumPages;
         }
     }
 
     CnPrint(L"\n");
-    for (UINT64 i = 0; i < MemoryInfo->NumAvailableRanges; i++) {
+    for (UINT64 i = 0; i < MemoryInfo->NumUsableRanges; i++) {
         CnPrint(L"Start: ");
-        CnPrintHexWithPad(MemoryInfo->AvailableRanges[i].PhysicalAddress, 16);
+        CnPrintHexWithPad(MemoryInfo->UsableRanges[i].PhysicalAddress, 16);
         CnPrint(L"  End: ");
-        CnPrintHexWithPad(MemoryInfo->AvailableRanges[i].PhysicalAddress + 
-            (MemoryInfo->AvailableRanges[i].NumPages * 4096) - 1, 16);
+        CnPrintHexWithPad(MemoryInfo->UsableRanges[i].PhysicalAddress + 
+            (MemoryInfo->UsableRanges[i].NumPages * MM_PAGE_SIZE) - 1, 16);
         CnPrint(L"  Pages: ");
-        CnPrintHex(MemoryInfo->AvailableRanges[i].NumPages);
+        CnPrintHex(MemoryInfo->UsableRanges[i].NumPages);
         CnPrint(L"\n");
-        TotalPages = TotalPages + MemoryInfo->AvailableRanges[i].NumPages;
+        NumUsablePages = NumUsablePages + MemoryInfo->UsableRanges[i].NumPages;
     }
 
-    CnPrint(L"\nTotal Bytes:     ");
-    CnPrintHex(TotalPages * 4096);
-    CnPrint(L"\nBytes Used:      ");
-    CnPrintHex(UsedPages * 4096);
-    CnPrint(L"\nBytes Available: ");
-    CnPrintHex((TotalPages - UsedPages) * 4096);
+    CnPrint(L"\nUsable Bytes:     ");
+    CnPrintHex(NumUsablePages * MM_PAGE_SIZE);
+    CnPrint(L"\nBytes Used:       ");
+    CnPrintHex(NumUsedPages * MM_PAGE_SIZE);
+    CnPrint(L"\nBytes Available:  ");
+    CnPrintHex((NumUsablePages - NumUsedPages) * MM_PAGE_SIZE);
 }

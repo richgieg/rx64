@@ -5,7 +5,7 @@
 #include "memory_.h"
 
 #define MAX_MAPPINGS            1000
-#define MAX_AVAILABLE_RANGES    1000
+#define MAX_USABLE_RANGES       1000
 
 static LOADER_MEMORY_MAPPING    *mMappings;
 static UINTN                    mNumMappings;
@@ -16,8 +16,8 @@ GetMemoryInfo (
     OUT UINTN               *MemoryMapKey
     )
 {
-    LOADER_AVAILABLE_MEMORY_RANGE   *AvailableRanges;
-    UINTN                           NumAvailableRanges;
+    LOADER_USABLE_MEMORY_RANGE      *UsableRanges;
+    UINTN                           NumUsableRanges;
     EFI_MEMORY_DESCRIPTOR           *MemoryMap;
     EFI_MEMORY_DESCRIPTOR           *MemoryMapEntry;
     UINTN                           NumEntries;
@@ -26,9 +26,9 @@ GetMemoryInfo (
     UINT64                          PhysicalEndOfPreviousRange;
 
     *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
-    AvailableRanges = AllocatePool(
-        sizeof(LOADER_AVAILABLE_MEMORY_RANGE) * MAX_AVAILABLE_RANGES);
-    NumAvailableRanges = 0;
+    UsableRanges = AllocatePool(
+        sizeof(LOADER_USABLE_MEMORY_RANGE) * MAX_USABLE_RANGES);
+    NumUsableRanges = 0;
     MemoryMap = LibMemoryMap(&NumEntries, MemoryMapKey, &DescriptorSize, &DescriptorVersion);
     MemoryMapEntry = MemoryMap;
 
@@ -39,25 +39,23 @@ GetMemoryInfo (
             case EfiLoaderCode:
             case EfiLoaderData:
             case EfiConventionalMemory: {
-                // Fail if exhausted maximum number of ranges.
-                if (NumAvailableRanges >= MAX_AVAILABLE_RANGES) {
-                    Print(L"GetMemoryInfo: Exhausted maximum number of slots for available ranges.\n");
+                if (NumUsableRanges >= MAX_USABLE_RANGES) {
+                    Print(L"GetMemoryInfo: Exhausted maximum number of slots for usable ranges.\n");
                     return EFI_ABORTED;
                 }
-                // Fail if memory map entries aren't sorted because kernel expects them to be.
-                // TODO: Sort the entries?
-                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart < PhysicalEndOfPreviousRange) {
+                // TODO: Sort the entries instead of failing.
+                if (NumUsableRanges > 0 && MemoryMapEntry->PhysicalStart < PhysicalEndOfPreviousRange) {
                     Print(L"GetMemoryInfo: Memory map entries not sorted.\n");
                     return EFI_ABORTED;
                 }
                 // Consolidate range with previous one if they are contiguous.
-                if (NumAvailableRanges > 0 && MemoryMapEntry->PhysicalStart == PhysicalEndOfPreviousRange) {
-                    AvailableRanges[NumAvailableRanges - 1].NumPages += MemoryMapEntry->NumberOfPages;
+                if (NumUsableRanges > 0 && MemoryMapEntry->PhysicalStart == PhysicalEndOfPreviousRange) {
+                    UsableRanges[NumUsableRanges - 1].NumPages += MemoryMapEntry->NumberOfPages;
                 // Otherwise, start a new entry.
                 } else {
-                    AvailableRanges[NumAvailableRanges].PhysicalAddress = MemoryMapEntry->PhysicalStart;
-                    AvailableRanges[NumAvailableRanges].NumPages = MemoryMapEntry->NumberOfPages;
-                    NumAvailableRanges++;
+                    UsableRanges[NumUsableRanges].PhysicalAddress = MemoryMapEntry->PhysicalStart;
+                    UsableRanges[NumUsableRanges].NumPages = MemoryMapEntry->NumberOfPages;
+                    NumUsableRanges++;
                 }
                 PhysicalEndOfPreviousRange = MemoryMapEntry->PhysicalStart +
                     (MemoryMapEntry->NumberOfPages * EFI_PAGE_SIZE);
@@ -69,8 +67,8 @@ GetMemoryInfo (
 
     (*MemoryInfo)->Mappings = mMappings;
     (*MemoryInfo)->NumMappings = mNumMappings;
-    (*MemoryInfo)->AvailableRanges = AvailableRanges;
-    (*MemoryInfo)->NumAvailableRanges = NumAvailableRanges;
+    (*MemoryInfo)->UsableRanges = UsableRanges;
+    (*MemoryInfo)->NumUsableRanges = NumUsableRanges;
 
     return EFI_SUCCESS;
 }
