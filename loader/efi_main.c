@@ -7,6 +7,11 @@
 #include "util.h"
 #include "../kernel/loader_info.h"
 
+VOID
+ReportLoaderError (
+    CHAR16 *Message
+    );
+
 EFI_STATUS
 efi_main (
     EFI_HANDLE          ImageHandle,
@@ -25,33 +30,31 @@ efi_main (
 
     Status = LoadKernelImage(ImageHandle, L"kernel.exe", &KernelEntry);
     if (EFI_ERROR(Status)) {
-        Print(L"LoadKernelImage failed\n");
-        WaitForKeyStroke(L"Press any key to exit loader\n");
+        ReportLoaderError(L"LoadKernelImage failed.");
         return Status;
     }
 
     Status = GetGraphicsInfo(&GraphicsInfo);
     if (EFI_ERROR(Status)) {
-        Print(L"GetGraphicsInfo failed\n");
-        WaitForKeyStroke(L"Press any key to exit loader\n");
+        ReportLoaderError(L"GetGraphicsInfo failed.");
         return Status;
     }
     LoaderInfo->GraphicsInfo = GraphicsInfo;
 
     Status = GetMemoryInfo(&MemoryInfo, &MemoryMapKey);
     if (EFI_ERROR(Status)) {
-        Print(L"GetMemoryInfo failed\n");
-        WaitForKeyStroke(L"Press any key to exit loader\n");
+        ReportLoaderError(L"GetMemoryInfo failed.");
         return Status;
     }
     LoaderInfo->MemoryInfo = MemoryInfo;
 
     Status = BS->ExitBootServices(ImageHandle, MemoryMapKey);
-    if (EFI_ERROR(Status)) {
-        Print(L"ExitBootServices failed\n");
-        WaitForKeyStroke(L"Press any key to exit loader\n");
+    if (!EFI_ERROR(Status)) {
+        ReportLoaderError(L"ExitBootServices failed.");
         return Status;
     }
+
+    // Transfer control to kernel.
     KernelEntry(LoaderInfo);
 
     // Kernel should never return, but in case it does...
@@ -60,4 +63,13 @@ efi_main (
     }
 
     return EFI_SUCCESS;
+}
+
+VOID
+ReportLoaderError (
+    CHAR16 *Message
+    )
+{
+    Print(L"%s\n\nPress any key to exit loader...\n", Message);
+    WaitForKeyStroke(NULL);
 }
