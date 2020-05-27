@@ -1,7 +1,7 @@
 #include <efi.h>
 #include <efilib.h>
-#include <intrin.h>
 #include "graphics.h"
+#include "intrin.h"
 #include "load.h"
 #include "memory.h"
 #include "util.h"

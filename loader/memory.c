@@ -1,5 +1,6 @@
 #include <efi.h>
 #include <efilib.h>
+#include "intrin.h"
 #include "memory.h"
 #include "memory_.h"
 
