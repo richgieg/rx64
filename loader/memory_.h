@@ -2,7 +2,7 @@
 
 #include <efi.h>
 
-VOID
+EFI_STATUS
 MapPage (
     IN UINT64   VirtualAddress,
     IN UINT64   PhysicalAddress

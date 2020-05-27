@@ -82,7 +82,8 @@ MapMemory (
     IN UINTN                        NumPages
     )
 {
-    UINTN i;
+    EFI_STATUS  Status;
+    UINTN       i;
 
     // On first call, allocate memory for MEMORY_MAPPING records.
     if (mMappings == NULL) {
@@ -96,7 +97,10 @@ MapMemory (
     }
     // Map the pages.
     for (i = 0; i < NumPages * EFI_PAGE_SIZE; i += EFI_PAGE_SIZE) {
-        MapPage(VirtualAddress + i, PhysicalAddress + i);
+        Status = MapPage(VirtualAddress + i, PhysicalAddress + i);
+        if (EFI_ERROR(Status)) {
+            return Status;
+        }
     }
     // Add mapping record.
     mMappings[mNumMappings].Type = Type;
@@ -108,7 +112,7 @@ MapMemory (
     return EFI_SUCCESS;
 }
 
-VOID
+EFI_STATUS
 MapPage (
     IN UINT64   VirtualAddress,
     IN UINT64   PhysicalAddress
@@ -136,8 +140,8 @@ MapPage (
     if (!(Pml4[Pml4Index] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pdpt);
         if (EFI_ERROR(Status)) {
-            Print(L"Failed to allocate page for PDPT\n");
-            Exit(EFI_SUCCESS, 0, NULL);
+            Print(L"MapPage: Failed to allocate page for PDPT\n");
+            return Status;
         }
         ZeroMem(Pdpt, EFI_PAGE_SIZE);
         Pml4[Pml4Index] = (UINT64)Pdpt | 0x23;
@@ -151,8 +155,8 @@ MapPage (
     if (!(Pdpt[PdptIndex] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pd);
         if (EFI_ERROR(Status)) {
-            Print(L"Failed to allocate page for PD\n");
-            Exit(EFI_SUCCESS, 0, NULL);
+            Print(L"MapPage: Failed to allocate page for PD\n");
+            return Status;
         }
         ZeroMem(Pd, EFI_PAGE_SIZE);
         Pdpt[PdptIndex] = (UINT64)Pd | 0x23;
@@ -166,8 +170,8 @@ MapPage (
     if (!(Pd[PdIndex] & 1)) {
         Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData, 1, (EFI_PHYSICAL_ADDRESS *)&Pt);
         if (EFI_ERROR(Status)) {
-            Print(L"Failed to allocate page for PT\n");
-            Exit(EFI_SUCCESS, 0, NULL);
+            Print(L"MapPage: Failed to allocate page for PT\n");
+            return Status;
         }
         ZeroMem(Pt, EFI_PAGE_SIZE);
         Pd[PdIndex] = (UINT64)Pt | 0x23;
@@ -178,4 +182,6 @@ MapPage (
 
     // Write entry to page table.
     Pt[PtIndex] = PhysicalAddress | 0x23;
+
+    return EFI_SUCCESS;
 }
