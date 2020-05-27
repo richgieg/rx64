@@ -40,6 +40,6 @@ typedef struct _LOADER_INFO {
     LOADER_MEMORY_INFO      *MemoryInfo;
 } LOADER_INFO;
 
-typedef void (*KERNEL_ENTRY)(
+typedef void (*KERNEL_ENTRY) (
     IN LOADER_INFO *LoaderInfo
     );

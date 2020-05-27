@@ -29,7 +29,7 @@ GetMemoryInfo (
     UINT64                          PhysicalEndOfPreviousRange;
 
     *MemoryInfo = AllocatePool(sizeof(LOADER_MEMORY_INFO));
-    Status = ReservedRangePhysicalAddress = BS->AllocatePages(AllocateAnyPages, EfiLoaderData,
+    Status = BS->AllocatePages(AllocateAnyPages, EfiLoaderData,
         NUM_PAGES_IN_RESERVED_RANGE, &ReservedRangePhysicalAddress);
     if (EFI_ERROR(Status)) {
         Print(L"GetMemoryInfo: Failed to allocate pages for reserved range.\n");

@@ -1,13 +1,70 @@
 #include <memory.h>
 #include <memory_.h>
 #include <console.h>
+#include <debug.h>
+#include <loader_info.h>
+#include <runtime.h>
+
+static MM_PAGE_ALLOCATION           mFirstPhysicalAllocation;
+static MM_PAGE_ALLOCATION           mFirstVirtualAllocation;
+static UINT64                       mInitPoolAddress;
+static UINT64                       mInitPoolSize;
+static UINT64                       mInitPoolNextAddress;
+static BOOLEAN                      mInitPoolInitialized;
+static LOADER_USABLE_MEMORY_RANGE   *mUsableRanges;
+static UINT64                       mNumUsableRanges;
 
 VOID
 MmInitializeMemory (
     IN LOADER_MEMORY_INFO *MemoryInfo
     )
 {
-    PrintLoaderMemoryInfo(MemoryInfo);
+    UINT64                  Size;
+    LOADER_MEMORY_MAPPING   *LoaderMemoryMappings;
+    UINT64                  NumLoaderMemoryMappings;
+
+    // Initialize the "init pool" using reserved range from loader.
+    mInitPoolAddress = MemoryInfo->ReservedRangePhysicalAddress;
+    mInitPoolSize = MemoryInfo->NumPagesInReservedRange * MM_PAGE_SIZE;
+    mInitPoolNextAddress = mInitPoolAddress;
+    mInitPoolInitialized = TRUE;
+
+    // Copy usable physical memory ranges from loader.
+    mNumUsableRanges = MemoryInfo->NumUsableRanges;
+    Size = mNumUsableRanges * sizeof(LOADER_USABLE_MEMORY_RANGE);
+    mUsableRanges = MmAllocateInitPool(Size);
+    RtCopyMemory(mUsableRanges, MemoryInfo->UsableRanges, Size);
+
+    // Copy memory mappings from loader.
+    NumLoaderMemoryMappings = MemoryInfo->NumMappings;
+    Size = NumLoaderMemoryMappings * sizeof(LOADER_MEMORY_MAPPING);
+    LoaderMemoryMappings = MmAllocateInitPool(Size);
+    RtCopyMemory(LoaderMemoryMappings, MemoryInfo->Mappings, Size);
+
+
+    //mFirstPhysicalAllocation.PhysicalAddress = MemoryInfo->ReservedRangePhysicalAddress;
+    //mFirstPhysicalAllocation.VirtualAddress = (UINT64)NULL;
+    //mFirstPhysicalAllocation.NumPages = MemoryInfo->NumPagesInReservedRange;
+    //mFirstPhysicalAllocation.NextPhysical = NULL;
+    //mFirstPhysicalAllocation.NextVirtual = NULL;
+}
+
+VOID *
+MmAllocateInitPool (
+    IN UINT64 Size
+    )
+{
+    VOID *Address;
+
+    if (!mInitPoolInitialized) {
+        DbgHalt(L"MmAllocateInitPool: Not initialized yet.");
+    }
+    if ((mInitPoolNextAddress + Size) >= (mInitPoolAddress + mInitPoolSize)) {
+        DbgHalt(L"MmALlocateInitPool: Not enough space.");
+    }
+    Address = (VOID *)mInitPoolNextAddress;
+    mInitPoolNextAddress += Size;
+    return Address;
 }
 
 #ifdef _DEBUG
