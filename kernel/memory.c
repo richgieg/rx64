@@ -10,6 +10,8 @@ MmInitializeMemory (
     PrintLoaderMemoryInfo(MemoryInfo);
 }
 
+#ifdef _DEBUG
+
 VOID
 PrintLoaderMemoryInfo (
     IN LOADER_MEMORY_INFO *MemoryInfo
@@ -62,3 +64,5 @@ PrintLoaderMemoryInfo (
     CnPrintHex((NumUsablePages - NumUsedPages -
         MemoryInfo->NumPagesInReservedRange) * MM_PAGE_SIZE);
 }
+
+#endif
