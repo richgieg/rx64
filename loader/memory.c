@@ -20,7 +20,7 @@ GetMemoryInfo (
     EFI_STATUS                      Status;
     UINT64                          ReservedRangePhysicalAddress;
     LOADER_USABLE_MEMORY_RANGE      *UsableRanges;
-    UINTN                           NumUsableRanges;                        
+    UINTN                           NumUsableRanges;
     EFI_MEMORY_DESCRIPTOR           *MemoryMap;
     EFI_MEMORY_DESCRIPTOR           *MemoryMapEntry;
     UINTN                           NumEntries;
