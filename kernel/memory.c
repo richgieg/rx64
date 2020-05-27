@@ -4,7 +4,7 @@
 
 VOID
 MmInitializeMemory (
-    LOADER_MEMORY_INFO *MemoryInfo
+    IN LOADER_MEMORY_INFO *MemoryInfo
     )
 {
     PrintLoaderMemoryInfo(MemoryInfo);
@@ -12,7 +12,7 @@ MmInitializeMemory (
 
 VOID
 PrintLoaderMemoryInfo (
-    LOADER_MEMORY_INFO *MemoryInfo
+    IN LOADER_MEMORY_INFO *MemoryInfo
     )
 {
     UINT64 NumUsedPages;

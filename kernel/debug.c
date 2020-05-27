@@ -5,7 +5,7 @@
 
 VOID
 DbgHalt (
-    CHAR16 *Message
+    IN CHAR16 *Message
     )
 {
     if (CnConsoleInitialized()) {

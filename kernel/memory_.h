@@ -5,10 +5,10 @@
 
 VOID
 MmInitializeMemory (
-    LOADER_MEMORY_INFO *MemoryInfo
+    IN LOADER_MEMORY_INFO *MemoryInfo
     );
 
 VOID
 PrintLoaderMemoryInfo (
-    LOADER_MEMORY_INFO *MemoryInfo
+    IN LOADER_MEMORY_INFO *MemoryInfo
     );

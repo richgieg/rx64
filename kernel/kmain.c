@@ -7,7 +7,7 @@
 #include <memory_.h>
 
 void kmain (
-    LOADER_INFO *LoaderInfo
+    IN LOADER_INFO *LoaderInfo
     )
 {
     GfxInitializeGraphics(LoaderInfo->GraphicsInfo);

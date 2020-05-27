@@ -9,13 +9,13 @@
 
 VOID
 ReportLoaderError (
-    CHAR16 *Message
+    IN CHAR16 *Message
     );
 
 EFI_STATUS
 efi_main (
-    EFI_HANDLE          ImageHandle,
-    EFI_SYSTEM_TABLE    *SystemTable
+    IN EFI_HANDLE          ImageHandle,
+    IN EFI_SYSTEM_TABLE    *SystemTable
     )
 {
     EFI_STATUS              Status;
@@ -67,7 +67,7 @@ efi_main (
 
 VOID
 ReportLoaderError (
-    CHAR16 *Message
+    IN CHAR16 *Message
     )
 {
     Print(L"%s\n\nPress any key to exit loader...\n", Message);

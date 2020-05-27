@@ -7,7 +7,7 @@
 
 EFI_STATUS
 GetGraphicsInfo (
-    LOADER_GRAPHICS_INFO **GraphicsInfo
+    OUT LOADER_GRAPHICS_INFO **GraphicsInfo
     )
 {
     EFI_STATUS                      Status;
