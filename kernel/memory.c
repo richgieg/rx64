@@ -5,12 +5,21 @@
 #include <loader_info.h>
 #include <runtime.h>
 
-static MM_PAGE_ALLOCATION           mFirstPhysicalAllocation;
-static MM_PAGE_ALLOCATION           mFirstVirtualAllocation;
+// List of page allocations sorted by physical address (ascending).
+// Entries where PhysicalAddress is NULL are at the end.
+static MM_PAGE_ALLOCATION           *mPhysicalAllocationList;
+
+// List of page allocations sorted by virtual address (ascending).
+// Entries where VirtualAddress is NULL are at the end.
+static MM_PAGE_ALLOCATION           *mVirtualAllocationList;
+
+// Init pool variables.
 static UINT64                       mInitPoolAddress;
-static UINT64                       mInitPoolSize;
+static UINT64                       mInitPoolNumPages;
 static UINT64                       mInitPoolNextAddress;
 static BOOLEAN                      mInitPoolInitialized;
+
+// Array of usable physical memory ranges supplied by loader.
 static LOADER_USABLE_MEMORY_RANGE   *mUsableRanges;
 static UINT64                       mNumUsableRanges;
 
@@ -19,15 +28,29 @@ MmInitializeMemory (
     IN LOADER_MEMORY_INFO *MemoryInfo
     )
 {
+    MM_PAGE_ALLOCATION      *FirstAllocationEntry;
     UINT64                  Size;
     LOADER_MEMORY_MAPPING   *LoaderMemoryMappings;
     UINT64                  NumLoaderMemoryMappings;
 
-    // Initialize the "init pool" using reserved range from loader.
+    // Initialize the init pool using reserved range from loader.
     mInitPoolAddress = MemoryInfo->ReservedRangePhysicalAddress;
-    mInitPoolSize = MemoryInfo->NumPagesInReservedRange * MM_PAGE_SIZE;
+    mInitPoolNumPages = MemoryInfo->NumPagesInReservedRange;
     mInitPoolNextAddress = mInitPoolAddress;
     mInitPoolInitialized = TRUE;
+
+    // Initialize the first page allocation entry.
+    // The entry points to the init pool.
+    FirstAllocationEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
+    FirstAllocationEntry->PhysicalAddress = mInitPoolAddress;
+    FirstAllocationEntry->VirtualAddress = (UINT64)NULL;
+    FirstAllocationEntry->NumPages = mInitPoolNumPages;
+    FirstAllocationEntry->NextPhysical = NULL;
+    FirstAllocationEntry->NextVirtual = NULL;
+
+    // Point the physical and virtual list heads to the first entry.
+    mPhysicalAllocationList = FirstAllocationEntry;
+    mVirtualAllocationList = FirstAllocationEntry;
 
     // Copy usable physical memory ranges from loader.
     mNumUsableRanges = MemoryInfo->NumUsableRanges;
@@ -40,13 +63,6 @@ MmInitializeMemory (
     Size = NumLoaderMemoryMappings * sizeof(LOADER_MEMORY_MAPPING);
     LoaderMemoryMappings = MmAllocateInitPool(Size);
     RtCopyMemory(LoaderMemoryMappings, MemoryInfo->Mappings, Size);
-
-
-    //mFirstPhysicalAllocation.PhysicalAddress = MemoryInfo->ReservedRangePhysicalAddress;
-    //mFirstPhysicalAllocation.VirtualAddress = (UINT64)NULL;
-    //mFirstPhysicalAllocation.NumPages = MemoryInfo->NumPagesInReservedRange;
-    //mFirstPhysicalAllocation.NextPhysical = NULL;
-    //mFirstPhysicalAllocation.NextVirtual = NULL;
 }
 
 VOID *
@@ -59,7 +75,7 @@ MmAllocateInitPool (
     if (!mInitPoolInitialized) {
         DbgHalt(L"MmAllocateInitPool: Not initialized yet.");
     }
-    if ((mInitPoolNextAddress + Size) >= (mInitPoolAddress + mInitPoolSize)) {
+    if ((mInitPoolNextAddress + Size) >= (mInitPoolAddress + (mInitPoolNumPages * MM_PAGE_SIZE))) {
         DbgHalt(L"MmAllocateInitPool: Not enough space.");
     }
     Address = (VOID *)mInitPoolNextAddress;
