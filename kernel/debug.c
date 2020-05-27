@@ -3,6 +3,7 @@
 #include <console_.h>
 #include <intrin.h>
 
+__declspec(noreturn)
 VOID
 DbgHalt (
     IN CHAR16 *Message
