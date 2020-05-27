@@ -40,11 +40,13 @@ MmInitializeMemory (
     mInitPoolInitialized = TRUE;
 
     // Initialize the first page allocation entry.
-    // The entry points to the init pool.
+    // The entry is for the init pool.
     FirstAllocationEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
     FirstAllocationEntry->PhysicalAddress = mInitPoolAddress;
+    // Virtual address will be mapped later.
     FirstAllocationEntry->VirtualAddress = (UINT64)NULL;
     FirstAllocationEntry->NumPages = mInitPoolNumPages;
+    // No other allocation entries yet.
     FirstAllocationEntry->NextPhysical = NULL;
     FirstAllocationEntry->NextVirtual = NULL;
 
