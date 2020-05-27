@@ -28,10 +28,11 @@ MmInitializeMemory (
     IN LOADER_MEMORY_INFO *MemoryInfo
     )
 {
-    MM_PAGE_ALLOCATION      *FirstAllocationEntry;
+    MM_PAGE_ALLOCATION      *NewEntry;
+    MM_PAGE_ALLOCATION      *CurrentEntry;
+    MM_PAGE_ALLOCATION      *PreviousEntry;
     UINT64                  Size;
-    LOADER_MEMORY_MAPPING   *LoaderMemoryMappings;
-    UINT64                  NumLoaderMemoryMappings;
+    UINT64                  i;
 
     // Initialize the init pool using reserved range from loader.
     mInitPoolAddress = MemoryInfo->ReservedRangePhysicalAddress;
@@ -41,30 +42,80 @@ MmInitializeMemory (
 
     // Initialize the first page allocation entry.
     // The entry is for the init pool.
-    FirstAllocationEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
-    FirstAllocationEntry->PhysicalAddress = mInitPoolAddress;
+    NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
+    NewEntry->PhysicalAddress = mInitPoolAddress;
     // Virtual address will be mapped later.
-    FirstAllocationEntry->VirtualAddress = (UINT64)NULL;
-    FirstAllocationEntry->NumPages = mInitPoolNumPages;
+    NewEntry->VirtualAddress = (UINT64)NULL;
+    NewEntry->NumPages = mInitPoolNumPages;
     // No other allocation entries yet.
-    FirstAllocationEntry->NextPhysical = NULL;
-    FirstAllocationEntry->NextVirtual = NULL;
+    NewEntry->NextPhysical = NULL;
+    NewEntry->NextVirtual = NULL;
 
     // Point the physical and virtual list heads to the first entry.
-    mPhysicalAllocationList = FirstAllocationEntry;
-    mVirtualAllocationList = FirstAllocationEntry;
+    mPhysicalAllocationList = NewEntry;
+    mVirtualAllocationList = NewEntry;
+
+    // Create an allocation entry for each mapping from loader
+    // and insert it into the physical and virtual allocation
+    // lists at the necessary position to maintain sort order.
+    for (i = 0; i < MemoryInfo->NumMappings; i++) {
+        NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
+        NewEntry->PhysicalAddress = MemoryInfo->Mappings[i].PhysicalAddress;
+        NewEntry->VirtualAddress = MemoryInfo->Mappings[i].VirtualAddress;
+        NewEntry->NumPages = MemoryInfo->Mappings[i].NumPages;
+        NewEntry->NextPhysical = NULL;
+        NewEntry->NextVirtual = NULL;
+
+        PreviousEntry = NULL;
+        CurrentEntry = mPhysicalAllocationList;
+        while (TRUE) {
+            if (CurrentEntry == NULL || NewEntry->PhysicalAddress < CurrentEntry->PhysicalAddress || CurrentEntry->PhysicalAddress == (UINT64)NULL) {
+                NewEntry->NextPhysical = CurrentEntry;
+                if (PreviousEntry != NULL) {
+                    PreviousEntry->NextPhysical = NewEntry;
+                } else {
+                    mPhysicalAllocationList = NewEntry;
+                }
+                break;
+            }
+            PreviousEntry = CurrentEntry;
+            CurrentEntry = CurrentEntry->NextPhysical;
+        }
+
+        PreviousEntry = NULL;
+        CurrentEntry = mVirtualAllocationList;
+        while (TRUE) {
+            if (CurrentEntry == NULL || NewEntry->VirtualAddress < CurrentEntry->VirtualAddress || CurrentEntry->VirtualAddress == (UINT64)NULL) {
+                NewEntry->NextVirtual = CurrentEntry;
+                if (PreviousEntry != NULL) {
+                    PreviousEntry->NextVirtual = NewEntry;
+                } else {
+                    mVirtualAllocationList = NewEntry;
+                }
+                break;
+            }
+            PreviousEntry = CurrentEntry;
+            CurrentEntry = CurrentEntry->NextVirtual;
+        }
+    }
+
+    CurrentEntry = mPhysicalAllocationList;
+    do {
+        CnPrintHex(CurrentEntry->PhysicalAddress);
+        CnPrint(L"\n");
+    } while (CurrentEntry = CurrentEntry->NextPhysical);
+
+    CurrentEntry = mVirtualAllocationList;
+    do {
+        CnPrintHex(CurrentEntry->VirtualAddress);
+        CnPrint(L"\n");
+    } while (CurrentEntry = CurrentEntry->NextVirtual);
 
     // Copy usable physical memory ranges from loader.
     mNumUsableRanges = MemoryInfo->NumUsableRanges;
     Size = mNumUsableRanges * sizeof(LOADER_USABLE_MEMORY_RANGE);
     mUsableRanges = MmAllocateInitPool(Size);
     RtCopyMemory(mUsableRanges, MemoryInfo->UsableRanges, Size);
-
-    // Copy memory mappings from loader.
-    NumLoaderMemoryMappings = MemoryInfo->NumMappings;
-    Size = NumLoaderMemoryMappings * sizeof(LOADER_MEMORY_MAPPING);
-    LoaderMemoryMappings = MmAllocateInitPool(Size);
-    RtCopyMemory(LoaderMemoryMappings, MemoryInfo->Mappings, Size);
 }
 
 VOID *
