@@ -61,6 +61,11 @@ MmInitializeMemory (
     for (i = 0; i < MemoryInfo->NumMappings; i++) {
 
         NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
+        // This is here because static analyzer complains about
+        // dereferencing a null pointer on line 69.
+        if (NewEntry == NULL) {
+            DbgHalt(L"MmInitializeMemory: Received null pointer from MmAllocateInitPool.");
+        }
         NewEntry->PhysicalAddress = MemoryInfo->Mappings[i].PhysicalAddress;
         NewEntry->VirtualAddress = MemoryInfo->Mappings[i].VirtualAddress;
         NewEntry->NumPages = MemoryInfo->Mappings[i].NumPages;
