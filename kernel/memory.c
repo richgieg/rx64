@@ -59,6 +59,7 @@ MmInitializeMemory (
     // and insert it into the physical and virtual allocation
     // lists at the necessary position to maintain sort order.
     for (i = 0; i < MemoryInfo->NumMappings; i++) {
+
         NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
         NewEntry->PhysicalAddress = MemoryInfo->Mappings[i].PhysicalAddress;
         NewEntry->VirtualAddress = MemoryInfo->Mappings[i].VirtualAddress;
@@ -66,37 +67,42 @@ MmInitializeMemory (
         NewEntry->NextPhysical = NULL;
         NewEntry->NextVirtual = NULL;
 
+        // Insert allocation entry into physical allocation list
+        // while maintaining ascending sort order of physical addresses.
         PreviousEntry = NULL;
         CurrentEntry = mPhysicalAllocationList;
-        while (TRUE) {
-            if (CurrentEntry == NULL || NewEntry->PhysicalAddress < CurrentEntry->PhysicalAddress || CurrentEntry->PhysicalAddress == (UINT64)NULL) {
-                NewEntry->NextPhysical = CurrentEntry;
-                if (PreviousEntry != NULL) {
-                    PreviousEntry->NextPhysical = NewEntry;
-                } else {
-                    mPhysicalAllocationList = NewEntry;
-                }
-                break;
-            }
+        while ((CurrentEntry != NULL) &&
+            (CurrentEntry->PhysicalAddress != (UINT64)NULL) &&
+            (NewEntry->PhysicalAddress >= CurrentEntry->PhysicalAddress)
+        ) {
             PreviousEntry = CurrentEntry;
             CurrentEntry = CurrentEntry->NextPhysical;
         }
+        NewEntry->NextPhysical = CurrentEntry;
+        if (PreviousEntry != NULL) {
+            PreviousEntry->NextPhysical = NewEntry;
+        } else {
+            mPhysicalAllocationList = NewEntry;
+        }
 
+        // Insert allocation entry into virtual allocation list
+        // while maintaining ascending sort order of virtual addresses.
         PreviousEntry = NULL;
         CurrentEntry = mVirtualAllocationList;
-        while (TRUE) {
-            if (CurrentEntry == NULL || NewEntry->VirtualAddress < CurrentEntry->VirtualAddress || CurrentEntry->VirtualAddress == (UINT64)NULL) {
-                NewEntry->NextVirtual = CurrentEntry;
-                if (PreviousEntry != NULL) {
-                    PreviousEntry->NextVirtual = NewEntry;
-                } else {
-                    mVirtualAllocationList = NewEntry;
-                }
-                break;
-            }
+        while ((CurrentEntry != NULL) &&
+            (CurrentEntry->VirtualAddress != (UINT64)NULL) &&
+            (NewEntry->VirtualAddress>= CurrentEntry->VirtualAddress)
+        ) {
             PreviousEntry = CurrentEntry;
             CurrentEntry = CurrentEntry->NextVirtual;
         }
+        NewEntry->NextVirtual = CurrentEntry;
+        if (PreviousEntry != NULL) {
+            PreviousEntry->NextVirtual = NewEntry;
+        } else {
+            mVirtualAllocationList = NewEntry;
+        }
+
     }
 
     CurrentEntry = mPhysicalAllocationList;
