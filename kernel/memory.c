@@ -118,7 +118,7 @@ MmInitializeMemory (
     mUsableRanges = MmAllocateInitPool(Size);
     RtCopyMemory(mUsableRanges, MemoryInfo->UsableRanges, Size);
 
-    MmAllocatePhysicalPages(1);
+    MmAllocatePhysicalPages(1000);
 }
 
 VOID *
@@ -144,10 +144,33 @@ MmAllocatePhysicalPages (
     IN UINT64 NumPages
     )
 {
+    MM_PAGE_ALLOCATION  *CurrentEntry;
+    UINT64              i;
+    UINT64              MinAddress;
+    UINT64              MaxAddress;
+
     CnPrint(L"\n");
     PrintPhysicalAllocations();
     CnPrint(L"\n");
     PrintUsableRanges();
+    CnPrint(L"\n");
+
+    CurrentEntry = mPhysicalAllocationList;
+
+    for (i = 0; i < mNumUsableRanges; i++) {
+        // If requested pages can't fit in the usable range then skip it.
+        if (NumPages > mUsableRanges[i].NumPages) {
+            continue;
+        }
+        // Walk the physical allocation list and try to find an adequate slot.
+        MinAddress = mUsableRanges[i].PhysicalAddress;
+        MaxAddress = MinAddress + ((mUsableRanges[i].NumPages - NumPages) * MM_PAGE_SIZE);
+
+        CnPrintHex(MinAddress);
+        CnPrint(L" ");
+        CnPrintHex(MaxAddress);
+        CnPrint(L"\n");
+    }
 
     return NULL;
 }
