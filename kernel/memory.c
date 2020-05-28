@@ -117,6 +117,8 @@ MmInitializeMemory (
     Size = mNumUsableRanges * sizeof(LOADER_USABLE_MEMORY_RANGE);
     mUsableRanges = MmAllocateInitPool(Size);
     RtCopyMemory(mUsableRanges, MemoryInfo->UsableRanges, Size);
+
+    MmAllocatePhysicalPages(1);
 }
 
 VOID *
@@ -135,6 +137,19 @@ MmAllocateInitPool (
     Address = (VOID *)mInitPoolNextAddress;
     mInitPoolNextAddress += Size;
     return Address;
+}
+
+VOID *
+MmAllocatePhysicalPages (
+    IN UINT64 NumPages
+    )
+{
+    CnPrint(L"\n");
+    PrintPhysicalAllocations();
+    CnPrint(L"\n");
+    PrintUsableRanges();
+
+    return NULL;
 }
 
 #ifdef _DEBUG
@@ -190,6 +205,40 @@ PrintLoaderMemoryInfo (
     CnPrint(L"\nAvailable:  ");
     CnPrintHex((NumUsablePages - NumUsedPages -
         MemoryInfo->NumPagesInReservedRange) * MM_PAGE_SIZE);
+}
+
+VOID
+PrintPhysicalAllocations ()
+{
+    MM_PAGE_ALLOCATION *CurrentEntry;
+
+    CnPrint(L"Physical Allocations\n");
+    CnPrint(L"--------------------\n");
+    CurrentEntry = mPhysicalAllocationList;
+    while (CurrentEntry != NULL) {
+        CnPrint(L"Address: ");
+        CnPrintHexWithPad(CurrentEntry->PhysicalAddress, 16);
+        CnPrint(L"  Pages: ");
+        CnPrintHex(CurrentEntry->NumPages);
+        CnPrint(L"\n");
+        CurrentEntry = CurrentEntry->NextPhysical;
+    }
+}
+
+VOID
+PrintUsableRanges ()
+{
+    UINT64 i;
+
+    CnPrint(L"Usable Ranges\n");
+    CnPrint(L"-------------\n");
+    for (i = 0; i < mNumUsableRanges; i++) {
+        CnPrint(L"Address: ");
+        CnPrintHexWithPad(mUsableRanges[i].PhysicalAddress, 16);
+        CnPrint(L"  Pages: ");
+        CnPrintHex(mUsableRanges[i].NumPages);
+        CnPrint(L"\n");
+    }
 }
 
 #endif

@@ -23,11 +23,22 @@ MmAllocateInitPool (
     IN UINT64 Size
     );
 
+VOID *
+MmAllocatePhysicalPages (
+    IN UINT64 NumPages
+    );
+
 #ifdef _DEBUG
 
 VOID
 PrintLoaderMemoryInfo (
     IN LOADER_MEMORY_INFO *MemoryInfo
     );
+
+VOID
+PrintPhysicalAllocations ();
+
+VOID
+PrintUsableRanges ();
 
 #endif
