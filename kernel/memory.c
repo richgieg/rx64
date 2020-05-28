@@ -62,9 +62,9 @@ MmInitializeMemory (
 
         NewEntry = MmAllocateInitPool(sizeof(MM_PAGE_ALLOCATION));
         // This is here because static analyzer complains about
-        // dereferencing a null pointer on line 69.
-        // There's probably a better way to handle this but I
-        // don't know it yet...
+        // dereferencing a null pointer immediately after this
+        // "if" statement if it's not there. There's probably a
+        // better way to handle this but I don't know it yet...
         if (NewEntry == NULL) {
             DbgHalt(L"MmInitializeMemory: Received null pointer from MmAllocateInitPool.");
         }
