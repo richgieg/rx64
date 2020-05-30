@@ -321,19 +321,22 @@ PrintLoaderMemoryInfo (
 VOID
 PrintPhysicalAllocations ()
 {
-    //MM_PAGE_ALLOCATION *CurrentEntry;
+    MM_PAGE_ALLOCATION *CurrentEntry;
+    UINT64 i;
 
-    //CnPrint(L"Physical Allocations\n");
-    //CnPrint(L"--------------------\n");
-    //CurrentEntry = mPhysicalAllocationList;
-    //while (CurrentEntry != NULL) {
-    //    CnPrint(L"Address: ");
-    //    CnPrintHexWithPad(CurrentEntry->PhysicalAddress, 16);
-    //    CnPrint(L"  Pages: ");
-    //    CnPrintHex(CurrentEntry->NumPages);
-    //    CnPrint(L"\n");
-    //    CurrentEntry = CurrentEntry->NextPhysical;
-    //}
+    CnPrint(L"Physical Allocations\n");
+    CnPrint(L"--------------------\n");
+    for (i = 0; i < mNumUsableRanges; i++) {
+        CurrentEntry = mPhysicalAllocationLists[i];
+        while (CurrentEntry != NULL) {
+            CnPrint(L"Address: ");
+            CnPrintHexWithPad(CurrentEntry->PhysicalAddress, 16);
+            CnPrint(L"  Pages: ");
+            CnPrintHex(CurrentEntry->NumPages);
+            CnPrint(L"\n");
+            CurrentEntry = CurrentEntry->NextPhysical;
+        }
+    }
 }
 
 VOID
