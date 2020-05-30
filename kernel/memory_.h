@@ -18,6 +18,11 @@ MmInitializeMemory (
     IN LOADER_MEMORY_INFO *MemoryInfo
     );
 
+VOID
+MmInsertIntoPhysicalAllocationLists (
+    IN MM_PAGE_ALLOCATION *Entry
+    );
+
 VOID *
 MmAllocateInitPool (
     IN UINT64 Size
